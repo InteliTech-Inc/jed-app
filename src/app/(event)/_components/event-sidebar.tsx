@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { IconChartBar, IconDashboard, IconFolder, IconHelp, IconListDetails, IconSearch, IconSettings } from "@tabler/icons-react";
+import { IconChartBar, IconDashboard, IconFolder, IconHelp, IconListDetails, IconSearch, IconSettings, IconWallet } from "@tabler/icons-react";
 import { Logo } from "@/components/logo";
 import { EventNavMain } from "@/app/(event)/_components/event-nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -16,35 +16,28 @@ const data = {
   navMain: [
     {
       title: "Details",
-      url: "/dashboard",
+      url: "details",
       icon: IconDashboard,
     },
     {
       title: "Nominees",
-      url: "/events",
+      url: "nominees",
       icon: IconListDetails,
     },
     {
       title: "Voting",
-      url: "/analytics",
+      url: "voting",
       icon: IconChartBar,
     },
     {
       title: "Nominations",
-      url: "/tickets",
+      url: "nominations",
       icon: IconFolder,
     },
-  ],
-  navSecondary: [
     {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
+      title: "Withdrawals",
+      url: "withdrawals",
+      icon: IconWallet,
     },
   ],
 };

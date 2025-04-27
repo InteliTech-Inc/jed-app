@@ -1,9 +1,11 @@
 "use client";
 
 import { type Icon } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { isActive } from "@/lib/utils";
 import Link from "next/link";
-
+import { useSidebar } from "@/components/ui/sidebar";
 export function NavMain({
   items,
 }: {
@@ -13,25 +15,25 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
+  const pathname = usePathname();
+  const { toggleSidebar, isMobile } = useSidebar();
   return (
-    <SidebarGroup>
+    <SidebarGroup className="mt-4">
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
-          {/* <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Create Event"
-              className="bg-accent hover:bg-accent/90 hover:text-secondary-foreground active:bg-accent/90 active:text-secondary min-w-8 duration-200 ease-linear"
-            >
-              <IconCirclePlusFilled />
-              <span>Create Event</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem> */}
-        </SidebarMenu>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton
+                  onClick={() => {
+                    if (isMobile) {
+                      toggleSidebar();
+                    }
+                  }}
+                  tooltip={item.title}
+                  isActive={isActive(item.url, pathname)}
+                  className=""
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

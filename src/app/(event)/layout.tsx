@@ -1,6 +1,5 @@
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider } from "@/components/ui/sidebar";
-
 import { SidebarInset } from "@/components/ui/sidebar";
 import { SingleEventSidebar } from "./_components/event-sidebar";
 export default function EventLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +15,7 @@ export default function EventLayout({ children }: { children: React.ReactNode })
       <SingleEventSidebar />
       <SidebarInset>
         <SiteHeader />
-        {children}
+        <div className="p-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

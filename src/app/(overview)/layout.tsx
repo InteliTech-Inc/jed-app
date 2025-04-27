@@ -17,7 +17,7 @@ export default function OverviewLayout({ children }: { children: React.ReactNode
       <AppSidebar variant="sidebar" />
       <SidebarInset>
         <SiteHeader />
-        {children}
+        <div className="p-4">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
