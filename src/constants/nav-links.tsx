@@ -1,4 +1,12 @@
-import { IconChartBar, IconLayoutDashboard, IconTicket, IconBrandParsinta, IconHelp, IconListDetails, IconPhoneCall } from "@tabler/icons-react";
+import {
+  IconLayoutDashboard,
+  IconTicket,
+  IconBrandParsinta,
+  IconHelp,
+  IconListDetails,
+  IconPhoneCall,
+  IconWallet,
+} from "@tabler/icons-react";
 export const MAIN_NAV_ITEMS = {
   user: {
     name: "Jed Events",
@@ -17,9 +25,9 @@ export const MAIN_NAV_ITEMS = {
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "/analytics",
-      icon: IconChartBar,
+      title: "Withdrawals",
+      url: "withdrawals",
+      icon: IconWallet,
     },
     {
       title: "Tickets",

@@ -5,11 +5,7 @@ import {
   IconChartBar,
   IconDashboard,
   IconFolder,
-  IconHelp,
   IconListDetails,
-  IconSearch,
-  IconSettings,
-  IconWallet,
 } from "@tabler/icons-react";
 import { Logo } from "@/components/logo";
 import { EventNavMain } from "@/app/(event)/_components/event-nav-main";
@@ -51,10 +47,11 @@ const data = {
       url: "nominations",
       icon: IconFolder,
     },
+
     {
-      title: "Withdrawals",
-      url: "withdrawals",
-      icon: IconWallet,
+      title: "Analytics",
+      url: "/analytics",
+      icon: IconChartBar,
     },
   ],
 };
