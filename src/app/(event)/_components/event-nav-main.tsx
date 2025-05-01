@@ -12,14 +12,18 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
 import { MAIN_NAV_ITEMS } from "@/constants/nav-links";
 import { usePathname, useParams } from "next/navigation";
 import { useSidebar } from "@/components/ui/sidebar";
 
 const mainNavItems = {
-  title: "Main Navigation",
+  title: "Main",
   icon: IconDashboard,
   items: [...MAIN_NAV_ITEMS.navMain, ...MAIN_NAV_ITEMS.navSecondary],
 };
@@ -68,7 +72,11 @@ export function EventNavMain({
             </SidebarMenuItem>
           ))}
           {/* Main Navigation */}
-          <Collapsible asChild defaultOpen={false} className="group/collapsible">
+          <Collapsible
+            asChild
+            defaultOpen={false}
+            className="group/collapsible"
+          >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={mainNavItems.title}>

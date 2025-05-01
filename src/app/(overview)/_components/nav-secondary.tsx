@@ -2,8 +2,15 @@
 
 import * as React from "react";
 import { type Icon } from "@tabler/icons-react";
-
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import Link from "next/link";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarGroupLabel,
+} from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import { isActive } from "@/lib/utils";
 
@@ -24,11 +31,14 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={isActive(item.url, pathname)}>
-                <a href={item.url}>
+              <SidebarMenuButton
+                asChild
+                isActive={isActive(item.url, pathname)}
+              >
+                <Link href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

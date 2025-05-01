@@ -2,7 +2,14 @@
 
 import { type Icon } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import { isActive } from "@/lib/utils";
 import Link from "next/link";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -19,11 +26,11 @@ export function NavMain({
   const { toggleSidebar, isMobile } = useSidebar();
   return (
     <SidebarGroup className="mt-4">
-      <SidebarGroupContent className="flex flex-col gap-2">
+      <SidebarGroupContent className="">
         <SidebarMenu>
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <Link href={item.url}>
+            <SidebarMenuItem key={item.title} className="">
+              <Link href={item.url} className="">
                 <SidebarMenuButton
                   onClick={() => {
                     if (isMobile) {

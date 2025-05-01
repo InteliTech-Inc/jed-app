@@ -1,11 +1,28 @@
 "use client";
 
 import * as React from "react";
-import { IconChartBar, IconDashboard, IconFolder, IconHelp, IconListDetails, IconSearch, IconSettings, IconWallet } from "@tabler/icons-react";
+import {
+  IconChartBar,
+  IconDashboard,
+  IconFolder,
+  IconHelp,
+  IconListDetails,
+  IconSearch,
+  IconSettings,
+  IconWallet,
+} from "@tabler/icons-react";
 import { Logo } from "@/components/logo";
 import { EventNavMain } from "@/app/(event)/_components/event-nav-main";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 const data = {
   user: {
@@ -42,16 +59,22 @@ const data = {
   ],
 };
 
-export function SingleEventSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function SingleEventSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size={"lg"} className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
+            <SidebarMenuButton
+              asChild
+              size={"lg"}
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              {/* <a href="#">
                 <Logo />
-              </a>
+              </a> */}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

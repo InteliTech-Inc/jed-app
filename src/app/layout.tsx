@@ -1,5 +1,6 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import localFont from "next/font/local";
+import { Sora } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ const satoshi = localFont({
   variable: "--font-heading",
   display: "swap",
 });
+
 const switzer = localFont({
   src: [
     {
