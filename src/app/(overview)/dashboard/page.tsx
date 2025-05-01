@@ -3,6 +3,7 @@ import { DataTable } from "@/components/data-table";
 import { SectionCards } from "@/components/section-cards";
 
 import data from "./data.json";
+import Viewers from "./_components/viewers";
 
 export default function Page() {
   return (
@@ -13,7 +14,9 @@ export default function Page() {
           <div className="">
             <ChartAreaInteractive />
           </div>
-          {/* <DataTable data={data} /> */}
+          <div>
+            <Viewers />
+          </div>
         </div>
       </div>
     </div>

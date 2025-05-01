@@ -21,7 +21,7 @@ export function SectionCards() {
           Here's what's happening with your account today.
         </p>
       </section>
-      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:via-white/30 *:data-[slot=card]:shadow-none @xl/main:grid-cols-2 @3xl/main:grid-cols-3">
+      <div className="*:data-[slot=card]:from-accent/20 grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:via-white *:data-[slot=card]:to-white *:data-[slot=card]:shadow-none @xl/main:grid-cols-2 @3xl/main:grid-cols-3">
         <Card className="@container/card">
           <CardHeader>
             <CardDescription>Ongoing Events</CardDescription>
