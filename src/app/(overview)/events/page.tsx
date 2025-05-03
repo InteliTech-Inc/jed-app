@@ -8,6 +8,23 @@ import data from "./data.json";
 // const data: AllEvents[] = [];
 import { DataTable } from "./_components/data-table";
 
+// Kindly extract all the types from the data.json file
+
+export type Nominee = {
+  id: string;
+  fullName: string;
+  image: string;
+  code: string;
+  totalVotes: number;
+};
+
+type Categories = {
+  id: number;
+  name: string;
+  description: string;
+  nominees: Nominee[];
+};
+
 export type AllEvents = {
   id: number;
   name: string;
@@ -26,6 +43,7 @@ export type AllEvents = {
   categories: number;
   isPublished: boolean;
   displayResults: boolean;
+  categoryDetails: Categories[];
 };
 
 const cardsData = [
@@ -95,3 +113,5 @@ export default function EventsPage() {
     </div>
   );
 }
+
+export { data as allEvents };

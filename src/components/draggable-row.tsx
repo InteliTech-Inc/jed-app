@@ -1,10 +1,9 @@
 import { Row, flexRender } from "@tanstack/react-table";
 import { useSortable } from "@dnd-kit/sortable";
 import { TableRow, TableCell } from "@/components/ui/table";
-import { AllEvents } from "../page";
 import { CSS } from "@dnd-kit/utilities";
 
-export function DraggableRow({ row }: { row: Row<AllEvents> }) {
+export function DraggableRow({ row }: { row: Row<{ id: string | number }> }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
   });

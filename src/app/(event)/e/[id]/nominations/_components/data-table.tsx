@@ -13,7 +13,7 @@ import {
   type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { DraggableRow } from "../../../../components/draggable-row";
+import { columns } from "./columns";
 import {
   SortableContext,
   arrayMove,
@@ -58,11 +58,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { AllEvents } from "../page";
-import { columns } from "./columns";
+import { NominationsResponse } from "../page";
 import { exportToCSV } from "@/lib/utils";
+import { LinkButton } from "./link-button";
 
-export function DataTable({ data: initialData }: { data: AllEvents[] }) {
+export function NominationsTable({
+  data: initialData,
+  id,
+}: {
+  data: NominationsResponse[];
+  id: number;
+}) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -75,17 +81,6 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
     pageIndex: 0,
     pageSize: 10,
   });
-  const sortableId = React.useId();
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {}),
-  );
-
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data],
-  );
 
   const table = useReactTable({
     data,
@@ -113,29 +108,7 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
   });
 
   const filterValue =
-    (table.getColumn("name")?.getFilterValue() as string) ?? "";
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
-      });
-    }
-  }
-
-  function handleExportData() {
-    // remove the destructured fields from the data for now
-    const payload = data.map((data) => {
-      const { voting_period, nomination_period, categoryDetails, ...rest } =
-        data;
-      return rest;
-    });
-
-    exportToCSV(payload, "ALL EVENTS");
-  }
+    (table.getColumn("full_name")?.getFilterValue() as string) ?? "";
 
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
@@ -144,76 +117,69 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
           placeholder="Filter by event name..."
           value={filterValue}
           onChange={(event) => {
-            return table.getColumn("name")?.setFilterValue(event.target.value);
+            const filteredValue = table
+              .getColumn("full_name")
+              ?.setFilterValue(event.target.value);
+            table.getColumn("categories")?.setFilterValue(event.target.value);
+            return filteredValue;
           }}
           className="w-full max-w-sm py-6"
         />
         <div>
-          <Button
-            onClick={handleExportData}
-            variant={"outline"}
-            className="text-secondary shadow-none"
-          >
-            Export Data
-            <IconFileArrowRight />
-          </Button>
+          <LinkButton id={id} results={data} />
         </div>
       </div>
       <div className="relative flex flex-col gap-4 overflow-auto">
         <div className="overflow-hidden rounded-lg border">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
-            <Table>
-              <TableHeader className="sticky top-0 z-10 bg-gray-50">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="">
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead
-                          key={header.id}
-                          colSpan={header.colSpan}
-                          className=""
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
+          <Table>
+            <TableHeader className="sticky top-0 z-10 bg-gray-50">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="">
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        colSpan={header.colSpan}
+                        className=""
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
                     ))}
-                  </SortableContext>
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results for "{filterValue}".
-                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </DndContext>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results for "{filterValue}".
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
@@ -237,7 +203,7 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
                   />
                 </SelectTrigger>
                 <SelectContent side="top">
-                  {[5, 10].map((pageSize) => (
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
                     </SelectItem>
