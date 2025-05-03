@@ -25,6 +25,14 @@ export default function DashboardPage() {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2 px-4 lg:px-6">
         <div className="flex flex-col gap-4 py-4 md:gap-6">
+          <section className="mb-10">
+            <h1 className="mb-2 text-2xl font-semibold text-gray-800">
+              Welcome, Trump 👋
+            </h1>
+            <p className="text-gray-500">
+              Here's what's happening with your account today.
+            </p>
+          </section>
           <SectionCards data={cardData} />
           <div className="">
             <VotingPlatformChart />

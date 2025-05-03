@@ -1,0 +1,97 @@
+[
+  {
+    "id": 1,
+    "name": "CHEESA NIGHT OF BLISS",
+    "description": "This is the first description from she shallow",
+    "image": "https://ik.imagekit.io/i7gyrkpch/oilandgas.jpg?updatedAt=1738408244019",
+    "voting_period": {
+      "start": "2025-05-03T00:55:17.703Z",
+      "end": "2025-05-17T00:57:54.807Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-10T00:58:22.856Z",
+      "end": "2025-05-24T00:58:46.127Z"
+    },
+    "approvalStatus": "pending",
+    "eventProgress": "not started",
+    "categories": 18,
+    "isPublished": false,
+    "displayResults": false
+  },
+  {
+    "id": 2,
+    "name": "AFRO VIBES FESTIVAL",
+    "description": "Celebrate Afro music and culture in a one-night event.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/green_hydrogen.jpeg?updatedAt=1738408243958",
+    "voting_period": {
+      "start": "2025-06-01T10:00:00.000Z",
+      "end": "2025-06-10T22:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-20T08:00:00.000Z",
+      "end": "2025-05-30T18:00:00.000Z"
+    },
+    "approvalStatus": "pending",
+    "eventProgress": "ongoing",
+    "categories": 12,
+    "isPublished": false,
+    "displayResults": false
+  },
+  {
+    "id": 3,
+    "name": "TECH INNOVATORS AWARDS",
+    "description": "Honoring excellence in the tech industry.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/bio%20energy.jpg?updatedAt=1738408243676",
+    "voting_period": {
+      "start": "2025-04-01T08:00:00.000Z",
+      "end": "2025-04-15T20:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-03-15T09:00:00.000Z",
+      "end": "2025-03-30T23:59:59.000Z"
+    },
+    "approvalStatus": "approved",
+    "eventProgress": "completed",
+    "categories": 9,
+    "isPublished": true,
+    "displayResults": false
+  },
+  {
+    "id": 4,
+    "name": "CAMPUS ICON CHALLENGE",
+    "description": "An exciting talent discovery event on campus.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/water.jpg?updatedAt=1738408243276",
+    "voting_period": {
+      "start": "2025-06-15T12:00:00.000Z",
+      "end": "2025-06-22T12:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-06-01T08:00:00.000Z",
+      "end": "2025-06-10T17:00:00.000Z"
+    },
+    "approvalStatus": "declined",
+    "eventProgress": "not started",
+    "categories": 6,
+    "isPublished": false,
+    "displayResults": false
+  },
+  {
+    "id": 5,
+    "name": "GOSPEL EXPLOSION NIGHT",
+    "description": "A spiritual night of music and worship.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/joshuaa.jpg?updatedAt=1693414199580",
+    "voting_period": {
+      "start": "2025-05-28T18:00:00.000Z",
+      "end": "2025-06-05T23:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-15T09:00:00.000Z",
+      "end": "2025-05-25T21:00:00.000Z"
+    },
+    "approvalStatus": "approved",
+    "eventProgress": "ongoing",
+    "categories": 15,
+    "isPublished": true,
+    "displayResults": false
+  }
+]

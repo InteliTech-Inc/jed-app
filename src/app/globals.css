@@ -81,6 +81,10 @@
   scroll-behavior: smooth;
 }
 
+[data-sonner-toaster] {
+  @apply !font-(family-name:--font-paragraph);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

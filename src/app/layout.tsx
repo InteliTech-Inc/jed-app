@@ -1,6 +1,5 @@
 import type { Viewport } from "next";
 import localFont from "next/font/local";
-import { Sora } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -79,7 +78,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${switzer.variable} ${satoshi.variable} antialiased`}>
         <div className="">
-          <Toaster closeButton className="font-sans" position="top-center" richColors />
+          <Toaster
+            closeButton
+            className="font-(family-name:--font-paragraph)"
+            position="top-center"
+            richColors
+          />
           {children}
         </div>
       </body>
