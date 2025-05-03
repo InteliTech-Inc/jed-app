@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-
 import { columns } from "./columns";
 import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronsLeft,
   IconChevronsRight,
+  IconFileArrowRight,
 } from "@tabler/icons-react";
 import {
   ColumnFiltersState,
@@ -41,15 +41,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { NominationsResponse } from "../page";
-import { LinkButton } from "./link-button";
+import { VotingDataResponse } from "../page";
+import { toast } from "sonner";
+import { exportToCSV } from "@/lib/utils";
 
-export function NominationsTable({
+export function VotingDataTable({
   data: initialData,
-  id,
 }: {
-  data: NominationsResponse[];
-  id: number;
+  data: VotingDataResponse[];
 }) {
   const [data, setData] = React.useState(() => initialData);
   const [rowSelection, setRowSelection] = React.useState({});
@@ -63,6 +62,14 @@ export function NominationsTable({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const uniqueCategories = React.useMemo(() => {
+    const categories = new Set<string>();
+    initialData.forEach((item) => {
+      categories.add(item.category);
+    });
+    return Array.from(categories);
+  }, [initialData]);
 
   const table = useReactTable({
     data,
@@ -89,25 +96,93 @@ export function NominationsTable({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const handleDownloadData = () => {
+    if (!data.length) {
+      return toast.error("No data to download");
+    }
+    const payload = data.map((r) => {
+      return {
+        "Full Name": r.full_name,
+        EMAIL: r.email ?? "",
+        CATEGORY: r.category,
+        "PHONE NUMBER": r.phone ?? "",
+        VOTES: r.votes,
+        CODE: r.code,
+      };
+    });
+    exportToCSV(payload, `Voting_Results`);
+    toast.success("Voting results exported successfully");
+  };
+
   const filterValue =
     (table.getColumn("full_name")?.getFilterValue() as string) ?? "";
 
+  const handleCategoryChange = (value: string) => {
+    table.setPageIndex(0);
+
+    if (value === "all") {
+      const newFilters = columnFilters.filter(
+        (filter) => filter.id !== "category",
+      );
+      setColumnFilters(newFilters);
+    } else {
+      const categoryFilterIndex = columnFilters.findIndex(
+        (filter) => filter.id === "category",
+      );
+
+      if (categoryFilterIndex !== -1) {
+        const newFilters = [...columnFilters];
+        newFilters[categoryFilterIndex] = { id: "category", value };
+        setColumnFilters(newFilters);
+      } else {
+        setColumnFilters([...columnFilters, { id: "category", value }]);
+      }
+    }
+  };
+
+  const selectedCategory = React.useMemo(() => {
+    const categoryFilter = columnFilters.find(
+      (filter) => filter.id === "category",
+    );
+    return categoryFilter ? (categoryFilter.value as string) : "all";
+  }, [columnFilters]);
+
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
-      <div className="flex items-center justify-between gap-2">
-        <Input
-          placeholder="Filter by event name..."
-          value={filterValue}
-          onChange={(event) => {
-            const filteredValue = table
-              .getColumn("full_name")
-              ?.setFilterValue(event.target.value);
-            return filteredValue;
-          }}
-          className="w-full max-w-sm py-6"
-        />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex h-12 flex-col gap-4 sm:flex-row sm:items-center">
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="!h-full min-w-[15rem]">
+              <SelectValue placeholder="Select Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {uniqueCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Input
+            placeholder="Filter by name..."
+            value={filterValue}
+            onChange={(event) => {
+              table.getColumn("full_name")?.setFilterValue(event.target.value);
+            }}
+            className="h-full w-full min-w-sm"
+          />
+        </div>
         <div>
-          <LinkButton id={id} results={data} />
+          <Button
+            onClick={handleDownloadData}
+            disabled={!data.length}
+            className="shadow-none"
+          >
+            Export Data
+            <IconFileArrowRight />
+          </Button>
         </div>
       </div>
       <div className="relative flex flex-col gap-4 overflow-auto">

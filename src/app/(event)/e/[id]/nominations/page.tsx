@@ -36,7 +36,7 @@ export default async function NominationsPage({
   );
 
   return (
-    <section className="h-full">
+    <section className="h-full p-4">
       <section className="mb-4 max-w-screen-sm">
         <p className="mb-2 text-4xl font-semibold text-neutral-700">
           Nominations

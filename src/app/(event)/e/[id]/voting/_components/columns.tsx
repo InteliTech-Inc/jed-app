@@ -1,11 +1,11 @@
-import { RowActions } from "./row-action";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { NominationsResponse } from "../page";
+import { VotingDataResponse } from "../page";
 
-export const columns: ColumnDef<NominationsResponse>[] = [
+export const columns: ColumnDef<VotingDataResponse>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -38,35 +38,41 @@ export const columns: ColumnDef<NominationsResponse>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "email",
+    accessorKey: "category",
+    header: () => <div className="">Category</div>,
+    cell: ({ row }) => <div className="my-3">{row.original.category}</div>,
+  },
+  {
+    accessorKey: "votes",
     header: ({ column }) => (
       <Button
         variant="link"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="pl-2"
+        className="w-full text-center"
       >
-        Email
+        Votes
         <ArrowUpDown />
       </Button>
     ),
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-  },
-
-  {
-    accessorKey: "categories",
-    header: () => <div className="text-center">Category</div>,
     cell: ({ row }) => (
-      <div className="text-center">{row.original.categories.name}</div>
+      <div className="text-secondary text-center font-semibold">
+        {row.original.votes}
+      </div>
     ),
   },
-
   {
-    id: "actions",
-    cell: ({ row }) => {
-      return <RowActions item={row.original} />;
-    },
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "code",
+    header: "Code",
+    cell: ({ row }) => (
+      <div className="text-left">
+        <Badge variant="default" className="bg-accent text-secondary">
+          {row.original.code}
+        </Badge>
+      </div>
+    ),
   },
 ];
