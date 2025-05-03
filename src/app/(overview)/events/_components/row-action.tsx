@@ -31,6 +31,7 @@ import {
 import { AllEvents } from "../page";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -118,8 +119,13 @@ export function RowActions({ item }: { item: AllEvents }) {
             </DropdownMenuItem>
           </DrawerTrigger>
           <DropdownMenuItem className="hover:bg-gray-50">
-            <IconAdjustmentsAlt />
-            Manage
+            <Link
+              href={`/e/${item.id}/`}
+              className="flex w-full items-center gap-2"
+            >
+              <IconAdjustmentsAlt />
+              Manage
+            </Link>
           </DropdownMenuItem>
           {item.approvalStatus === "approved" && (
             <>

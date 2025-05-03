@@ -1,8 +1,13 @@
-export default function SingleEventPage({ params }: { params: { id: string } }) {
+export default async function SingleEventPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   return (
     <div>
       <h1>Single event page</h1>
-      <p>Params: {params.id}</p>
+      <p>Params: {id}</p>
     </div>
   );
 }
