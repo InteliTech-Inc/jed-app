@@ -12,7 +12,9 @@ export const isActive = (href: string, pathname: string) => {
   return pathname?.startsWith(href);
 };
 
-export const exportToCSV = <T extends Record<string, string | number>>(
+export const exportToCSV = <
+  T extends Record<string, string | number | boolean>,
+>(
   data: T[],
   filename: string,
 ): void => {

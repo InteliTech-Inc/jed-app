@@ -1,7 +1,9 @@
 import type { Viewport } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+
 import "./globals.css";
+import { NetworkProvider } from "@/providers/network";
 
 export const viewport: Viewport = {
   themeColor: "#fff",
@@ -77,15 +79,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${switzer.variable} ${satoshi.variable} antialiased`}>
-        <div className="">
+        <NetworkProvider>
           <Toaster
             closeButton
             className="font-(family-name:--font-paragraph)"
             position="top-center"
             richColors
           />
-          {children}
-        </div>
+          <div className="relative">{children}</div>
+        </NetworkProvider>
       </body>
     </html>
   );

@@ -4,6 +4,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px; /* Keeps space for scrollbar */
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4); /* Invisible thumb */
+  border-radius: 4px;
+}
+
+
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -120,14 +133,29 @@ mark {
   }
 }
 
-.dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+.sidebar {
+  overflow: auto;
+  scrollbar-width: thin; /* Firefox keeps space for scrollbar */
+  scrollbar-color: transparent transparent; /* Hide it visually */
 }
+
+/* Chrome, Edge, Safari */
+.sidebar::-webkit-scrollbar {
+  width: 8px; /* Keeps space for scrollbar */
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Invisible thumb */
+}
+
+.sidebar:hover {
+  scrollbar-color: rgba(100, 100, 100, 0.4) transparent; /* Firefox shows on hover */
+}
+
+.sidebar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4); /* Visible thumb on hover */
+  border-radius: 4px;
+}
+
+
 

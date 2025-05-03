@@ -6,6 +6,7 @@ import {
   DrawerContent,
   DrawerFooter,
   DrawerTrigger,
+  DrawerTitle,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,9 @@ export function RowActions({ item }: { item: AllEvents }) {
     try {
       setIsLoading(true);
       await delay(3000);
-      toast.success("Event published successfully");
+      toast.success(
+        `Event ${item.isPublished ? "unpublished" : "published"} successfully`,
+      );
     } catch (error) {
       console.error(error);
       toast.error("Failed to publish event");
@@ -79,7 +82,9 @@ export function RowActions({ item }: { item: AllEvents }) {
     setIsLoading(true);
     try {
       await delay(3000);
-      toast.success("Results allowed to be displayed");
+      toast.success(
+        `Results ${item.displayResults ? "hidden" : "displayed"} successfully`,
+      );
     } catch (error) {
       console.error(error);
       toast.error("Failed to allow display results");
@@ -209,6 +214,7 @@ export function RowActions({ item }: { item: AllEvents }) {
       </DropdownMenu>
 
       <DrawerContent className="border-none px-0">
+        <DrawerTitle className="sr-only">Edit Event</DrawerTitle>
         <EditEventDetails data={item} />
         <DrawerFooter className="ml-auto flex flex-row gap-2">
           <Button className="h-10">Submit</Button>

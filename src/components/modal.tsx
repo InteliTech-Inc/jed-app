@@ -60,7 +60,8 @@ export function ModalWrapper({
         <Button
           onClick={() => setOpen(false)}
           variant={"ghost"}
-          className="absolute top-4 right-4"
+          className="absolute top-4 right-4 bg-gray-100"
+          disabled={isLoading}
           type="button"
           size={"icon"}
         >
@@ -82,8 +83,8 @@ export function ModalWrapper({
             onClick={(e) => {
               e.preventDefault();
               handleSubmit();
-              //   setOpen(false);
             }}
+            disabled={isLoading}
             className="w-32"
           >
             {isLoading ? <Spinner /> : submitText}
