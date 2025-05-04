@@ -11,6 +11,7 @@ export type VotingDataResponse = {
   code: string;
   votes: number;
   category: string;
+  photo: string;
 };
 
 export default async function VotingPage({
@@ -36,6 +37,8 @@ export default async function VotingPage({
             votes: nominee.totalVotes,
             category: category.name,
             code: nominee.code,
+            photo:
+              nominee.image || `https://i.pravatar.cc/150?img=${nominee.id}`, // Use image field or generate placeholder
           };
         });
       });

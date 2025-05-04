@@ -3,6 +3,7 @@ import { ArrowUpDown } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { VotingDataResponse } from "../page";
 
 export const columns: ColumnDef<VotingDataResponse>[] = [
@@ -31,6 +32,19 @@ export const columns: ColumnDef<VotingDataResponse>[] = [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: "photo",
+    header: "Photo",
+    cell: ({ row }) => {
+      const nominee = row.original;
+      return (
+        <Avatar className="h-10 w-10">
+          <AvatarImage src={nominee.photo} alt={nominee.full_name} />
+          <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
+        </Avatar>
+      );
+    },
   },
   {
     accessorKey: "full_name",
@@ -65,14 +79,8 @@ export const columns: ColumnDef<VotingDataResponse>[] = [
     header: "Code",
     cell: ({ row }) => (
       <div className="text-left">
-        <Badge variant="default" className="bg-accent text-secondary">
-          {row.original.code}
-        </Badge>
+        <Badge variant="outline">{row.original.code}</Badge>
       </div>
     ),
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
   },
 ];
