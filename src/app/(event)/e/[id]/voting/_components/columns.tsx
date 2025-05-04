@@ -61,10 +61,6 @@ export const columns: ColumnDef<VotingDataResponse>[] = [
     ),
   },
   {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
     accessorKey: "code",
     header: "Code",
     cell: ({ row }) => (
@@ -74,5 +70,9 @@ export const columns: ColumnDef<VotingDataResponse>[] = [
         </Badge>
       </div>
     ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
   },
 ];

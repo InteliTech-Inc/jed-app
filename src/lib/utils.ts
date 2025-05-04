@@ -12,6 +12,18 @@ export const isActive = (href: string, pathname: string) => {
   return pathname?.startsWith(href);
 };
 
+export const generateCode = (): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let result = "";
+
+  for (let i = 0; i < 4; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    result += chars.charAt(randomIndex);
+  }
+
+  return result;
+};
+
 export const exportToCSV = <
   T extends Record<string, string | number | boolean>,
 >(

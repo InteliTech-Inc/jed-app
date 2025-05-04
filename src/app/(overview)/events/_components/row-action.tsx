@@ -27,6 +27,8 @@ import {
   IconTrash,
   IconEye,
   IconLivePhoto,
+  IconEyeOff,
+  IconLivePhotoOff,
 } from "@tabler/icons-react";
 import { AllEvents } from "../page";
 import { ModalWrapper } from "@/components/modal";
@@ -138,7 +140,11 @@ export function RowActions({ item }: { item: AllEvents }) {
                     disabled={item.approvalStatus !== "approved"}
                     onSelect={(e) => e.preventDefault()}
                   >
-                    {item.isPublished ? <IconEye /> : <IconLivePhoto />}
+                    {item.isPublished ? (
+                      <IconLivePhotoOff />
+                    ) : (
+                      <IconLivePhoto />
+                    )}
                     {item.isPublished ? "Unpublish" : "Publish"}
                   </DropdownMenuItem>
                 }
@@ -166,7 +172,7 @@ export function RowActions({ item }: { item: AllEvents }) {
                     disabled={!item.isPublished}
                     onSelect={(e) => e.preventDefault()}
                   >
-                    <IconEye />
+                    {item.displayResults ? <IconEyeOff /> : <IconEye />}
                     {item.displayResults ? "Hide" : "Display "} results
                   </DropdownMenuItem>
                 }
