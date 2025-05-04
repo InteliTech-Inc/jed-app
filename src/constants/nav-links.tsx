@@ -33,6 +33,7 @@ export const MAIN_NAV_ITEMS = {
       title: "Tickets",
       url: "/tickets",
       icon: IconTicket,
+      badge: "soon",
     },
   ],
   navSecondary: [

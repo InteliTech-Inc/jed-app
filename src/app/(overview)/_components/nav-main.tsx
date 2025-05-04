@@ -13,6 +13,7 @@ import {
 import { isActive } from "@/lib/utils";
 import Link from "next/link";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 export function NavMain({
   items,
 }: {
@@ -20,6 +21,7 @@ export function NavMain({
     title: string;
     url: string;
     icon?: Icon;
+    badge?: string;
   }[];
 }) {
   const pathname = usePathname();
@@ -27,10 +29,10 @@ export function NavMain({
   return (
     <SidebarGroup className="mt-4">
       <SidebarGroupContent className="">
-        <SidebarMenu>
+        <SidebarMenu className="gap-4">
           {items.map((item) => (
             <SidebarMenuItem key={item.title} className="">
-              <Link href={item.url} className="">
+              <Link href={item.url}>
                 <SidebarMenuButton
                   onClick={() => {
                     if (isMobile) {
@@ -39,10 +41,18 @@ export function NavMain({
                   }}
                   tooltip={item.title}
                   isActive={isActive(item.url, pathname)}
-                  className=""
+                  className="flex items-center"
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
+                  {item.badge && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-accent text-secondary ml-auto py-0 opacity-50"
+                    >
+                      {item.badge}
+                    </Badge>
+                  )}
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
