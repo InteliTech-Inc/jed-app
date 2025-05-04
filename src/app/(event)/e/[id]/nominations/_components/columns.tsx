@@ -61,6 +61,9 @@ export const columns: ColumnDef<NominationsResponse>[] = [
     cell: ({ row }) => (
       <div className="text-center">{row.original.categories.name}</div>
     ),
+    filterFn: (row, id, value) => {
+      return row.original.categories.name === value;
+    },
   },
 
   {

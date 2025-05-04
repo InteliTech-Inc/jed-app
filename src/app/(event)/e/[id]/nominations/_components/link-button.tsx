@@ -20,7 +20,7 @@ import { useState } from "react";
 import { __BASE_URL } from "@/constants/url";
 import { NominationsResponse } from "../page";
 import { IconFileArrowRight } from "@tabler/icons-react";
-
+import { Spinner } from "@/components/spinner";
 export function LinkButton({
   id,
   results,
@@ -32,6 +32,7 @@ export function LinkButton({
 
   const [open, setOpen] = useState(false);
   const [downloadableUrl, setDownloadableUrl] = useState(url);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCopyLink = async () => {
     if (navigator.share) {
@@ -47,12 +48,10 @@ export function LinkButton({
   };
 
   const handleShortenURL = async () => {
+    setIsLoading(true);
     const data = {
       url: url,
     };
-
-    let toastId;
-    toastId = toast.loading("Shortening URL...");
 
     try {
       //   const res = await axios.post(`${process.env.NEXT_PUBLIC_URL_SHORTENER_API}/shorten-url`, data, {
@@ -66,10 +65,12 @@ export function LinkButton({
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setDownloadableUrl(`${process.env.NEXT_PUBLIC_URL_SHORTENER_API}/shor`);
-      toast.success("URL shortened successfully", { id: toastId });
+      toast.success("URL shortened successfully");
     } catch (error) {
       console.log(error);
-      toast.error("An error occurred while shortening URL", { id: toastId });
+      toast.error("An error occurred while shortening URL");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,7 +106,7 @@ export function LinkButton({
         <DialogTrigger asChild>
           <Button className="w-fit gap-2">
             {" "}
-            Generate forms link
+            Share forms link
             <LinkIcon size={14} />
           </Button>
         </DialogTrigger>
@@ -132,8 +133,16 @@ export function LinkButton({
               <Clipboard size={14} />
               Share forms link
             </Button>
-            <Button variant="secondary" onClick={handleShortenURL}>
-              Shorten URL
+            <Button
+              variant="secondary"
+              onClick={handleShortenURL}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner color="var(--color-primary)" />
+              ) : (
+                "Shorten URL"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
