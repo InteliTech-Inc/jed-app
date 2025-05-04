@@ -18,7 +18,7 @@ import { IconRefresh, IconCamera } from "@tabler/icons-react";
 
 interface EditNomineeFormProps {
   nominee: Nominee;
-  categories?: string[];
+  categories?: string[]; // maybe the categories will be fetched from the parent component
   onFormChange?: (updatedNominee: Nominee) => void;
 }
 
@@ -47,7 +47,6 @@ export function EditNomineeForm({
     "Best Screenplay",
   ]);
 
-  // When formData changes, call onFormChange if provided
   useEffect(() => {
     if (onFormChange) {
       onFormChange(formData);

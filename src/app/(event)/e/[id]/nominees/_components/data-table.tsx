@@ -30,7 +30,6 @@ import { DraggableRow } from "@/components/draggable-row";
 import {
   ColumnFiltersState,
   SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
