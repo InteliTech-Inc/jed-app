@@ -1,6 +1,72 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
+}
+
+export const isActive = (href: string, pathname: string) => {
+  if (pathname !== "/" && href === "/") {
+    return false;
+  }
+  return pathname?.startsWith(href);
+};
+
+export const generateCode = (): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let result = "";
+
+  for (let i = 0; i < 4; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    result += chars.charAt(randomIndex);
+  }
+
+  return result;
+};
+
+export const exportToCSV = <
+  T extends Record<string, string | number | boolean>,
+>(
+  data: T[],
+  filename: string,
+): void => {
+  const headers = Object.keys(data[0]);
+
+  // Create CSV rows
+  const csvRows = [
+    headers.join(","),
+    ...data.map((row) =>
+      headers
+        .map(
+          (header) =>
+            `"${(row[header] as string | number)
+              .toString()
+              .replace(/"/g, '""')}"`,
+        )
+        .join(","),
+    ),
+  ];
+
+  const blob = new Blob([csvRows.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+
+  // Create a hidden anchor element
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}-${new Intl.DateTimeFormat("en-GB").format(new Date())}__JED`;
+  link.style.display = "none";
+
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+};
+
+export function copyToClipboard(data: string) {
+  try {
+    navigator.clipboard.writeText(data);
+  } catch (error) {
+    console.error("Failed to copy to clipboard", error);
+  }
 }

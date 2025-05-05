@@ -12,12 +12,18 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { ChevronRight } from "lucide-react";
-import { MAIN_NAV_ITEMS } from "@/app/(overview)/_components/app-sidebar";
+import { MAIN_NAV_ITEMS } from "@/constants/nav-links";
+import { usePathname, useParams } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const mainNavItems = {
-  title: "Main Navigation",
+  title: "Main",
   icon: IconDashboard,
   items: [...MAIN_NAV_ITEMS.navMain, ...MAIN_NAV_ITEMS.navSecondary],
 };
@@ -31,15 +37,34 @@ export function EventNavMain({
     icon?: Icon;
   }[];
 }) {
+  const pathname = usePathname();
+  const { id } = useParams();
+  const segments = pathname.split("/");
+  const lastSegment = segments[segments.length - 1];
+  const { toggleSidebar, isMobile } = useSidebar();
+
+  const isActive = (href: string) => {
+    const activeLink = lastSegment === id ? "details" : lastSegment;
+    return activeLink === href;
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu></SidebarMenu>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
+              <Link href={`/e/${id}/${item.url === "details" ? "" : item.url}`}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  onClick={() => {
+                    if (isMobile) {
+                      toggleSidebar();
+                    }
+                  }}
+                  isActive={isActive(item.url)}
+                  className=" "
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
@@ -47,7 +72,11 @@ export function EventNavMain({
             </SidebarMenuItem>
           ))}
           {/* Main Navigation */}
-          <Collapsible asChild defaultOpen={false} className="group/collapsible">
+          <Collapsible
+            asChild
+            defaultOpen={false}
+            className="group/collapsible"
+          >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton tooltip={mainNavItems.title}>

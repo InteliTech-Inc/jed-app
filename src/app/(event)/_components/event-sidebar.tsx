@@ -1,11 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { IconChartBar, IconDashboard, IconFolder, IconHelp, IconListDetails, IconSearch, IconSettings } from "@tabler/icons-react";
+import {
+  IconChartBar,
+  IconDashboard,
+  IconFolder,
+  IconListDetails,
+} from "@tabler/icons-react";
 import { Logo } from "@/components/logo";
 import { EventNavMain } from "@/app/(event)/_components/event-nav-main";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 const data = {
   user: {
@@ -16,49 +29,49 @@ const data = {
   navMain: [
     {
       title: "Details",
-      url: "/dashboard",
+      url: "details",
       icon: IconDashboard,
     },
     {
       title: "Nominees",
-      url: "/events",
+      url: "nominees",
       icon: IconListDetails,
     },
     {
       title: "Voting",
-      url: "/analytics",
+      url: "voting",
       icon: IconChartBar,
     },
     {
       title: "Nominations",
-      url: "/tickets",
+      url: "nominations",
       icon: IconFolder,
     },
-  ],
-  navSecondary: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
+
+    // {
+    //   title: "Analytics",
+    //   url: "/analytics",
+    //   icon: IconChartBar,
+    // },
   ],
 };
 
-export function SingleEventSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function SingleEventSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size={"lg"} className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
+            <SidebarMenuButton
+              asChild
+              size={"lg"}
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              {/* <a href="#">
                 <Logo />
-              </a>
+              </a> */}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

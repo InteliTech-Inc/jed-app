@@ -1,10 +1,12 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+
 import "./globals.css";
+import { NetworkProvider } from "@/providers/network";
 
 export const viewport: Viewport = {
-  themeColor: "oklch(0.21 0.0198 160.28)",
+  themeColor: "#fff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -36,6 +38,7 @@ const satoshi = localFont({
   variable: "--font-heading",
   display: "swap",
 });
+
 const switzer = localFont({
   src: [
     {
@@ -76,10 +79,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${switzer.variable} ${satoshi.variable} antialiased`}>
-        <div className="">
-          <Toaster closeButton className="font-sans" position="top-center" richColors />
-          {children}
-        </div>
+        <NetworkProvider>
+          <Toaster
+            closeButton
+            className="font-(family-name:--font-paragraph)"
+            position="top-center"
+            richColors
+          />
+          <div className="relative">{children}</div>
+        </NetworkProvider>
       </body>
     </html>
   );

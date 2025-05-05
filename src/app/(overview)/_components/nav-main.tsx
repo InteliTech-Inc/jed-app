@@ -1,9 +1,19 @@
 "use client";
 
 import { type Icon } from "@tabler/icons-react";
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { isActive } from "@/lib/utils";
 import Link from "next/link";
-
+import { useSidebar } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 export function NavMain({
   items,
 }: {
@@ -11,29 +21,38 @@ export function NavMain({
     title: string;
     url: string;
     icon?: Icon;
+    badge?: string;
   }[];
 }) {
+  const pathname = usePathname();
+  const { toggleSidebar, isMobile } = useSidebar();
   return (
-    <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
-          {/* <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Create Event"
-              className="bg-accent hover:bg-accent/90 hover:text-secondary-foreground active:bg-accent/90 active:text-secondary min-w-8 duration-200 ease-linear"
-            >
-              <IconCirclePlusFilled />
-              <span>Create Event</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem> */}
-        </SidebarMenu>
-        <SidebarMenu>
+    <SidebarGroup className="mt-4">
+      <SidebarGroupContent className="">
+        <SidebarMenu className="gap-4">
           {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={item.title} className="">
               <Link href={item.url}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton
+                  onClick={() => {
+                    if (isMobile) {
+                      toggleSidebar();
+                    }
+                  }}
+                  tooltip={item.title}
+                  isActive={isActive(item.url, pathname)}
+                  className="flex items-center"
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
+                  {item.badge && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-accent text-secondary ml-auto py-0 opacity-50"
+                    >
+                      {item.badge}
+                    </Badge>
+                  )}
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

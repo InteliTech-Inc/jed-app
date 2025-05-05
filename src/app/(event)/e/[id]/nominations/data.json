@@ -1,0 +1,132 @@
+[
+  {
+    "id": "nom1",
+    "full_name": "Ama Boateng",
+    "email": "ama.boateng@example.com",
+    "phone": "+233201234567",
+    "reasons": "She has consistently delivered exceptional performances and inspired many.",
+    "created_at": "2025-05-01T14:30:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "1",
+      "name": "Best Developer"
+    }
+  },
+  {
+    "id": "nom2",
+    "full_name": "Kwame Mensah",
+    "email": "kwame.mensah@example.com",
+    "phone": "+233209876543",
+    "reasons": "His dedication and innovation in the field are unmatched.",
+    "created_at": "2025-05-01T15:10:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "2",
+      "name": "Tech Startup of the Year"
+    }
+  },
+  {
+    "id": "nom3",
+    "full_name": "Linda Owusu",
+    "email": "linda.owusu@example.com",
+    "phone": "+233551112233",
+    "reasons": "Her startup is transforming lives through education technology.",
+    "created_at": "2025-05-01T16:00:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "3",
+      "name": "UI/UX Designer of the Year"
+    }
+  },
+  {
+    "id": "nom4",
+    "full_name": "Kojo Asare",
+    "email": "kojo.asare@example.com",
+    "phone": "+233501234321",
+    "reasons": "His innovative design has improved accessibility for visually impaired users.",
+    "created_at": "2025-05-01T16:45:00.000Z",
+    "event_id": 5,
+    "categories": {
+      "id": "4",
+      "name": "Best Worship Song"
+    }
+  },
+  {
+    "id": "nom5",
+    "full_name": "Naana Adjei",
+    "email": "naana.adjei@example.com",
+    "phone": "+233559998877",
+    "reasons": "She’s an emerging voice in gospel music with a powerful message.",
+    "created_at": "2025-05-01T17:30:00.000Z",
+    "event_id": 5,
+    "categories": {
+      "id": "5",
+      "name": "Emerging Gospel Artist"
+    }
+  },
+  {
+    "id": "nom6",
+    "full_name": "Yaw Darko",
+    "email": "yaw.darko@example.com",
+    "phone": "+233541112233",
+    "reasons": "He has shown exceptional leadership in community tech outreach.",
+    "created_at": "2025-05-02T09:00:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "6",
+      "name": "Tech Influencer"
+    }
+  },
+  {
+    "id": "nom7",
+    "full_name": "Serwaa Opoku",
+    "email": "serwaa.opoku@example.com",
+    "phone": "+233501234567",
+    "reasons": "Her music continues to touch hearts across the country.",
+    "created_at": "2025-05-02T10:15:00.000Z",
+    "event_id": 5,
+    "categories": {
+      "id": "7",
+      "name": "Best Female Vocalist"
+    }
+  },
+  {
+    "id": "nom8",
+    "full_name": "Richard Appiah",
+    "email": "richard.appiah@example.com",
+    "phone": "+233531122334",
+    "reasons": "Known for his mentorship in programming and development.",
+    "created_at": "2025-05-02T11:30:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "8",
+      "name": "Mentor of the Year"
+    }
+  },
+  {
+    "id": "nom9",
+    "full_name": "Esi Agyeman",
+    "email": "esi.agyeman@example.com",
+    "phone": "+233591223344",
+    "reasons": "Blending traditional rhythms with modern gospel sounds.",
+    "created_at": "2025-05-02T12:45:00.000Z",
+    "event_id": 5,
+    "categories": {
+      "id": "9",
+      "name": "Fusion Gospel Artist"
+    }
+  },
+  {
+    "id": "nom10",
+    "full_name": "Samuel Tetteh",
+    "email": "samuel.tetteh@example.com",
+    "phone": "+233509876543",
+    "reasons": "Delivered several community tech talks that inspired youth.",
+    "created_at": "2025-05-02T14:00:00.000Z",
+    "event_id": 3,
+    "categories": {
+      "id": "10",
+      "name": "Community Educator"
+    }
+  }
+]

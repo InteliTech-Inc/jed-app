@@ -1,0 +1,224 @@
+[
+  {
+    "id": 1,
+    "name": "CHEESA NIGHT OF BLISS",
+    "description": "This is the first description from she shallow",
+    "image": "https://ik.imagekit.io/i7gyrkpch/oilandgas.jpg?updatedAt=1738408244019",
+    "voting_period": {
+      "start": "2025-05-03T00:55:17.703Z",
+      "end": "2025-05-17T00:57:54.807Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-10T00:58:22.856Z",
+      "end": "2025-05-24T00:58:46.127Z"
+    },
+    "approvalStatus": "pending",
+    "eventProgress": "not started",
+    "categories": 18,
+    "isPublished": false,
+    "displayResults": false,
+    "categoryDetails": []
+  },
+  {
+    "id": 2,
+    "name": "AFRO VIBES FESTIVAL",
+    "description": "Celebrate Afro music and culture in a one-night event.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/green_hydrogen.jpeg?updatedAt=1738408243958",
+    "voting_period": {
+      "start": "2025-06-01T10:00:00.000Z",
+      "end": "2025-06-10T22:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-20T08:00:00.000Z",
+      "end": "2025-05-30T18:00:00.000Z"
+    },
+    "approvalStatus": "pending",
+    "eventProgress": "ongoing",
+    "categories": 12,
+    "isPublished": false,
+    "displayResults": false,
+    "categoryDetails": []
+  },
+  {
+    "id": 3,
+    "name": "TECH INNOVATORS AWARDS",
+    "description": "Honoring excellence in the tech industry.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/bio%20energy.jpg?updatedAt=1738408243676",
+    "voting_period": {
+      "start": "2025-04-01T08:00:00.000Z",
+      "end": "2025-04-15T20:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-03-15T09:00:00.000Z",
+      "end": "2025-03-30T23:59:59.000Z"
+    },
+    "approvalStatus": "approved",
+    "eventProgress": "completed",
+    "categories": 9,
+    "isPublished": true,
+    "displayResults": false,
+    "categoryDetails": [
+      {
+        "id": 1,
+        "name": "Best Developer",
+        "description": "Top software developer of the year",
+        "nominees": [
+          { "id": "1", "fullName": "Alice Johnson", "image": "https://i.pravatar.cc/150?img=1", "code": "BD01", "totalVotes": 745 },
+          { "id": "2", "fullName": "Brian Smith", "image": "https://i.pravatar.cc/150?img=2", "code": "BD02", "totalVotes":  55 },
+          { "id": "3", "fullName": "Cynthia Lee", "image": "https://i.pravatar.cc/150?img=3", "code": "BD03", "totalVotes": 53 },
+          { "id": "4", "fullName": "David Kim", "image": "https://i.pravatar.cc/150?img=4", "code": "BD04", "totalVotes": 35 },
+          { "id": "5", "fullName": "Elena Ford", "image": "https://i.pravatar.cc/150?img=5", "code": "BD05", "totalVotes": 100 }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Tech Startup of the Year",
+        "description": "Most impactful new tech company",
+        "nominees": [
+          { "id": "6", "fullName": "StartX", "image": "https://i.pravatar.cc/150?img=6", "code": "TS01", "totalVotes": 10 },
+          { "id": "7", "fullName": "InnovHub", "image": "https://i.pravatar.cc/150?img=7", "code": "TS02", "totalVotes": 356 },
+          { "id": "8", "fullName": "GreenCode", "image": "https://i.pravatar.cc/150?img=8", "code": "TS03", "totalVotes":1823 },
+          { "id": "9", "fullName": "Skyline AI", "image": "https://i.pravatar.cc/150?img=9", "code": "TS04", "totalVotes": 533 },
+          { "id": "10", "fullName": "QuantumLeap", "image": "https://i.pravatar.cc/150?img=10", "code": "TS05", "totalVotes": 3 }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "UI/UX Designer of the Year",
+        "description": "Best in user experience and interface",
+        "nominees": [
+          { "id": "11", "fullName": "Grace Li", "image": "https://i.pravatar.cc/150?img=11", "code": "UX01", "totalVotes": 834 },
+          { "id": "12", "fullName": "Henry Osei", "image": "https://i.pravatar.cc/150?img=12", "code": "UX02", "totalVotes": 937 },
+          { "id": "13", "fullName": "Isabelle Moore", "image": "https://i.pravatar.cc/150?img=13", "code": "UX03", "totalVotes": 22 },
+          { "id": "14", "fullName": "Jake Mensah", "image": "https://i.pravatar.cc/150?img=14", "code": "UX04", "totalVotes": 3 },
+          { "id": "15", "fullName": "Kendra Boateng", "image": "https://i.pravatar.cc/150?img=15", "code": "UX05", "totalVotes": 88 }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Innovative Tech Product",
+        "description": "Most innovative product launched",
+        "nominees": [
+          { "id": "16", "fullName": "SmartEye", "image": "https://i.pravatar.cc/150?img=16", "code": "TP01", "totalVotes": 26 },
+          { "id": "17", "fullName": "NeuroBand", "image": "https://i.pravatar.cc/150?img=17", "code": "TP02", "totalVotes": 72 },
+          { "id": "18", "fullName": "PulseTrack", "image": "https://i.pravatar.cc/150?img=18", "code": "TP03", "totalVotes": 92 },
+          { "id": "19", "fullName": "EcoCharge", "image": "https://i.pravatar.cc/150?img=19", "code": "TP04", "totalVotes": 75 },
+          { "id": "20", "fullName": "VisionAR", "image": "https://i.pravatar.cc/150?img=20", "code": "TP05", "totalVotes": 29 }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Tech Educator",
+        "description": "Outstanding contribution to tech education",
+        "nominees": [
+          { "id": "21", "fullName": "Linda Opoku", "image": "https://i.pravatar.cc/150?img=21", "code": "TE01", "totalVotes": 29 },
+          { "id": "22", "fullName": "Michael Addo", "image": "https://i.pravatar.cc/150?img=22", "code": "TE02", "totalVotes": 0 },
+          { "id": "23", "fullName": "Nancy Boateng", "image": "https://i.pravatar.cc/150?img=23", "code": "TE03", "totalVotes":1 },
+          { "id": "24", "fullName": "Oscar Kyei", "image": "https://i.pravatar.cc/150?img=24", "code": "TE04", "totalVotes": 98 },
+          { "id": "25", "fullName": "Patience Asare", "image": "https://i.pravatar.cc/150?img=25", "code": "TE05", "totalVotes": 54 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "CAMPUS ICON CHALLENGE",
+    "description": "An exciting talent discovery event on campus.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/water.jpg?updatedAt=1738408243276",
+    "voting_period": {
+      "start": "2025-06-15T12:00:00.000Z",
+      "end": "2025-06-22T12:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-06-01T08:00:00.000Z",
+      "end": "2025-06-10T17:00:00.000Z"
+    },
+    "approvalStatus": "declined",
+    "eventProgress": "not started",
+    "categories": 6,
+    "isPublished": false,
+    "displayResults": false,
+    "categoryDetails": []
+  },
+  {
+    "id": 5,
+    "name": "GOSPEL EXPLOSION NIGHT",
+    "description": "A spiritual night of music and worship.",
+    "image": "https://ik.imagekit.io/i7gyrkpch/joshuaa.jpg?updatedAt=1693414199580",
+    "voting_period": {
+      "start": "2025-05-28T18:00:00.000Z",
+      "end": "2025-06-05T23:00:00.000Z"
+    },
+    "nomination_period": {
+      "start": "2025-05-15T09:00:00.000Z",
+      "end": "2025-05-25T21:00:00.000Z"
+    },
+    "approvalStatus": "approved",
+    "eventProgress": "ongoing",
+    "categories": 15,
+    "isPublished": true,
+    "displayResults": false,
+    "categoryDetails": [
+      {
+        "id": 1,
+        "name": "Best Gospel Artist",
+        "description": "Top-performing gospel singer",
+        "nominees": [
+          { "id": "26", "fullName": "Mercy Asamoah", "image": "https://i.pravatar.cc/150?img=26", "code": "GA01", "totalVotes": 43 },
+          { "id": "27", "fullName": "Daniel Praise", "image": "https://i.pravatar.cc/150?img=27", "code": "GA02", "totalVotes": 87 },
+          { "id": "28", "fullName": "Blessing Nyarko", "image": "https://i.pravatar.cc/150?img=28", "code": "GA03", "totalVotes": 12 },
+          { "id": "29", "fullName": "Chris Owusu", "image": "https://i.pravatar.cc/150?img=29", "code": "GA04", "totalVotes": 64 },
+          { "id": "30", "fullName": "Faith Kumi", "image": "https://i.pravatar.cc/150?img=30", "code": "GA05", "totalVotes": 81 }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Choir of the Year",
+        "description": "Best-performing gospel choir",
+        "nominees": [
+          { "id": "31", "fullName": "Voices of Zion", "image": "https://i.pravatar.cc/150?img=31", "code": "CY01", "totalVotes": 55 },
+          { "id": "32", "fullName": "Hearts of Praise", "image": "https://i.pravatar.cc/150?img=32", "code": "CY02", "totalVotes": 55 },
+          { "id": "33", "fullName": "Glory Singers", "image": "https://i.pravatar.cc/150?img=33", "code": "CY03", "totalVotes": 60 },
+          { "id": "34", "fullName": "Light Choir", "image": "https://i.pravatar.cc/150?img=34", "code": "CY04", "totalVotes": 68 },
+          { "id": "35", "fullName": "Spirit Voices", "image": "https://i.pravatar.cc/150?img=35", "code": "CY05", "totalVotes": 49 }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Best Worship Song",
+        "description": "Top gospel worship track",
+        "nominees": [
+          { "id": "36", "fullName": "You Are Holy", "image": "https://i.pravatar.cc/150?img=36", "code": "WS01", "totalVotes": 13 },
+          { "id": "37", "fullName": "Everlasting Arms", "image": "https://i.pravatar.cc/150?img=37", "code": "WS02", "totalVotes": 79 },
+          { "id": "38", "fullName": "Hosanna", "image": "https://i.pravatar.cc/150?img=38", "code": "WS03", "totalVotes": 5343 },
+          { "id": "39", "fullName": "Holy Spirit Fire", "image": "https://i.pravatar.cc/150?img=39", "code": "WS04", "totalVotes": 2873 },
+          { "id": "40", "fullName": "Worthy is the Lamb", "image": "https://i.pravatar.cc/150?img=40", "code": "WS05", "totalVotes": 824 }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "Emerging Gospel Artist",
+        "description": "Promising new gospel artist",
+        "nominees": [
+          { "id": "41", "fullName": "John K. Ampofo", "image": "https://i.pravatar.cc/150?img=41", "code": "EG01", "totalVotes": 39 },
+          { "id": "42", "fullName": "Naomi Dede", "image": "https://i.pravatar.cc/150?img=42", "code": "EG02", "totalVotes": 978 },
+          { "id": "43", "fullName": "Kojo Praise", "image": "https://i.pravatar.cc/150?img=43", "code": "EG03", "totalVotes": 53},
+          { "id": "44", "fullName": "Belinda Owusu", "image": "https://i.pravatar.cc/150?img=44", "code": "EG04", "totalVotes": 53 },
+          { "id": "45", "fullName": "Samuel Boadu", "image": "https://i.pravatar.cc/150?img=45", "code": "EG05", "totalVotes": 25 }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "Producer of the Year",
+        "description": "Outstanding music producer",
+        "nominees": [
+          { "id": "46", "fullName": "David Selorm", "image": "https://i.pravatar.cc/150?img=46", "code": "PR01", "totalVotes": 63 },
+          { "id": "47", "fullName": "Rebecca K. Mensah", "image": "https://i.pravatar.cc/150?img=47", "code": "PR02", "totalVotes": 437 },
+          { "id": "48", "fullName": "Kelvin Abban", "image": "https://i.pravatar.cc/150?img=48", "code": "PR03", "totalVotes": 535 },
+          { "id": "49", "fullName": "Judith Okine", "image": "https://i.pravatar.cc/150?img=49", "code": "PR04", "totalVotes": 33 },
+          { "id": "50", "fullName": "Sam Tech", "image": "https://i.pravatar.cc/150?img=50", "code": "PR05", "totalVotes": 24 }
+        ]
+      }
+    ]
+  }
+]
