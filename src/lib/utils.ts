@@ -62,3 +62,11 @@ export const exportToCSV = <
 
   document.body.removeChild(link);
 };
+
+export function copyToClipboard(data: string) {
+  try {
+    navigator.clipboard.writeText(data);
+  } catch (error) {
+    console.error("Failed to copy to clipboard", error);
+  }
+}

@@ -15,6 +15,10 @@
   border-radius: 4px;
 }
 
+input:-webkit-autofill { 
+    -webkit-background-clip: text;
+}
+
 
 
 :root {

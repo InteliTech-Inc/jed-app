@@ -3,7 +3,7 @@ import { Clipboard, DownloadIcon, LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { exportToCSV } from "@/lib/utils";
+import { exportToCSV, copyToClipboard } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 // import axios from "@/lib/axios";
 import {
@@ -42,7 +42,7 @@ export function LinkButton({
         text: "Fill this form to add a new nomination",
       });
     } else {
-      await navigator.clipboard.writeText(downloadableUrl);
+      copyToClipboard(downloadableUrl);
       toast.success("Nominations forms link copied to clipboard");
     }
   };

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import EmptyStateImage from "@/assets/empty-state-illustration.png";
 import data from "./data.json";
-
+import Link from "next/link";
 // const data: AllEvents[] = [];
 import { DataTable } from "./_components/data-table";
 
@@ -75,9 +75,11 @@ export default function EventsPage() {
           <p className="text-gray-500">Manage all your events</p>
         </section>
         <section>
-          <Button>
-            Create new event
-            <PlusIcon />
+          <Button asChild>
+            <Link href="/events/new">
+              Create new event
+              <PlusIcon />
+            </Link>
           </Button>
         </section>
       </section>

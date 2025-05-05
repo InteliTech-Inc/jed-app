@@ -31,8 +31,9 @@ import {
 import { NominationsResponse } from "../page";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
+import { copyToClipboard } from "@/lib/utils";
 
-const delay = async (ms: number) =>
+export const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export function RowActions({ item }: { item: NominationsResponse }) {
@@ -91,7 +92,7 @@ export function RowActions({ item }: { item: NominationsResponse }) {
 
   const handleCopyToClipboard = (label: string, text: string) => {
     try {
-      navigator.clipboard.writeText(text);
+      copyToClipboard(text);
       toast.info(`Copied ${label} to clipboard`, {
         position: "bottom-right",
       });

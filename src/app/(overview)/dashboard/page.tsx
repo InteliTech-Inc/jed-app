@@ -1,6 +1,7 @@
 import { VotingPlatformChart } from "@/app/(overview)/dashboard/_components/voting-platform-chart";
 import { SectionCards } from "@/components/section-cards";
 import Viewers from "./_components/viewers";
+import Link from "next/link";
 
 const cardData = [
   {
@@ -17,6 +18,10 @@ const cardData = [
     title: "Withdrawable Earnings",
     value: "GHC 950.00",
     description: "Total withdrawable amount",
+    action: {
+      label: "Withdraw",
+      href: "/withdrawals",
+    },
   },
 ];
 

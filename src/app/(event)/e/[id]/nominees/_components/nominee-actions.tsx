@@ -29,6 +29,7 @@ import {
 import { Nominee } from "./columns";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
+import { copyToClipboard } from "@/lib/utils";
 
 const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -75,7 +76,7 @@ export function NomineeActions({ nominee }: NomineeActionsProps) {
 
   const handleCopyCode = () => {
     try {
-      navigator.clipboard.writeText(nominee.code);
+      copyToClipboard(nominee.code);
       toast.info("Code copied to clipboard", {
         position: "bottom-right",
       });
