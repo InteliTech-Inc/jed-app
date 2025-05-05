@@ -26,7 +26,7 @@ export const MAIN_NAV_ITEMS = {
     },
     {
       title: "Withdrawals",
-      url: "withdrawals",
+      url: "/withdrawals",
       icon: IconWallet,
     },
     {

@@ -1,16 +1,24 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
-
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "./ui/button";
 
-type CardsData = Record<"title" | "value" | "description", string>[];
+interface CardDataItem {
+  title: string;
+  value: string;
+  description: string;
+  action?: {
+    label: string;
+    href: string;
+  };
+}
+
+type CardsData = CardDataItem[];
 
 export function SectionCards({ data }: { data: CardsData }) {
   return (
