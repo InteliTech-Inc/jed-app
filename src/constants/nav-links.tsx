@@ -29,12 +29,12 @@ export const MAIN_NAV_ITEMS = {
       url: "/withdrawals",
       icon: IconWallet,
     },
-    {
-      title: "Tickets",
-      url: "/tickets",
-      icon: IconTicket,
-      badge: "soon",
-    },
+    // {
+    //   title: "Tickets",
+    //   url: "/tickets",
+    //   icon: IconTicket,
+    //   badge: "soon",
+    // },
   ],
   navSecondary: [
     {

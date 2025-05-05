@@ -166,7 +166,7 @@ export default function TutorialsPage() {
         </TabsContent>
       </Tabs>
 
-      <div className="mx-6 mt-16 rounded-lg bg-green-50 p-8 text-center">
+      <div className="mx-6 mt-16 p-8 text-center">
         <h3 className="mb-3 text-xl font-semibold text-green-900">
           Need personalized help?
         </h3>

@@ -81,7 +81,7 @@ export default function FaqsPage() {
           ))}
         </Accordion>
 
-        <div className="mt-12 rounded-lg bg-green-50 p-6 text-center text-green-900">
+        <div className="mt-12 rounded-lg p-6 text-center text-green-900">
           <h3 className="mb-2 text-xl font-semibold">
             Couldn't find what you're looking for?
           </h3>

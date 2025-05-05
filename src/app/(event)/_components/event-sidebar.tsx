@@ -48,11 +48,11 @@ const data = {
       icon: IconFolder,
     },
 
-    {
-      title: "Analytics",
-      url: "/analytics",
-      icon: IconChartBar,
-    },
+    // {
+    //   title: "Analytics",
+    //   url: "/analytics",
+    //   icon: IconChartBar,
+    // },
   ],
 };
 

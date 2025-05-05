@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IconBrandTwitter, IconMail, IconPhone } from "@tabler/icons-react";
-
+import Link from "next/link";
+import { Spinner } from "@/components/spinner";
 export default function ContactPage() {
   const [formState, setFormState] = useState({
     name: "",
@@ -29,9 +30,9 @@ export default function ContactPage() {
     topic: "",
     message: "",
   });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -52,12 +53,11 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setStatus("loading");
 
     // Simulate API call
     setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
+      setStatus("success");
       setFormState({
         name: "",
         email: "",
@@ -81,7 +81,7 @@ export default function ContactPage() {
 
       <div className="grid gap-8 md:grid-cols-2">
         <div>
-          <Card>
+          <Card className="shadow-none">
             <CardHeader>
               <CardTitle>Contact Information</CardTitle>
               <CardDescription>
@@ -90,8 +90,8 @@ export default function ContactPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center">
-                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <IconMail className="h-5 w-5 text-blue-600" />
+                <div className="bg-accent mr-4 flex h-10 w-10 items-center justify-center rounded-full">
+                  <IconMail className="text-secondary h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Email</p>
@@ -100,8 +100,8 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center">
-                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <IconPhone className="h-5 w-5 text-blue-600" />
+                <div className="bg-accent mr-4 flex h-10 w-10 items-center justify-center rounded-full">
+                  <IconPhone className="text-secondary h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Phone</p>
@@ -110,8 +110,8 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center">
-                <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                  <IconBrandTwitter className="h-5 w-5 text-blue-600" />
+                <div className="bg-accent mr-4 flex h-10 w-10 items-center justify-center rounded-full">
+                  <IconBrandTwitter className="text-secondary h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm">Twitter</p>
@@ -119,7 +119,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="mt-8 rounded-lg bg-blue-50 p-4 text-blue-700">
+              <div className="mt-8 rounded-lg bg-stone-50 p-4 text-stone-700">
                 <h4 className="mb-2 font-semibold">Business Hours</h4>
                 <p className="text-sm">Monday - Friday: 8am - 6pm GMT</p>
                 <p className="text-sm">Saturday: 10am - 4pm GMT</p>
@@ -130,7 +130,7 @@ export default function ContactPage() {
         </div>
 
         <div>
-          <Card>
+          <Card className="shadow-none">
             <CardHeader>
               <CardTitle>Send us a message</CardTitle>
               <CardDescription>
@@ -139,21 +139,21 @@ export default function ContactPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {isSubmitted ? (
+              {status === "success" ? (
                 <div className="rounded-lg bg-green-50 p-6 text-center text-green-700">
                   <h3 className="mb-2 text-xl font-semibold">
                     Message Sent Successfully!
                   </h3>
-                  <p>
+                  <p className="my-4">
                     Thank you for reaching out. We'll respond to your inquiry
                     within 24-48 hours.
                   </p>
                   <Button
-                    className="mt-4"
-                    variant="outline"
-                    onClick={() => setIsSubmitted(false)}
+                    onClick={() => setStatus("idle")}
+                    variant="secondary"
+                    asChild
                   >
-                    Send Another Message
+                    <Link href="/support/contact">Send Another Message</Link>
                   </Button>
                 </div>
               ) : (
@@ -183,14 +183,14 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="w-full space-y-2">
                     <Label htmlFor="topic">Topic</Label>
                     <Select
                       value={formState.topic}
                       onValueChange={handleSelectChange}
                       required
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a topic" />
                       </SelectTrigger>
                       <SelectContent>
@@ -225,9 +225,9 @@ export default function ContactPage() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={isSubmitting}
+                    disabled={status === "loading"}
                   >
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                    {status === "loading" ? <Spinner /> : "Send Message"}
                   </Button>
                 </form>
               )}
