@@ -6,6 +6,7 @@ import {
   IconListDetails,
   IconPhoneCall,
   IconWallet,
+  IconUserCircle,
 } from "@tabler/icons-react";
 export const MAIN_NAV_ITEMS = {
   user: {

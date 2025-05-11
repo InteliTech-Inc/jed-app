@@ -22,6 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -77,9 +78,14 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconUserCircle />
-              Account
+            <DropdownMenuItem asChild>
+              <Link
+                href="/profile"
+                className="flex cursor-pointer items-center gap-2"
+              >
+                <IconUserCircle />
+                Account
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <IconLogout />
