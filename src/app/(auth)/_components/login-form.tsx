@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,42 +6,146 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import LoginImage from "@/assets/green_chair.jpeg";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { loginFormSchema } from "@/validations/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import axios from "axios";
+import { API_URL, COOKIE_NAME } from "@/constants/url";
+import Cookies from "js-cookie";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+export function LoginForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(payload: z.infer<typeof loginFormSchema>) {
+    const { email, password } = payload;
+
+    const payloadData = {
+      email,
+      password,
+    };
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/login`, payloadData);
+
+      if (!response.data) {
+        toast.error("Login failed", {
+          description:
+            "We couldn't log you in with the provided credentials. Please double-check your email and password.",
+        });
+      }
+
+      if (response.data) {
+        const { accessToken } = response.data.data;
+        Cookies.set(COOKIE_NAME, accessToken);
+        toast.success("Login successful", {
+          description:
+            "Welcome back to JED! You're being redirected to your dashboard.",
+        });
+        router.push("/dashboard");
+        form.reset();
+      }
+    } catch (error) {
+      toast.error("Something went wrong", {
+        description: "We encountered a problem while processing your login.",
+      });
+    }
+  }
+
   return (
-    <div className={cn("flex flex-col gap-6 ", className)} {...props}>
-      <Card className="overflow-hidden p-0 border-none shadow-none rounded-none">
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Card className="overflow-hidden rounded-none border-none p-0 shadow-none">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 grid place-content-center h-screen md:h-fit md:p-8 self-center max-w-lg mx-auto">
-            <div className="flex  flex-col gap-6">
+          <form
+            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:h-fit md:p-8"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground text-balance">Login to your JED account</p>
+                <p className="text-muted-foreground text-balance">
+                  Login to your JED account
+                </p>
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="evans@topboy.com" required className=" py-5" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="evans@topboy.com"
+                  required
+                  className={`py-5 ${form.formState.errors.email ? "border-red-500" : ""}`}
+                  {...form.register("email")}
+                  autoComplete="on"
+                />
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a href="/forgot-password" className="ml-auto text-sm underline-offset-2 hover:underline">
+                  <a
+                    href="/forgot-password"
+                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                  >
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required className=" py-5" />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  className={`py-5 ${form.formState.errors.password ? "border-red-500" : ""}`}
+                  placeholder="********"
+                  autoComplete="on"
+                  autoCorrect="off"
+                  aria-label="Password"
+                  aria-describedby="password"
+                  {...form.register("password")}
+                />
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button
+                type="submit"
+                className="inline-flex w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  "Login"
+                )}
               </Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-card text-muted-foreground relative z-10 px-2">Or continue with</span>
+                <span className="bg-card text-muted-foreground relative z-10 px-2">
+                  Or continue with
+                </span>
               </div>
-              <div className=" gap-4">
+              <div className="gap-4">
                 <Button variant="outline" type="button" className="w-full">
-                  <svg viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" fill="#000000">
+                  <svg
+                    viewBox="-3 0 262 262"
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="xMidYMid"
+                    fill="#000000"
+                  >
                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    ></g>
                     <g id="SVGRepo_iconCarrier">
                       <path
                         d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
@@ -70,12 +175,18 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 </a>
               </div>
             </div>
-            <div className="text-muted-foreground mt-4 *:[a]:hover:text-primary text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
-              By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            <div className="text-muted-foreground *:[a]:hover:text-primary mt-4 text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
+              By clicking continue, you agree to our{" "}
+              <a href="#">Terms of Service</a> and{" "}
+              <a href="#">Privacy Policy</a>.
             </div>
           </form>
-          <div className="bg-primary h-screen relative hidden md:block">
-            <Image src={LoginImage} alt="Image" className="absolute inset-0 h-full w-full object-cover " />
+          <div className="bg-primary relative hidden h-screen md:block">
+            <Image
+              src={LoginImage}
+              alt="Image"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           </div>
         </CardContent>
       </Card>

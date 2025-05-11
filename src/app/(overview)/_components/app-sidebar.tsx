@@ -14,9 +14,19 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { MAIN_NAV_ITEMS } from "@/constants/nav-links";
-import { Logo } from "@/components/logo";
+import { getUserFromToken } from "@/helpers/get-token";
+import { useUserStore } from "@/lib/stores/get-user";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, fetchUserById } = useUserStore();
+
+  React.useEffect(() => {
+    const decodedJwt = getUserFromToken();
+    if (decodedJwt?.sub) {
+      fetchUserById(decodedJwt.sub);
+    }
+  }, [fetchUserById]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -25,9 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:!p-4"
-            >
-              {/* <Logo /> */}
-            </SidebarMenuButton>
+            ></SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -36,7 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={MAIN_NAV_ITEMS.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={MAIN_NAV_ITEMS.user} />
+        <NavUser user={user!} />
       </SidebarFooter>
     </Sidebar>
   );
