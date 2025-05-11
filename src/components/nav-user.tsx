@@ -26,17 +26,9 @@ import { COOKIE_NAME } from "@/constants/url";
 import Cookies from "js-cookie";
 import { toast } from "sonner";
 import Link from "next/link";
+import { User } from "@/hooks/use-user";
 
-export function NavUser({
-  user,
-}: Readonly<{
-  user: {
-    first_name: string;
-    last_name: string;
-    email: string;
-    avatar: string;
-  };
-}>) {
+export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
 

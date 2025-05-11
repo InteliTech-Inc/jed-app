@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn, formatJedError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,9 +34,11 @@ export function SignUpForm({
   async function onSubmit(payload: z.infer<typeof signUpFormSchema>) {
     const { fullName, email, password, phone_number } = payload;
 
+    const [first_name, ...rest] = fullName.split(" ");
+
     const payloadData = {
-      first_name: fullName.split(" ")[0],
-      last_name: fullName.split(" ")[1],
+      first_name,
+      last_name: rest.join(" "),
       email,
       password,
       phone_number,
@@ -49,26 +51,24 @@ export function SignUpForm({
       );
 
       if (!response.data) {
-        toast.error("Account creation failed", {
-          description: response.data,
-        });
+        toast.error("Account creation failed");
+        return;
       }
 
       if (response.data) {
-        toast.success("Account created successfully", {
-          description:
-            "Your account has been created successfully. You're being redirected to the login page.",
-        });
-
-        router.push("/login");
+        const searchParams = new URLSearchParams({ email });
+        toast.success(
+          "We have sent you an OTP to your email to verify your account",
+        );
+        router.push(`/verify-otp?${searchParams.toString()}`);
         form.reset();
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast.error("Something went wrong", {
-          description: "We encountered a problem while creating your account.",
-        });
+        toast.error(formatJedError(error));
+        return;
       }
+      toast.error("Something went wrong");
     }
   }
 
@@ -226,6 +226,7 @@ export function SignUpForm({
             </div>
           </form>
           <div className="bg-primary relative hidden min-h-screen md:block">
+            <div className="absolute inset-0 z-10 bg-black/50" />
             <Image
               src={LoginImage}
               alt="Image"

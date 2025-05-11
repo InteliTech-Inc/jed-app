@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -70,3 +71,22 @@ export function copyToClipboard(data: string) {
     console.error("Failed to copy to clipboard", error);
   }
 }
+
+export const flattenObject = (obj: any, prefix = "", result: any = {}) => {
+  for (const [key, value] of Object.entries(obj)) {
+    const newKey = prefix ? `${prefix}.${key}` : key;
+
+    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      flattenObject(value, newKey, result);
+    } else {
+      result[newKey] = value;
+    }
+  }
+
+  return result;
+};
+export const formatJedError = (error: AxiosError) => {
+  const errorMessage = (error.response?.data as { error: { message: string } })
+    ?.error?.message;
+  return errorMessage;
+};

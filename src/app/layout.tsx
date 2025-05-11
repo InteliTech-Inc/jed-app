@@ -1,6 +1,7 @@
 import type { Viewport } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import { QueryProvider } from "@/providers/query-client";
 
 import "./globals.css";
 import { NetworkProvider } from "@/providers/network";
@@ -80,13 +81,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${switzer.variable} ${satoshi.variable} antialiased`}>
         <NetworkProvider>
-          <Toaster
-            closeButton
-            className="font-(family-name:--font-paragraph)"
-            position="top-center"
-            richColors
-          />
-          <div className="relative">{children}</div>
+          <QueryProvider>
+            <Toaster
+              closeButton
+              className="font-(family-name:--font-paragraph)"
+              position="top-center"
+              richColors
+            />
+            <div className="relative">{children}</div>
+          </QueryProvider>
         </NetworkProvider>
       </body>
     </html>
