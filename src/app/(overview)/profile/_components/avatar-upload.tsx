@@ -42,13 +42,10 @@ export function AvatarUpload({
     setIsUploading(true);
 
     try {
-      // Here you would normally upload the file to your server or storage
-      // For now, we'll create a local URL to simulate the upload
       const reader = new FileReader();
 
       reader.onload = (event) => {
         if (event.target?.result) {
-          // In a real app, you'd send this file to your server and get back a URL
           const newAvatarUrl = event.target.result as string;
           onAvatarChange(newAvatarUrl);
           toast.success("Profile picture updated successfully");
@@ -59,7 +56,6 @@ export function AvatarUpload({
         toast.error("Failed to read file");
       };
 
-      // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
       reader.readAsDataURL(file);
     } catch (error) {
@@ -71,7 +67,6 @@ export function AvatarUpload({
   };
 
   const handleRemoveAvatar = () => {
-    // Set to default avatar or placeholder
     onAvatarChange("");
     toast.success("Profile picture removed");
   };
