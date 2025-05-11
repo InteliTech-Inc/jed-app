@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,43 +6,190 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import LoginImage from "@/assets/green_chair.jpeg";
+import { signUpFormSchema } from "@/validations/schema";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { API_URL } from "@/constants/url";
 
-export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
+export function SignUpForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof signUpFormSchema>>({
+    resolver: zodResolver(signUpFormSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      phone_number: "",
+    },
+  });
+  async function onSubmit(payload: z.infer<typeof signUpFormSchema>) {
+    const { fullName, email, password, phone_number } = payload;
+
+    const payloadData = {
+      first_name: fullName.split(" ")[0],
+      last_name: fullName.split(" ")[1],
+      email,
+      password,
+      phone_number,
+    };
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/auth/register`,
+        payloadData,
+      );
+
+      if (!response.data) {
+        toast.error("Account creation failed", {
+          description: response.data,
+        });
+      }
+
+      if (response.data) {
+        toast.success("Account created successfully", {
+          description:
+            "Your account has been created successfully. You're being redirected to the login page.",
+        });
+
+        router.push("/login");
+        form.reset();
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error("Something went wrong", {
+          description: "We encountered a problem while creating your account.",
+        });
+      }
+    }
+  }
+
   return (
-    <div className={cn("flex flex-col gap-6 ", className)} {...props}>
-      <Card className="overflow-hidden p-0 border-none shadow-none rounded-none">
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Card className="overflow-hidden rounded-none border-none p-0 shadow-none">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 grid place-content-center h-screen md:h-fit md:p-8 self-center max-w-lg mx-auto">
-            <div className="flex  flex-col gap-6">
+          <form
+            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:h-fit md:p-8"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome to JED</h1>
-                <p className="text-muted-foreground text-balance">Create an account</p>
+                <p className="text-muted-foreground text-balance">
+                  Create an account
+                </p>
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="fullName">Full Name</Label>
-                <Input id="fullName" type="text" placeholder="Joshua Owusu" required className=" py-5" />
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Joshua Owusu"
+                  className={`py-5 ${form.formState.errors.fullName ? "border-red-500" : ""}`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="on"
+                  spellCheck="true"
+                  {...form.register("fullName")}
+                />
+                {form.formState.errors.fullName && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.fullName.message}
+                  </small>
+                )}
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="phone_number">Phone Number</Label>
+                <Input
+                  id="phone_number"
+                  type="text"
+                  placeholder="Joshua Owusu"
+                  className={`py-5 ${form.formState.errors.phone_number ? "border-red-500" : ""}`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="on"
+                  spellCheck="true"
+                  {...form.register("phone_number")}
+                />
+                {form.formState.errors.phone_number && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.phone_number.message}
+                  </small>
+                )}
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="evans@topboy.com" required className=" py-5" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="evans@topboy.com"
+                  className={`py-5 ${form.formState.errors.email ? "border-red-500" : ""}`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  {...form.register("email")}
+                />
+                {form.formState.errors.email && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.email.message}
+                  </small>
+                )}
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                 </div>
-                <Input id="password" type="password" required className=" py-5" />
+                <Input
+                  id="password"
+                  type="password"
+                  className={`py-5 ${form.formState.errors.password ? "border-red-500" : ""}`}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  {...form.register("password")}
+                />
+                {form.formState.errors.password && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.password.message}
+                  </small>
+                )}
               </div>
-              <Button type="submit" className="w-full">
-                Login
+              <Button
+                type="submit"
+                className="inline-flex w-full select-none disabled:!cursor-not-allowed"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : (
+                  " Create Account"
+                )}
               </Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-                <span className="bg-card text-muted-foreground relative z-10 px-2">Or continue with</span>
+                <span className="bg-card text-muted-foreground relative z-10 px-2">
+                  Or continue with
+                </span>
               </div>
-              <div className=" gap-4">
+              <div className="gap-4">
                 <Button variant="outline" type="button" className="w-full">
-                  <svg viewBox="-3 0 262 262" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid" fill="#000000">
+                  <svg
+                    viewBox="-3 0 262 262"
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="xMidYMid"
+                    fill="#000000"
+                  >
                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    ></g>
                     <g id="SVGRepo_iconCarrier">
                       <path
                         d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622 38.755 30.023 2.685.268c24.659-22.774 38.875-56.282 38.875-96.027"
@@ -71,12 +219,18 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 </a>
               </div>
             </div>
-            <div className="text-muted-foreground mt-4 *:[a]:hover:text-primary text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
-              By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            <div className="text-muted-foreground *:[a]:hover:text-primary mt-4 text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
+              By clicking continue, you agree to our{" "}
+              <a href="#">Terms of Service</a> and{" "}
+              <a href="#">Privacy Policy</a>.
             </div>
           </form>
-          <div className="bg-primary min-h-screen relative hidden md:block">
-            <Image src={LoginImage} alt="Image" className="absolute inset-0 h-full w-full object-cover " />
+          <div className="bg-primary relative hidden min-h-screen md:block">
+            <Image
+              src={LoginImage}
+              alt="Image"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           </div>
         </CardContent>
       </Card>

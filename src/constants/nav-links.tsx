@@ -8,11 +8,6 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 export const MAIN_NAV_ITEMS = {
-  user: {
-    name: "Jed Events",
-    email: "jed@jedevents.com",
-    avatar: "/avatars/jed.png",
-  },
   navMain: [
     {
       title: "Dashboard",

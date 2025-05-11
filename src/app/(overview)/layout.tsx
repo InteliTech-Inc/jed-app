@@ -1,14 +1,13 @@
 import { AppSidebar } from "@/app/(overview)/_components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarInset } from "@/components/ui/sidebar";
-
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 
 export default function OverviewLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <SidebarProvider
       style={
