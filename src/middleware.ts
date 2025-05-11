@@ -5,12 +5,12 @@ export default async function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
   const publicUrl = [
-    "/",
     "/login",
     "/sign-up",
     "/forgot-password",
     "/reset-password",
     "/not-found",
+    "/verify-otp",
   ];
 
   if (publicUrl.includes(req.nextUrl.pathname)) {
@@ -18,9 +18,11 @@ export default async function middleware(req: NextRequest) {
   }
 
   let accessToken = req.cookies.get(COOKIE_NAME)?.value;
+
   if (!accessToken) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
+
   return res;
 }
 

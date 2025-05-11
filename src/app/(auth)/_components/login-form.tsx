@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn, formatJedError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,11 +12,10 @@ import { loginFormSchema } from "@/validations/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import axios from "axios";
+import { Spinner } from "@/components/spinner";
+import axios, { AxiosError } from "axios";
 import { API_URL, COOKIE_NAME } from "@/constants/url";
 import Cookies from "js-cookie";
-
 export function LoginForm({
   className,
   ...props
@@ -32,37 +31,26 @@ export function LoginForm({
   });
 
   async function onSubmit(payload: z.infer<typeof loginFormSchema>) {
-    const { email, password } = payload;
-
-    const payloadData = {
-      email,
-      password,
-    };
-
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, payloadData);
+      const response = await axios.post(`${API_URL}/auth/login`, payload);
 
       if (!response.data) {
-        toast.error("Login failed", {
-          description:
-            "We couldn't log you in with the provided credentials. Please double-check your email and password.",
-        });
+        toast.error("Invalid email or password. Please try again.");
       }
 
       if (response.data) {
         const { accessToken } = response.data.data;
         Cookies.set(COOKIE_NAME, accessToken);
-        toast.success("Login successful", {
-          description:
-            "Welcome back to JED! You're being redirected to your dashboard.",
-        });
+        toast.success("Welcome back to JED!");
         router.push("/dashboard");
         form.reset();
       }
-    } catch (error) {
-      toast.error("Something went wrong", {
-        description: "We encountered a problem while processing your login.",
-      });
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+        return;
+      }
+      toast.error("Something went wrong");
     }
   }
 
@@ -121,11 +109,7 @@ export function LoginForm({
                 className="inline-flex w-full"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  "Login"
-                )}
+                {form.formState.isSubmitting ? <Spinner /> : "Login"}
               </Button>
               <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                 <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -182,6 +166,7 @@ export function LoginForm({
             </div>
           </form>
           <div className="bg-primary relative hidden h-screen md:block">
+            <div className="absolute inset-0 z-10 bg-black/50" />
             <Image
               src={LoginImage}
               alt="Image"

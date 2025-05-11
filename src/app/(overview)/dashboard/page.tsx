@@ -1,10 +1,7 @@
 import { VotingPlatformChart } from "@/app/(overview)/dashboard/_components/voting-platform-chart";
 import { SectionCards } from "@/components/section-cards";
 import Viewers from "./_components/viewers";
-import { cookies } from "next/headers";
-import { API_URL, COOKIE_NAME } from "@/constants/url";
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
+import getUserFromServer from "@/lib/functions/server";
 
 const cardData = [
   {
@@ -27,18 +24,6 @@ const cardData = [
     },
   },
 ];
-
-async function getUserFromServer() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get(COOKIE_NAME)?.value;
-
-  if (!token) return null;
-
-  const decodedJwt = jwtDecode(token);
-  const res = await axios(`${API_URL}/users/${decodedJwt.sub}`);
-
-  return res.data;
-}
 
 export default async function DashboardPage() {
   const {

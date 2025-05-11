@@ -14,18 +14,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { MAIN_NAV_ITEMS } from "@/constants/nav-links";
-import { getUserFromToken } from "@/helpers/get-token";
-import { useUserStore } from "@/lib/stores/get-user";
+import { useUser } from "@/hooks/use-user";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, fetchUserById } = useUserStore();
-
-  React.useEffect(() => {
-    const decodedJwt = getUserFromToken();
-    if (decodedJwt?.sub) {
-      fetchUserById(decodedJwt.sub);
-    }
-  }, [fetchUserById]);
+  const { user } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>
