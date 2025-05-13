@@ -14,15 +14,20 @@ import { EventToolsStep } from "./step-2-event-tools";
 import { PricingStep } from "./step-3-pricing";
 import { SummaryStep } from "./step-4-summary";
 import { Button } from "@/components/ui/button";
-import {
-  IconArrowLeft,
-  IconArrowRight,
-  IconDeviceFloppy,
-} from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
 import { StepTracker } from "./step-tracker";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
+import { MUTATION_KEYS } from "@/constants/query-keys";
+import { Spinner } from "@/components/spinner";
 
 export function CreateEventForm() {
   const { currentStep, nextStep, prevStep } = useCreateEventStore();
+  const { createEvent } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
 
   const canContinue = () => {
     const state = useCreateEventStore.getState();
@@ -86,10 +91,52 @@ export function CreateEventForm() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Submit");
+  const { mutateAsync: createNewEvent, isPending } = useMutation({
+    mutationKey: [MUTATION_KEYS.CREATE_EVENT],
+    mutationFn: createEvent,
+    onSuccess: (response) => {
+      if (!response.data) {
+        toast.error("No data returned from the server");
+        return;
+      }
+      toast.success("Event created successfully!");
+      useCreateEventStore.getState().reset();
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+    retry(failureCount, error) {
+      if (error instanceof AxiosError && error.response?.status === 429) {
+        return failureCount < 3;
+      }
+      return false;
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong");
+      }
+    },
+  });
 
-    // TODO: Submit the event to the database, show a success message and redirect to the event page
+  const handleSubmit = async () => {
+    const state = useCreateEventStore.getState();
+    const {
+      image,
+      name,
+      description,
+      tools,
+      pricing: { amountPerVote, serviceFeePercentage },
+    } = state;
+
+    const payload = {
+      name,
+      description,
+      image,
+      tools,
+      amount_per_vote: amountPerVote,
+      service_percentage: serviceFeePercentage,
+    };
+    await createNewEvent(payload);
   };
 
   return (
@@ -127,8 +174,12 @@ export function CreateEventForm() {
                 <IconArrowRight className="size-4" />
               </Button>
             ) : (
-              <Button className="gap-1" onClick={handleSubmit}>
-                Submit
+              <Button
+                className="gap-1"
+                onClick={handleSubmit}
+                disabled={isPending}
+              >
+                {isPending ? <Spinner /> : "Submit"}
               </Button>
             )}
           </div>
