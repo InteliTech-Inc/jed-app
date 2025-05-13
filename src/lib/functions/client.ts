@@ -9,7 +9,7 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
   createEvent: async (payload: Event) => {
-    const response = await apiClient.post(`${API_URL}/events`, payload);
+    const response = await apiClient.post("/events", payload);
     return response.data;
   },
 };
