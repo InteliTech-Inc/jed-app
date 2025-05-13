@@ -21,13 +21,15 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
-import { MUTATION_KEYS } from "@/constants/query-keys";
 import { Spinner } from "@/components/spinner";
+import { useRouter } from "next/navigation";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 export function CreateEventForm() {
   const { currentStep, nextStep, prevStep } = useCreateEventStore();
   const { createEvent } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const canContinue = () => {
     const state = useCreateEventStore.getState();
@@ -92,16 +94,13 @@ export function CreateEventForm() {
   };
 
   const { mutateAsync: createNewEvent, isPending } = useMutation({
-    mutationKey: [MUTATION_KEYS.CREATE_EVENT],
+    mutationKey: [QUERY_KEYS.EVENTS],
     mutationFn: createEvent,
-    onSuccess: (response) => {
-      if (!response.data) {
-        toast.error("No data returned from the server");
-        return;
-      }
+    onSuccess: () => {
       toast.success("Event created successfully!");
       useCreateEventStore.getState().reset();
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+      router.push("/events");
     },
     retry(failureCount, error) {
       if (error instanceof AxiosError && error.response?.status === 429) {
@@ -119,14 +118,13 @@ export function CreateEventForm() {
   });
 
   const handleSubmit = async () => {
-    const state = useCreateEventStore.getState();
     const {
       image,
       name,
       description,
       tools,
       pricing: { amountPerVote, serviceFeePercentage },
-    } = state;
+    } = useCreateEventStore.getState();
 
     const payload = {
       name,
@@ -136,6 +134,7 @@ export function CreateEventForm() {
       amount_per_vote: amountPerVote,
       service_percentage: serviceFeePercentage,
     };
+
     await createNewEvent(payload);
   };
 

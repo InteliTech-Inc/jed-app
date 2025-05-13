@@ -1,6 +1,6 @@
 import { API_URL } from "@/constants/url";
 import { Event } from "@/interfaces/event";
-import { apiClient } from "@/providers/api-client";
+import { authAxios } from "@/providers/api-client";
 import axios from "axios";
 
 const QUERY_FUNCTIONS = {
@@ -9,7 +9,7 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
   createEvent: async (payload: Event) => {
-    const response = await apiClient.post("/events", payload);
+    const response = await authAxios.post("/events", payload);
     return response.data;
   },
 };
