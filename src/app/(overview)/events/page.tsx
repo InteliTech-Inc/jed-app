@@ -5,66 +5,49 @@ import Image from "next/image";
 import EmptyStateImage from "@/assets/empty-state-illustration.png";
 import data from "./data.json";
 import Link from "next/link";
-// const data: AllEvents[] = [];
 import { DataTable } from "./_components/data-table";
+import { fetchEvents } from "@/lib/functions/server";
+import { EventResponse } from "@/interfaces/event";
+import { EventProgress } from "@/types/event-status";
+import { CARDS_DATA } from "@/lib/data/cards-data";
+import { transformToLowerCase } from "@/lib/utils";
 
-// Kindly extract all the types from the data.json file
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export type Nominee = {
-  id: string;
-  fullName: string;
-  image: string;
-  code: string;
-  totalVotes: number;
-};
+export default async function EventsPage() {
+  const { data: allEvents } = await fetchEvents();
 
-type Categories = {
-  id: number;
-  name: string;
-  description: string;
-  nominees: Nominee[];
-};
+  console.log(allEvents);
+  function filterEvents(events: EventResponse[], status: EventProgress) {
+    return events.filter(
+      (event: EventResponse) =>
+        transformToLowerCase(event.event_progress) === status,
+    );
+  }
 
-export type AllEvents = {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  voting_period: {
-    start: string;
-    end: string;
-  };
-  nomination_period: {
-    start: string;
-    end: string;
-  };
-  approvalStatus: "pending" | "approved" | "declined";
-  eventProgress: "ongoing" | "not started" | "completed";
-  categories: number;
-  isPublished: boolean;
-  displayResults: boolean;
-  categoryDetails: Categories[];
-};
+  const eventStatistics = CARDS_DATA.map((card) => {
+    switch (card.title) {
+      case "All events":
+        return {
+          ...card,
+          value: allEvents.events.length,
+        };
+      case "Ongoing events":
+        return {
+          ...card,
+          value: filterEvents(allEvents.events, "ongoing").length,
+        };
+      case "Completed events":
+        return {
+          ...card,
+          value: filterEvents(allEvents.events, "completed").length,
+        };
+      default:
+        return card;
+    }
+  });
 
-const cardsData = [
-  {
-    title: "All events",
-    value: "4",
-    description: "All events created",
-  },
-  {
-    title: "Ongoing events",
-    value: "3",
-    description: "Published events still ongoing",
-  },
-  {
-    title: "Completed events",
-    value: "1",
-    description: "All past events",
-  },
-];
-
-export default function EventsPage() {
   return (
     <div className="@container/main flex flex-1 flex-col gap-2 px-4 lg:px-6">
       <section className="mb-10 flex items-center justify-between">
@@ -83,13 +66,13 @@ export default function EventsPage() {
           </Button>
         </section>
       </section>
-      {data.length > 0 ? (
+      {allEvents.events.length > 0 ? (
         <>
           <div className="flex flex-col gap-4 py-4 md:gap-6">
-            <SectionCards data={cardsData} />
+            <SectionCards data={eventStatistics} />
           </div>
           <div className="w-full">
-            <DataTable data={data as AllEvents[]} />
+            <DataTable />
           </div>
         </>
       ) : (

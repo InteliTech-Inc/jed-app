@@ -7,12 +7,13 @@ import {
   IconLoader,
   IconClockHour1,
 } from "@tabler/icons-react";
-import { ColumnDef, Row, flexRender } from "@tanstack/react-table";
-import { AllEvents } from "../page";
+import { ColumnDef } from "@tanstack/react-table";
+import { EventResponse } from "@/interfaces/event";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { transformToLowerCase } from "@/lib/utils";
 
-function DragHandle({ id }: { id: number }) {
+function DragHandle({ id }: Readonly<{ id: number }>) {
   const { attributes, listeners } = useSortable({
     id,
   });
@@ -31,7 +32,7 @@ function DragHandle({ id }: { id: number }) {
   );
 }
 
-export const columns: ColumnDef<AllEvents>[] = [
+export const columns: ColumnDef<EventResponse>[] = [
   {
     id: "drag",
     header: () => null,
@@ -40,7 +41,7 @@ export const columns: ColumnDef<AllEvents>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <div className="flex items-center justify-center">
+      <div className="flex cursor-pointer items-center justify-center">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -69,46 +70,60 @@ export const columns: ColumnDef<AllEvents>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "approvalStatus",
+    accessorKey: "approval_status",
     header: "Approval Status",
     cell: ({ row }) => {
-      const status = row.original.approvalStatus;
+      const status = transformToLowerCase(row.original.approval_status);
+      let statusColor;
+
+      switch (status) {
+        case "pending":
+          statusColor = "border-amber-800 bg-amber-50 text-amber-800";
+          break;
+        case "approved":
+          statusColor = "border-green-800 bg-green-50 text-green-800";
+          break;
+        default:
+          statusColor = "border-red-500 bg-red-50 text-red-500";
+          break;
+      }
       return (
         <div className="w-32">
           <Badge
             variant="outline"
-            className={` ${
-              status === "pending"
-                ? "border-amber-800 bg-amber-50 text-amber-800"
-                : status === "approved"
-                  ? "border-green-800 bg-green-50 text-green-800"
-                  : "border-red-500 bg-red-50 text-red-500"
-            } px-1.5 capitalize`}
+            className={`${statusColor} px-1.5 capitalize`}
           >
-            {row.original.approvalStatus}
+            {status}
           </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "eventProgress",
+    accessorKey: "event_progress",
     header: "Progress",
     cell: ({ row }) => {
-      const progress = row.original.eventProgress;
+      const progress = transformToLowerCase(row.original.event_progress);
+      let progressIcon;
+      switch (progress) {
+        case "completed":
+          progressIcon = <IconCircleCheckFilled className="fill-green-500" />;
+          break;
+        case "pending":
+          progressIcon = <IconClockHour1 className="fill-purple-200" />;
+          break;
+        default:
+          progressIcon = <IconLoader className="stroke-amber-600" />;
+          break;
+      }
+
       return (
         <Badge
           variant="outline"
           className="text-muted-foreground px-1.5 capitalize"
         >
-          {progress === "completed" ? (
-            <IconCircleCheckFilled className="fill-green-500" />
-          ) : progress === "not started" ? (
-            <IconClockHour1 className="fill-purple-200" />
-          ) : (
-            <IconLoader className="stroke-amber-600" />
-          )}
-          {row.original.eventProgress}
+          {progressIcon}
+          {progress}
         </Badge>
       );
     },
@@ -117,7 +132,7 @@ export const columns: ColumnDef<AllEvents>[] = [
     accessorKey: "categories",
     header: () => <div className="text-center">Categories</div>,
     cell: ({ row }) => (
-      <div className="text-center">{row.original.categories}</div>
+      <div className="text-center">{row.original.categories?.length}</div>
     ),
   },
 

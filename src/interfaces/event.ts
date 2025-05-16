@@ -1,3 +1,5 @@
+import { EventApprovalStatus, EventProgress } from "@/types/event-status";
+
 export interface Event {
   name: string;
   description: string;
@@ -11,4 +13,40 @@ interface Tools {
   nominations: boolean;
   voting: boolean;
   ticketing: boolean;
+}
+
+export interface EventResponse {
+  id: number;
+  name: string;
+  description: string;
+  img_url: string;
+  schedule: Schedule;
+  approval_status: EventApprovalStatus;
+  event_progress: EventProgress;
+  is_published: boolean;
+  display_results: boolean;
+  categories: Categories[];
+  tools: Tools;
+}
+
+interface Categories {
+  id: number;
+  name: string;
+  description: string;
+  nominees: Nominee[];
+}
+
+interface Schedule {
+  nomination_end_period: string;
+  nomination_start_period: string;
+  voting_end_period: string;
+  voting_start_period: string;
+}
+
+export interface Nominee {
+  id: string;
+  fullName: string;
+  image: string;
+  code: string;
+  totalVotes: number;
 }

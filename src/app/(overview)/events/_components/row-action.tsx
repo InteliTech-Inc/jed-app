@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerTrigger,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
@@ -30,18 +23,24 @@ import {
   IconEyeOff,
   IconLivePhotoOff,
 } from "@tabler/icons-react";
-import { AllEvents } from "../page";
+import { EventResponse } from "@/interfaces/event";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
 import Link from "next/link";
+import { transformToLowerCase } from "@/lib/utils";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-export function RowActions({ item }: { item: AllEvents }) {
+export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const { deleteEvent } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
 
   /* 
   Using internal state to control the dropdown menu to avoid the issue of 
@@ -53,17 +52,23 @@ export function RowActions({ item }: { item: AllEvents }) {
     setOpenDropdown(false);
   };
 
-  const handleDelete = async () => {
-    try {
-      setIsLoading(true);
+  const { mutateAsync: deleteSingleEvent, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.EVENTS],
+    mutationFn: deleteEvent,
+    onSuccess: async () => {
       await delay(3000);
       toast.success("Event deleted successfully");
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+    },
+    onError: (error) => {
       console.error(error);
       toast.error("Failed to delete event");
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleDelete = async () => {
+    const id = String(item.id);
+    await deleteSingleEvent(id);
   };
 
   const handlePublish = async () => {
@@ -71,7 +76,7 @@ export function RowActions({ item }: { item: AllEvents }) {
       setIsLoading(true);
       await delay(3000);
       toast.success(
-        `Event ${item.isPublished ? "unpublished" : "published"} successfully`,
+        `Event ${item.is_published ? "unpublished" : "published"} successfully`,
       );
     } catch (error) {
       console.error(error);
@@ -86,7 +91,7 @@ export function RowActions({ item }: { item: AllEvents }) {
     try {
       await delay(3000);
       toast.success(
-        `Results ${item.displayResults ? "hidden" : "displayed"} successfully`,
+        `Results ${item.display_results ? "hidden" : "displayed"} successfully`,
       );
     } catch (error) {
       console.error(error);
@@ -129,7 +134,7 @@ export function RowActions({ item }: { item: AllEvents }) {
               Manage
             </Link>
           </DropdownMenuItem>
-          {item.approvalStatus === "approved" && (
+          {transformToLowerCase(item.approval_status) === "approved" && (
             <>
               <DropdownMenuSeparator />
               <ModalWrapper
@@ -137,57 +142,59 @@ export function RowActions({ item }: { item: AllEvents }) {
                 description={`Make the event visible to the public?`}
                 trigger={
                   <DropdownMenuItem
-                    disabled={item.approvalStatus !== "approved"}
+                    disabled={
+                      transformToLowerCase(item.approval_status) !== "approved"
+                    }
                     onSelect={(e) => e.preventDefault()}
                   >
-                    {item.isPublished ? (
+                    {item.is_published ? (
                       <IconLivePhotoOff />
                     ) : (
                       <IconLivePhoto />
                     )}
-                    {item.isPublished ? "Unpublish" : "Publish"}
+                    {item.is_published ? "Unpublish" : "Publish"}
                   </DropdownMenuItem>
                 }
                 onSubmit={handlePublish}
                 cancelText="Cancel"
-                submitText={item.isPublished ? "Unpublish" : "Publish"}
+                submitText={item.is_published ? "Unpublish" : "Publish"}
                 isLoading={isLoading}
                 onSubmitEnd={closeDropdown}
               >
                 <div className="py-2">
                   <p className="">
                     Are you sure you want to{" "}
-                    {item.isPublished ? "unpublish" : "publish"} the {item.name}{" "}
-                    event? This will make the event{" "}
-                    {item.isPublished ? "hidden" : "visible"} on the events
+                    {item.is_published ? "unpublish" : "publish"} the{" "}
+                    {item.name} event? This will make the event{" "}
+                    {item.is_published ? "hidden" : "visible"} on the events
                     page.
                   </p>
                 </div>
               </ModalWrapper>
               <ModalWrapper
-                title={`${item.displayResults ? "Hide" : "Display "} Results`}
+                title={`${item.display_results ? "Hide" : "Display "} Results`}
                 description={`Make the results of the event visible to the public?`}
                 trigger={
                   <DropdownMenuItem
-                    disabled={!item.isPublished}
+                    disabled={!item.is_published}
                     onSelect={(e) => e.preventDefault()}
                   >
-                    {item.displayResults ? <IconEyeOff /> : <IconEye />}
-                    {item.displayResults ? "Hide" : "Display "} results
+                    {item.display_results ? <IconEyeOff /> : <IconEye />}
+                    {item.display_results ? "Hide" : "Display "} results
                   </DropdownMenuItem>
                 }
                 onSubmit={handleAllowDisplayResults}
                 cancelText="Cancel"
-                submitText={item.displayResults ? "Hide" : "Display "}
+                submitText={item.display_results ? "Hide" : "Display "}
                 isLoading={isLoading}
                 onSubmitEnd={closeDropdown}
               >
                 <div className="py-2">
                   <p className="">
                     Are you sure you want to{" "}
-                    {item.displayResults ? "hide" : "display"} the results of
+                    {item.display_results ? "hide" : "display"} the results of
                     the {item.name} event?{" "}
-                    {item.displayResults
+                    {item.display_results
                       ? "This will make the results of the event hidden from the public."
                       : "This will make the results of the event visible to the public."}
                   </p>
@@ -211,32 +218,21 @@ export function RowActions({ item }: { item: AllEvents }) {
             onSubmit={handleDelete}
             cancelText="Cancel"
             submitText="Yes, delete"
-            isLoading={isLoading}
+            isLoading={isPending}
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">
               <p className="">
-                Are you sure you want to delete the {item.name} event? This will
-                permanently remove the event and all associated data. This
-                action cannot be undone.
+                Are you sure you want to delete the <strong>{item.name}</strong>{" "}
+                event? This will permanently remove the event and all associated
+                data. This action cannot be undone.
               </p>
             </div>
           </ModalWrapper>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DrawerContent className="border-none px-0">
-        <DrawerTitle className="sr-only">Edit Event</DrawerTitle>
-        <EditEventDetails data={item} />
-        <DrawerFooter className="ml-auto flex flex-row gap-2">
-          <Button className="h-10">Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline" className="h-10">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
+      <EditEventDetails data={item} drawerState={setOpen} />
     </Drawer>
   );
 }

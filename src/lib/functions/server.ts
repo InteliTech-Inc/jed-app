@@ -1,10 +1,10 @@
-import { COOKIE_NAME } from "@/constants/url";
+import { COOKIE_NAME, API_URL } from "@/constants/url";
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
-import { API_URL } from "@/constants/url";
 import axios from "axios";
+import { authAxios } from "@/providers/api-client";
 
-async function getUserFromServer() {
+export default async function getUserFromServer() {
   const cookieStore = cookies();
   const token = (await cookieStore).get(COOKIE_NAME)?.value;
 
@@ -16,4 +16,15 @@ async function getUserFromServer() {
   return res.data;
 }
 
-export default getUserFromServer;
+export async function fetchEvents() {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  const res = await authAxios.get(`${API_URL}/events/user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+}
