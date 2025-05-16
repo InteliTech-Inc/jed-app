@@ -58,12 +58,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { AllEvents } from "../page";
+import { EventResponse } from "@/interfaces/event";
 import { columns } from "./columns";
 import { exportToCSV } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
 
-export function DataTable({ data: initialData }: { data: AllEvents[] }) {
-  const [data, setData] = React.useState(() => initialData);
+export function DataTable() {
+  const [data, setData] = React.useState<EventResponse[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -81,6 +84,8 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {}),
   );
+
+  const { fetchEvents } = QUERY_FUNCTIONS;
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -129,13 +134,23 @@ export function DataTable({ data: initialData }: { data: AllEvents[] }) {
   function handleExportData() {
     // remove the destructured fields from the data for now
     const payload = data.map((data) => {
-      const { voting_period, nomination_period, categoryDetails, ...rest } =
-        data;
+      const { schedule, categories, tools, ...rest } = data;
       return rest;
     });
 
     exportToCSV(payload, "ALL EVENTS");
   }
+
+  const { data: allEvents } = useQuery({
+    queryKey: [QUERY_KEYS.EVENTS],
+    queryFn: fetchEvents,
+  });
+
+  React.useEffect(() => {
+    if (allEvents?.data) {
+      setData(allEvents.data.events as EventResponse[]);
+    }
+  }, [allEvents]);
 
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
