@@ -28,6 +28,9 @@ import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
 import Link from "next/link";
 import { transformToLowerCase } from "@/lib/utils";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,6 +39,8 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const { deleteEvent } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
 
   /* 
   Using internal state to control the dropdown menu to avoid the issue of 
@@ -47,17 +52,23 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
     setOpenDropdown(false);
   };
 
-  const handleDelete = async () => {
-    try {
-      setIsLoading(true);
+  const { mutateAsync: deleteSingleEvent, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.EVENTS],
+    mutationFn: deleteEvent,
+    onSuccess: async () => {
       await delay(3000);
       toast.success("Event deleted successfully");
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+    },
+    onError: (error) => {
       console.error(error);
       toast.error("Failed to delete event");
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  const handleDelete = async () => {
+    const id = String(item.id);
+    await deleteSingleEvent(id);
   };
 
   const handlePublish = async () => {
@@ -207,7 +218,7 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
             onSubmit={handleDelete}
             cancelText="Cancel"
             submitText="Yes, delete"
-            isLoading={isLoading}
+            isLoading={isPending}
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">
