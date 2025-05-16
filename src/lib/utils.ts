@@ -41,7 +41,7 @@ export const exportToCSV = <
         .map(
           (header) =>
             `"${(row[header] as string | number)
-              .toString()
+              ?.toString()
               .replace(/"/g, '""')}"`,
         )
         .join(","),
@@ -64,9 +64,9 @@ export const exportToCSV = <
   document.body.removeChild(link);
 };
 
-export function copyToClipboard(data: string) {
+export async function copyToClipboard(data: string) {
   try {
-    navigator.clipboard.writeText(data);
+    await navigator.clipboard.writeText(data);
   } catch (error) {
     console.error("Failed to copy to clipboard", error);
   }
@@ -90,3 +90,5 @@ export const formatJedError = (error: AxiosError) => {
     ?.error?.message;
   return errorMessage;
 };
+
+export const transformToLowerCase = (value: string) => value.toLowerCase();
