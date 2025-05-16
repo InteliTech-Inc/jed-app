@@ -18,6 +18,11 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
 
+  deleteEvent: async (id: string) => {
+    const response = await authAxios.delete(`/events/${id}`);
+    return response.data;
+  },
+
   fetchEvents: async () => {
     const response = await authAxios.get("/events/user");
     return response.data;
