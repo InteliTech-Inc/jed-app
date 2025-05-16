@@ -9,6 +9,18 @@ export interface Event {
   service_percentage: number;
 }
 
+export interface UpdateEventPayload {
+  name: string;
+  description: string;
+  voting_period: Period;
+  nomination_period: Period;
+}
+
+interface Period {
+  start_date: string;
+  end_date: string;
+}
+
 interface Tools {
   nominations: boolean;
   voting: boolean;
@@ -44,9 +56,8 @@ interface Schedule {
 }
 
 export interface Nominee {
-  id: string;
-  fullName: string;
+  full_name: string;
   image: string;
-  code: string;
-  totalVotes: number;
+  event_id: string;
+  category_id: string;
 }
