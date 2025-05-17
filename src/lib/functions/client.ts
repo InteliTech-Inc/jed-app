@@ -1,7 +1,14 @@
 import { API_URL } from "@/constants/url";
-import { Event, EventResponse } from "@/interfaces/event";
+import { Event, UpdateEventPayload } from "@/interfaces/event";
 import { authAxios } from "@/providers/api-client";
 import axios from "axios";
+
+interface Nominee {
+  full_name: string;
+  category_id: string;
+  image: string;
+  event_id: string;
+}
 
 const QUERY_FUNCTIONS = {
   getUser: async (id: string) => {
@@ -13,7 +20,7 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
 
-  updateEvent: async (payload: EventResponse, id: string) => {
+  updateEvent: async (payload: UpdateEventPayload, id: string) => {
     const response = await authAxios.patch(`/events/${id}`, payload);
     return response.data;
   },
@@ -25,6 +32,31 @@ const QUERY_FUNCTIONS = {
 
   fetchEvents: async () => {
     const response = await authAxios.get("/events/user");
+    return response.data;
+  },
+
+  createNominee: async (payload: Nominee) => {
+    const response = await authAxios.post(`/nominee`, payload);
+    return response.data;
+  },
+
+  updateNominee: async (payload: Nominee, id: string) => {
+    const response = await authAxios.patch(`/nominee/${id}`, payload);
+    return response.data;
+  },
+
+  deleteNominee: async (id: string) => {
+    const response = await authAxios.delete(`/nominee/${id}`);
+    return response.data;
+  },
+
+  fetchNominees: async () => {
+    const response = await authAxios.get(`/nominee`);
+    return response.data;
+  },
+
+  fetchCategories: async () => {
+    const response = await authAxios.get(`/category`);
     return response.data;
   },
 };
