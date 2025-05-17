@@ -32,9 +32,9 @@ export default async function DashboardPage() {
     data: { first_name },
   } = await getUserFromServer();
 
-  const event = await fetchEvents();
+  const { data } = await fetchEvents();
 
-  const ongoingEvents = event.data.events.filter(
+  const ongoingEvents = data.events.filter(
     (event: EventResponse) =>
       transformToLowerCase(event.event_progress) === "ongoing",
   );
