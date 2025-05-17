@@ -64,6 +64,7 @@ import { exportToCSV } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { Spinner } from "@/components/spinner";
 
 export function DataTable() {
   const [data, setData] = React.useState<EventResponse[]>([]);
@@ -141,7 +142,7 @@ export function DataTable() {
     exportToCSV(payload, "ALL EVENTS");
   }
 
-  const { data: allEvents } = useQuery({
+  const { data: allEvents, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.EVENTS],
     queryFn: fetchEvents,
   });
@@ -216,6 +217,17 @@ export function DataTable() {
                       <DraggableRow key={row.id} row={row} />
                     ))}
                   </SortableContext>
+                ) : isLoading ? (
+                  <TableRow className="h-24">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 p-0 text-center"
+                    >
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Spinner />
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   <TableRow>
                     <TableCell
