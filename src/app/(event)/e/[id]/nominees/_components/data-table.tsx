@@ -61,9 +61,14 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { exportToCSV } from "@/lib/utils";
 import { CreateNomineeModal } from "./create-nominee-modal";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { NomineeResponse } from "@/interfaces/nominees";
+import { Spinner } from "@/components/spinner";
 
-export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
-  const [data, setData] = React.useState(() => initialData);
+export function NomineesDataTable() {
+  const [data, setData] = React.useState<Nominee[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -74,6 +79,8 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
     pageSize: 10,
   });
 
+  const { fetchNominees } = QUERY_FUNCTIONS;
+
   const sortableId = React.useId();
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -82,21 +89,37 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
   );
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
+    () => data?.map(({ id }) => id) ?? [],
     [data],
   );
 
+  const { data: nomineesData, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.NOMINEES],
+    queryFn: fetchNominees,
+  });
+
+  const flattenedData = React.useMemo(() => {
+    return nomineesData?.data.nominees.map((nominee: NomineeResponse) => {
+      return {
+        ...nominee,
+        category: nominee.catgeory.name,
+        photo: nominee.img_url ?? "",
+        total_votes: nominee.total_votes,
+      };
+    });
+  }, [nomineesData]);
+
   const uniqueCategories = React.useMemo(() => {
     const categories = new Set<string>();
-    initialData.forEach((item) => {
+    flattenedData?.forEach((item: Nominee) => {
       categories.add(item.category);
     });
     return Array.from(categories);
-  }, [initialData]);
+  }, [flattenedData]);
 
   React.useEffect(() => {
-    setData(initialData);
-  }, [initialData]);
+    setData(flattenedData);
+  }, [flattenedData]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -139,10 +162,10 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
     }
     const payload = data.map((r) => {
       return {
-        "Full Name": r.fullName,
+        "Full Name": r.full_name,
         CATEGORY: r.category,
         CODE: r.code,
-        "Total Votes": r.totalVotes || 0,
+        "Total Votes": r.total_votes ?? 0,
       };
     });
     exportToCSV(payload, `Nominees_List`);
@@ -150,7 +173,7 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
   };
 
   const filterValue =
-    (table.getColumn("fullName")?.getFilterValue() as string) ?? "";
+    (table.getColumn("full_name")?.getFilterValue() as string) ?? "";
 
   const selectedCategory = React.useMemo(() => {
     const categoryFilter = columnFilters.find(
@@ -203,7 +226,7 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
             placeholder="Filter by name..."
             value={filterValue}
             onChange={(event) => {
-              table.getColumn("fullName")?.setFilterValue(event.target.value);
+              table.getColumn("full_name")?.setFilterValue(event.target.value);
             }}
             className="h-full w-full min-w-[15rem]"
           />
@@ -212,7 +235,7 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
           <Button
             onClick={handleDownloadData}
             variant="outline"
-            disabled={!data.length}
+            disabled={!data?.length}
             className="shadow-none"
           >
             Export Data
@@ -265,6 +288,17 @@ export function NomineesDataTable({ data: initialData }: { data: Nominee[] }) {
                       <DraggableRow key={row.id} row={row} />
                     ))}
                   </SortableContext>
+                ) : isLoading ? (
+                  <TableRow className="h-24">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 p-0 text-center"
+                    >
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Spinner />
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   <TableRow>
                     <TableCell
