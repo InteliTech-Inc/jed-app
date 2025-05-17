@@ -55,6 +55,7 @@ export function EditNomineeForm({
   });
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
 
   const { fetchCategories, updateNominee } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
@@ -84,6 +85,10 @@ export function EditNomineeForm({
     setPhotoPreview(nominee.photo || null);
     setFile(null);
   }, [nominee.id]);
+
+  useEffect(() => {
+    setEventId(window.location.pathname.split("/")[2]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -208,13 +213,15 @@ export function EditNomineeForm({
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {categories?.data.categories?.map(
-                (category: CategoryResponse) => (
+              {categories?.data.categories
+                ?.filter(
+                  (category: CategoryResponse) => category.event_id === eventId,
+                )
+                .map((category: CategoryResponse) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
-                ),
-              )}
+                ))}
             </SelectContent>
           </Select>
         </div>

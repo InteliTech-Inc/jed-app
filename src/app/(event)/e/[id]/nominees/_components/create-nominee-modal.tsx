@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, use } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -46,6 +46,7 @@ export function CreateNomineeModal() {
   const [photoPreview, setPhotoPreview] = useState("/placeholder-avatar.png");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
 
   const {
     register,
@@ -72,6 +73,10 @@ export function CreateNomineeModal() {
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
+
+  React.useEffect(() => {
+    setEventId(window.location.pathname.split("/")[2]);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -197,13 +202,16 @@ export function CreateNomineeModal() {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.data.categories?.map(
-                    (category: CategoryResponse) => (
+                  {categories?.data.categories
+                    ?.filter(
+                      (category: CategoryResponse) =>
+                        category.event_id === eventId,
+                    )
+                    .map((category: CategoryResponse) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
-                    ),
-                  )}
+                    ))}
                 </SelectContent>
               </Select>
               {errors.category && (
