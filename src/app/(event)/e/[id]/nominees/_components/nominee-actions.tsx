@@ -2,9 +2,7 @@
 
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerTrigger,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -29,49 +27,42 @@ import {
 import { Nominee } from "./columns";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
-import { copyToClipboard } from "@/lib/utils";
-
-const delay = async (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+import { copyToClipboard, formatJedError } from "@/lib/utils";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { AxiosError } from "axios";
 
 interface NomineeActionsProps {
   nominee: Nominee;
 }
 
-export function NomineeActions({ nominee }: NomineeActionsProps) {
+export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
   const [openDropdown, setOpenDropdown] = React.useState(false);
-  const [formData, setFormData] = React.useState(nominee);
+
+  const { deleteNominee } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINEES],
+    mutationFn: deleteNominee,
+    onSuccess: () => {
+      toast.success("Nominee deleted successfully");
+    },
+    onError: (error: AxiosError) => {
+      if (error instanceof Error) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("An error occurred while deleting the nominee.");
+      }
+    },
+  });
 
   const handleDelete = async () => {
-    try {
-      setIsLoading(true);
-      await delay(1000);
-
-      toast.success("Nominee deleted successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to delete nominee");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      setIsLoading(true);
-      await delay(1000);
-
-      setOpen(false);
-      toast.success("Nominee updated successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update nominee");
-    } finally {
-      setIsLoading(false);
-    }
+    await mutateAsync(nominee.id);
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
   };
 
   const handleCopyCode = () => {
@@ -86,10 +77,6 @@ export function NomineeActions({ nominee }: NomineeActionsProps) {
         position: "bottom-right",
       });
     }
-  };
-
-  const handleFormUpdate = (updatedData: Nominee) => {
-    setFormData(updatedData);
   };
 
   return (
@@ -139,14 +126,15 @@ export function NomineeActions({ nominee }: NomineeActionsProps) {
             onSubmit={handleDelete}
             cancelText="Cancel"
             submitText="Yes, delete"
-            isLoading={isLoading}
+            isLoading={isPending}
             onSubmitEnd={() => setOpenDropdown(false)}
           >
             <div className="py-2">
               <p className="">
-                Are you sure you want to delete {nominee.fullName}? This will
-                permanently remove the nominee and all associated data. This
-                action cannot be undone.
+                Are you sure you want to delete{" "}
+                <strong>{nominee.full_name}</strong>? This will permanently
+                remove the nominee and all associated data. This action cannot
+                be undone.
               </p>
             </div>
           </ModalWrapper>
@@ -163,23 +151,12 @@ export function NomineeActions({ nominee }: NomineeActionsProps) {
             Make changes to the nominee profile here. Click save when you're
             done.
           </p>
-          <EditNomineeForm nominee={nominee} onFormChange={handleFormUpdate} />
+          <EditNomineeForm
+            key={nominee.id}
+            nominee={nominee}
+            setOpen={setOpen}
+          />
         </div>
-        <DrawerFooter className="ml-auto flex flex-row gap-2">
-          <Button
-            type="button"
-            onClick={handleSave}
-            className="h-10"
-            disabled={isLoading}
-          >
-            {isLoading ? "Saving..." : "Save changes"}
-          </Button>
-          <DrawerClose asChild>
-            <Button variant="outline" className="h-10">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

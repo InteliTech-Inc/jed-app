@@ -9,21 +9,22 @@ import { NomineeActions } from "./nominee-actions";
 
 export type Nominee = {
   id: string;
-  fullName: string;
+  full_name: string;
   category: string;
+  category_id: string;
   photo: string;
   code: string;
-  totalVotes?: number;
+  total_votes?: number;
 };
 
 declare module "@tanstack/react-table" {
-  interface TableMeta<TData extends unknown> {
+  interface TableMeta<TData> {
     updateData?: (updatedNominee: Nominee) => void;
     deleteData?: (id: string) => void;
   }
 }
 
-function DragHandle({ id }: { id: string }) {
+function DragHandle({ id }: { readonly id: string }) {
   const { attributes, listeners } = useSortable({
     id,
   });
@@ -81,14 +82,14 @@ export const columns: ColumnDef<Nominee>[] = [
       const nominee = row.original;
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={nominee.photo} alt={nominee.fullName} />
-          <AvatarFallback>{nominee.fullName.charAt(0)}</AvatarFallback>
+          <AvatarImage src={nominee.photo} alt={nominee.full_name} />
+          <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
       );
     },
   },
   {
-    accessorKey: "fullName",
+    accessorKey: "full_name",
     header: "Full Name",
     enableHiding: false,
   },

@@ -12,7 +12,7 @@ import {
   DrawerContent,
   DrawerFooter,
 } from "@/components/ui/drawer";
-import { EventResponse } from "@/interfaces/event";
+import { UpdateEventPayload, EventResponse } from "@/interfaces/event";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
@@ -63,7 +63,7 @@ export default function EditEventDetails({
 
   const { mutate: updateExistingEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
-    mutationFn: async (payload: { id: string; data: EventResponse }) => {
+    mutationFn: async (payload: { id: string; data: UpdateEventPayload }) => {
       return updateEvent(payload.data, payload.id);
     },
     onSuccess: () => {
@@ -87,11 +87,13 @@ export default function EditEventDetails({
         ...data,
         name: values.name,
         description: values.description,
-        schedule: {
-          voting_start_period: values.voting_start_period.toISOString(),
-          voting_end_period: values.voting_end_period.toISOString(),
-          nomination_start_period: values.nomination_start_period.toISOString(),
-          nomination_end_period: values.nomination_end_period.toISOString(),
+        voting_period: {
+          start_date: values.voting_start_period.toISOString(),
+          end_date: values.voting_end_period.toISOString(),
+        },
+        nomination_period: {
+          start_date: values.nomination_start_period.toISOString(),
+          end_date: values.nomination_end_period.toISOString(),
         },
       },
     };
