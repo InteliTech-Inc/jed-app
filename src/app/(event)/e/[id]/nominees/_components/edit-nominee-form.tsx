@@ -29,38 +29,61 @@ interface EditNomineeFormProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface FormData {
+  id: string;
+  full_name: string;
+  category: string;
+  category_id: string;
+  code: string;
+  photo: string | null;
+}
+
 export function EditNomineeForm({
   nominee,
   setOpen,
 }: Readonly<EditNomineeFormProps>) {
-  const [photoPreview, setPhotoPreview] = useState(nominee.photo);
-  const [formData, setFormData] = useState({
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    nominee.photo || null,
+  );
+  const [formData, setFormData] = useState<FormData>({
     id: nominee.id,
     full_name: nominee.full_name,
-    category: nominee.category,
+    category: nominee.category || "",
+    category_id: nominee.category_id || "",
     code: nominee.code,
-    photo: nominee.photo,
+    photo: nominee.photo || null,
   });
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { fetchCategories, updateNominee } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
-  const { data: categories } = useQuery({
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORIES],
     queryFn: fetchCategories,
   });
 
+  const getCategoryName = (categoryId: string) => {
+    const category = categories?.data.categories?.find(
+      (cat: CategoryResponse) => cat.id === categoryId,
+    );
+
+    return category?.name ?? "Select a category";
+  };
+
   useEffect(() => {
-    setFormData({
+    const initialData: FormData = {
       id: nominee.id,
       full_name: nominee.full_name,
-      category: nominee.category,
+      category: nominee.category || "",
+      category_id: nominee.category_id || "",
       code: nominee.code,
-      photo: nominee.photo,
-    });
-    setPhotoPreview(nominee.photo);
-  }, []);
+      photo: nominee.photo || null,
+    };
+    setFormData(initialData);
+    setPhotoPreview(nominee.photo || null);
+    setFile(null);
+  }, [nominee.id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -73,12 +96,20 @@ export function EditNomineeForm({
       setFile(selectedFile);
       const fileUrl = URL.createObjectURL(selectedFile);
       setPhotoPreview(fileUrl);
-      setFormData((prev) => ({ ...prev, photo: fileUrl }));
     }
   };
 
   const handleCategoryChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, category: value }));
+    const catName =
+      categories?.data.categories?.find(
+        (cat: CategoryResponse) => cat.id === value,
+      )?.name ?? "";
+
+    setFormData((prev) => ({
+      ...prev,
+      category_id: value,
+      category: catName,
+    }));
   };
 
   const triggerFileInput = () => {
@@ -86,26 +117,33 @@ export function EditNomineeForm({
   };
 
   const { mutate: updateExistingNominee, isPending } = useMutation({
-    mutationKey: [QUERY_KEYS.NOMINEES],
-    mutationFn: async (payload: { data: any; id: string }) => {
-      return await updateNominee(payload.data, payload.id);
+    mutationKey: [QUERY_KEYS.NOMINEES, nominee.id],
+    mutationFn: async (payload: { data: FormData; id: string }) => {
+      const dataToSend = {
+        ...payload.data,
+        photo: file || payload.data.photo,
+      };
+
+      await updateNominee(dataToSend as any, payload.id);
     },
     onSuccess: () => {
       toast.success("Nominee updated successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
       setOpen(false);
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
         toast.error(formatJedError(error));
       } else {
-        toast.error("An error occurred while creating the nominee.");
+        toast.error("An error occurred while updating the nominee.");
       }
     },
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     updateExistingNominee({ data: formData, id: nominee.id });
-    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
   };
 
   return (
@@ -118,8 +156,10 @@ export function EditNomineeForm({
         <div className="flex justify-center">
           <div className="relative">
             <Avatar className="size-24">
-              <AvatarImage src={photoPreview} alt={formData.full_name} />
-              <AvatarFallback>{formData.full_name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={photoPreview ?? ""} alt={formData.full_name} />
+              <AvatarFallback>
+                {formData.full_name?.charAt(0) || "N"}
+              </AvatarFallback>
             </Avatar>
             <Button
               type="button"
@@ -156,11 +196,16 @@ export function EditNomineeForm({
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
           <Select
-            value={formData?.category}
+            value={formData.category_id}
             onValueChange={handleCategoryChange}
+            disabled={categoriesLoading}
           >
             <SelectTrigger id="category" className="w-full">
-              {formData?.category || "Select a category"}
+              <SelectValue placeholder="Select a category">
+                {categoriesLoading
+                  ? "Loading categories..."
+                  : getCategoryName(formData.category_id)}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {categories?.data.categories?.map(
@@ -174,10 +219,15 @@ export function EditNomineeForm({
           </Select>
         </div>
       </div>
+
       <div className="h-10" />
 
       <DrawerFooter className="mt-auto ml-auto flex flex-row gap-2">
-        <Button type="submit" className="h-10" disabled={isPending}>
+        <Button
+          type="submit"
+          className="h-10"
+          disabled={isPending || categoriesLoading}
+        >
           {isPending ? <Spinner /> : "Save changes"}
         </Button>
         <DrawerClose asChild>
