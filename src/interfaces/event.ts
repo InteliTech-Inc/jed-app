@@ -12,8 +12,8 @@ export interface Event {
 export interface UpdateEventPayload {
   name: string;
   description: string;
-  voting_period: Period;
-  nomination_period: Period;
+  voting_period: Partial<Period>;
+  nomination_period: Partial<Period>;
 }
 
 interface Period {
