@@ -88,12 +88,12 @@ export default function EditEventDetails({
         name: values.name,
         description: values.description,
         voting_period: {
-          start_date: values.voting_start_period.toISOString(),
-          end_date: values.voting_end_period.toISOString(),
+          start_date: values.voting_start_period?.toISOString(),
+          end_date: values.voting_end_period?.toISOString(),
         },
         nomination_period: {
-          start_date: values.nomination_start_period.toISOString(),
-          end_date: values.nomination_end_period.toISOString(),
+          start_date: values.nomination_start_period?.toISOString(),
+          end_date: values.nomination_end_period?.toISOString(),
         },
       },
     };
