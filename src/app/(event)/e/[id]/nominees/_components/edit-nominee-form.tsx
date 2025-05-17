@@ -23,6 +23,7 @@ import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/spinner";
+import { useParams } from "next/navigation";
 
 interface EditNomineeFormProps {
   nominee: Nominee;
@@ -62,6 +63,8 @@ export function EditNomineeForm({
     queryKey: [QUERY_KEYS.CATEGORIES],
     queryFn: fetchCategories,
   });
+
+  const { id: event_id } = useParams();
 
   const getCategoryName = (categoryId: string) => {
     const category = categories?.data.categories?.find(
@@ -208,13 +211,16 @@ export function EditNomineeForm({
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {categories?.data.categories?.map(
-                (category: CategoryResponse) => (
+              {categories?.data.categories
+                ?.filter(
+                  (category: CategoryResponse) =>
+                    category.event_id === event_id,
+                )
+                .map((category: CategoryResponse) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
-                ),
-              )}
+                ))}
             </SelectContent>
           </Select>
         </div>

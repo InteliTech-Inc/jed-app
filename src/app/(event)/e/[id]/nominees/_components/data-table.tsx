@@ -66,6 +66,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { NomineeResponse } from "@/interfaces/nominees";
 import { Spinner } from "@/components/spinner";
+import { useParams } from "next/navigation";
 
 export function NomineesDataTable() {
   const [data, setData] = React.useState<Nominee[]>([]);
@@ -78,6 +79,8 @@ export function NomineesDataTable() {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const { id: event_id } = useParams();
 
   const { fetchNominees } = QUERY_FUNCTIONS;
 
@@ -99,14 +102,16 @@ export function NomineesDataTable() {
   });
 
   const flattenedData = React.useMemo(() => {
-    return nomineesData?.data.nominees.map((nominee: NomineeResponse) => {
-      return {
-        ...nominee,
-        category: nominee.catgeory.name,
-        photo: nominee.img_url ?? "",
-        total_votes: nominee.total_votes,
-      };
-    });
+    return nomineesData?.data.nominees
+      .map((nominee: NomineeResponse) => {
+        return {
+          ...nominee,
+          category: nominee.catgeory.name,
+          photo: nominee.img_url ?? "",
+          total_votes: nominee.total_votes,
+        };
+      })
+      .filter((nominee: NomineeResponse) => nominee.event_id === event_id);
   }, [nomineesData]);
 
   const uniqueCategories = React.useMemo(() => {
@@ -279,16 +284,7 @@ export function NomineesDataTable() {
                 ))}
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
-                    ))}
-                  </SortableContext>
-                ) : isLoading ? (
+                {isLoading ? (
                   <TableRow className="h-24">
                     <TableCell
                       colSpan={columns.length}
@@ -297,6 +293,24 @@ export function NomineesDataTable() {
                       <div className="flex h-full w-full items-center justify-center">
                         <Spinner />
                       </div>
+                    </TableCell>
+                  </TableRow>
+                ) : table.getRowModel().rows?.length ? (
+                  <SortableContext
+                    items={dataIds}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {table.getRowModel().rows.map((row) => (
+                      <DraggableRow key={row.id} row={row} />
+                    ))}
+                  </SortableContext>
+                ) : flattenedData && flattenedData.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      NO NOMINEES FOUND
                     </TableCell>
                   </TableRow>
                 ) : (

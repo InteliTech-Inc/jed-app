@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, use } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -33,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { NomineeFormData, nomineeSchema } from "@/validations/nominee";
 import { AxiosError } from "axios";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { useParams } from "next/navigation";
 
 export interface CategoryResponse {
   id: string;
@@ -46,6 +47,8 @@ export function CreateNomineeModal() {
   const [photoPreview, setPhotoPreview] = useState("/placeholder-avatar.png");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { id: event_id } = useParams();
 
   const {
     register,
@@ -105,13 +108,12 @@ export function CreateNomineeModal() {
 
   const onSubmit = async (data: NomineeFormData) => {
     const { full_name, image, category } = data;
-    const eventId = window.location.pathname.split("/")[2];
 
     await mutateAsync({
       full_name,
       image: image ?? "/placeholder-avatar.png",
       category_id: category,
-      event_id: eventId,
+      event_id: String(event_id),
     });
 
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
@@ -197,13 +199,16 @@ export function CreateNomineeModal() {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.data.categories?.map(
-                    (category: CategoryResponse) => (
+                  {categories?.data.categories
+                    ?.filter(
+                      (category: CategoryResponse) =>
+                        category.event_id === event_id,
+                    )
+                    .map((category: CategoryResponse) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
-                    ),
-                  )}
+                    ))}
                 </SelectContent>
               </Select>
               {errors.category && (
