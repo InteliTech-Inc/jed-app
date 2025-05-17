@@ -23,6 +23,7 @@ import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/spinner";
+import { useParams } from "next/navigation";
 
 interface EditNomineeFormProps {
   nominee: Nominee;
@@ -55,7 +56,6 @@ export function EditNomineeForm({
   });
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [eventId, setEventId] = useState<string | null>(null);
 
   const { fetchCategories, updateNominee } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
@@ -63,6 +63,8 @@ export function EditNomineeForm({
     queryKey: [QUERY_KEYS.CATEGORIES],
     queryFn: fetchCategories,
   });
+
+  const { id: event_id } = useParams();
 
   const getCategoryName = (categoryId: string) => {
     const category = categories?.data.categories?.find(
@@ -85,10 +87,6 @@ export function EditNomineeForm({
     setPhotoPreview(nominee.photo || null);
     setFile(null);
   }, [nominee.id]);
-
-  useEffect(() => {
-    setEventId(window.location.pathname.split("/")[2]);
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -215,7 +213,8 @@ export function EditNomineeForm({
             <SelectContent>
               {categories?.data.categories
                 ?.filter(
-                  (category: CategoryResponse) => category.event_id === eventId,
+                  (category: CategoryResponse) =>
+                    category.event_id === event_id,
                 )
                 .map((category: CategoryResponse) => (
                   <SelectItem key={category.id} value={category.id}>
