@@ -11,6 +11,7 @@ export type Nominee = {
   id: string;
   full_name: string;
   category: string;
+  category_id: string;
   photo: string;
   code: string;
   total_votes?: number;
