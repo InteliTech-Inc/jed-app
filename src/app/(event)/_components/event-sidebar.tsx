@@ -7,7 +7,6 @@ import {
   IconFolder,
   IconListDetails,
 } from "@tabler/icons-react";
-import { Logo } from "@/components/logo";
 import { EventNavMain } from "@/app/(event)/_components/event-nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -19,15 +18,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { getUserFromToken } from "@/helpers/get-token";
 
 const data = {
-  user: {
-    id: "1",
-    first_name: "Jed",
-    last_name: "Events",
-    email: "jed@jedevents.com",
-    avatar: "/avatars/jed.png",
-  },
   navMain: [
     {
       title: "Details",
@@ -49,18 +44,22 @@ const data = {
       url: "nominations",
       icon: IconFolder,
     },
-
-    // {
-    //   title: "Analytics",
-    //   url: "/analytics",
-    //   icon: IconChartBar,
-    // },
   ],
 };
 
 export function SingleEventSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const { getUser } = QUERY_FUNCTIONS;
+  const user = getUserFromToken();
+
+  const { data: userData } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      return await getUser(user?.sub!);
+    },
+  });
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -70,11 +69,7 @@ export function SingleEventSidebar({
               asChild
               size={"lg"}
               className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              {/* <a href="#">
-                <Logo />
-              </a> */}
-            </SidebarMenuButton>
+            ></SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -82,7 +77,7 @@ export function SingleEventSidebar({
         <EventNavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData?.data} />
       </SidebarFooter>
     </Sidebar>
   );
