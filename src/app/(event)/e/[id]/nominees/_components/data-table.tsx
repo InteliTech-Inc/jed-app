@@ -66,6 +66,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { NomineeResponse } from "@/interfaces/nominees";
 import { Spinner } from "@/components/spinner";
+import { useParams } from "next/navigation";
 
 export function NomineesDataTable() {
   const [data, setData] = React.useState<Nominee[]>([]);
@@ -78,6 +79,8 @@ export function NomineesDataTable() {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const { id: event_id } = useParams();
 
   const { fetchNominees } = QUERY_FUNCTIONS;
 
@@ -99,7 +102,6 @@ export function NomineesDataTable() {
   });
 
   const flattenedData = React.useMemo(() => {
-    const event_id = window.location.pathname.split("/")[2];
     return nomineesData?.data.nominees
       .map((nominee: NomineeResponse) => {
         return {
