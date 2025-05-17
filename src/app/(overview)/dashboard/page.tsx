@@ -4,28 +4,10 @@ import Viewers from "./_components/viewers";
 import getUserFromServer, { fetchEvents } from "@/lib/functions/server";
 import { EventResponse } from "@/interfaces/event";
 import { transformToLowerCase } from "@/lib/utils";
+import { CARDS_DATA_2 } from "@/lib/data/cards-data";
 
-const cardData = [
-  {
-    title: "Ongoing Events",
-    value: "2",
-    description: "Updated after every event publish.",
-  },
-  {
-    title: "Total Revenue",
-    value: "GHC 1,250.00",
-    description: "Earnings from all events",
-  },
-  {
-    title: "Withdrawable Earnings",
-    value: "GHC 950.00",
-    description: "Total withdrawable amount",
-    action: {
-      label: "Withdraw",
-      href: "/withdrawals",
-    },
-  },
-];
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardPage() {
   const {
@@ -39,7 +21,7 @@ export default async function DashboardPage() {
       transformToLowerCase(event.event_progress) === "ongoing",
   );
 
-  const dashboardStatistics = cardData.map((card) => {
+  const dashboardStatistics = CARDS_DATA_2.map((card) => {
     switch (card.title) {
       case "Ongoing Events":
         return {
