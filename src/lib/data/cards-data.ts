@@ -15,3 +15,25 @@ export const CARDS_DATA = [
     description: "All past events",
   },
 ];
+
+export const CARDS_DATA_2 = [
+  {
+    title: "Ongoing Events",
+    value: "2",
+    description: "Updated after every event publish.",
+  },
+  {
+    title: "Total Revenue",
+    value: "GHC 1,250.00",
+    description: "Earnings from all events",
+  },
+  {
+    title: "Withdrawable Earnings",
+    value: "GHC 950.00",
+    description: "Total withdrawable amount",
+    action: {
+      label: "Withdraw",
+      href: "/withdrawals",
+    },
+  },
+];
