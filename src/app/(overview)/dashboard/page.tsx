@@ -1,7 +1,9 @@
 import { VotingPlatformChart } from "@/app/(overview)/dashboard/_components/voting-platform-chart";
 import { SectionCards } from "@/components/section-cards";
 import Viewers from "./_components/viewers";
-import getUserFromServer from "@/lib/functions/server";
+import getUserFromServer, { fetchEvents } from "@/lib/functions/server";
+import { EventResponse } from "@/interfaces/event";
+import { transformToLowerCase } from "@/lib/utils";
 
 const cardData = [
   {
@@ -30,6 +32,35 @@ export default async function DashboardPage() {
     data: { first_name },
   } = await getUserFromServer();
 
+  const { data } = await fetchEvents();
+
+  const ongoingEvents = data.events.filter(
+    (event: EventResponse) =>
+      transformToLowerCase(event.event_progress) === "ongoing",
+  );
+
+  const dashboardStatistics = cardData.map((card) => {
+    switch (card.title) {
+      case "Ongoing Events":
+        return {
+          ...card,
+          value: ongoingEvents.length,
+        };
+      case "Total Revenue":
+        return {
+          ...card,
+          value: "GHC 1,250.00",
+        };
+      case "Withdrawable Earnings":
+        return {
+          ...card,
+          value: "GHC 950.00",
+        };
+      default:
+        return card;
+    }
+  });
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2 px-4 lg:px-6">
@@ -42,7 +73,7 @@ export default async function DashboardPage() {
               Here's what's happening with your account today.
             </p>
           </section>
-          <SectionCards data={cardData} />
+          <SectionCards data={dashboardStatistics} />
           <div className="">
             <VotingPlatformChart />
           </div>
