@@ -40,16 +40,16 @@ export default function EditEventDetails({
       description: data.description,
       voting_start_period: data.schedule?.voting_start_period
         ? new Date(data.schedule.voting_start_period)
-        : new Date(),
+        : undefined,
       voting_end_period: data.schedule?.voting_end_period
         ? new Date(data.schedule.voting_end_period)
-        : new Date(),
+        : undefined,
       nomination_start_period: data.schedule?.nomination_start_period
         ? new Date(data.schedule.nomination_start_period)
-        : new Date(),
+        : undefined,
       nomination_end_period: data.schedule?.nomination_end_period
         ? new Date(data.schedule.nomination_end_period)
-        : new Date(),
+        : undefined,
     },
   });
 
@@ -103,7 +103,7 @@ export default function EditEventDetails({
 
   return (
     <DrawerContent className="border-none px-0">
-      <div className="flex flex-col gap-4 overflow-y-auto text-sm">
+      <div className="flex flex-col gap-4 overflow-y-auto text-sm outline">
         <div className="max-h-[20rem] min-h-[15rem] w-full">
           <Image
             src={data.img_url}
@@ -134,57 +134,69 @@ export default function EditEventDetails({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-3">
-              <Label>Voting start</Label>
-              <DatePicker
-                value={watch("voting_start_period")}
-                onChange={(date) => setValue("voting_start_period", date!)}
-              />
-              {errors.voting_start_period && (
-                <span className="text-red-500">
-                  {errors.voting_start_period.message}
-                </span>
-              )}
-            </div>
+            {data.tools.voting && (
+              <>
+                <div className="flex flex-col gap-3">
+                  <Label>Voting start</Label>
+                  <DatePicker
+                    value={watch("voting_start_period")}
+                    onChange={(date) => setValue("voting_start_period", date!)}
+                  />
+                  {errors.voting_start_period && (
+                    <span className="text-red-500">
+                      {errors.voting_start_period.message}
+                    </span>
+                  )}
+                </div>
 
-            <div className="flex flex-col gap-3">
-              <Label>Voting end</Label>
-              <DatePicker
-                value={watch("voting_end_period")}
-                onChange={(date) => setValue("voting_end_period", date!)}
-              />
-              {errors.voting_end_period && (
-                <span className="text-red-500">
-                  {errors.voting_end_period.message}
-                </span>
-              )}
-            </div>
+                <div className="flex flex-col gap-3">
+                  <Label>Voting end</Label>
+                  <DatePicker
+                    value={watch("voting_end_period")}
+                    onChange={(date) => setValue("voting_end_period", date!)}
+                  />
+                  {errors.voting_end_period && (
+                    <span className="text-red-500">
+                      {errors.voting_end_period.message}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
 
-            <div className="flex flex-col gap-3">
-              <Label>Nomination start</Label>
-              <DatePicker
-                value={watch("nomination_start_period")}
-                onChange={(date) => setValue("nomination_start_period", date!)}
-              />
-              {errors.nomination_start_period && (
-                <span className="text-red-500">
-                  {errors.nomination_start_period.message}
-                </span>
-              )}
-            </div>
+            {data.tools.nominations && (
+              <>
+                <div className="flex flex-col gap-3">
+                  <Label>Nomination start</Label>
+                  <DatePicker
+                    value={watch("nomination_start_period")}
+                    onChange={(date) =>
+                      setValue("nomination_start_period", date!)
+                    }
+                  />
+                  {errors.nomination_start_period && (
+                    <span className="text-red-500">
+                      {errors.nomination_start_period.message}
+                    </span>
+                  )}
+                </div>
 
-            <div className="flex flex-col gap-3">
-              <Label>Nomination end</Label>
-              <DatePicker
-                value={watch("nomination_end_period")}
-                onChange={(date) => setValue("nomination_end_period", date!)}
-              />
-              {errors.nomination_end_period && (
-                <span className="text-red-500">
-                  {errors.nomination_end_period.message}
-                </span>
-              )}
-            </div>
+                <div className="flex flex-col gap-3">
+                  <Label>Nomination end</Label>
+                  <DatePicker
+                    value={watch("nomination_end_period")}
+                    onChange={(date) =>
+                      setValue("nomination_end_period", date!)
+                    }
+                  />
+                  {errors.nomination_end_period && (
+                    <span className="text-red-500">
+                      {errors.nomination_end_period.message}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <DrawerFooter className="mt-auto ml-auto flex flex-row gap-2">
