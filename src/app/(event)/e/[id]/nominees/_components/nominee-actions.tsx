@@ -2,9 +2,7 @@
 
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerTrigger,
   DrawerTitle,
 } from "@/components/ui/drawer";
@@ -34,10 +32,6 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { AxiosError } from "axios";
-import { Spinner } from "@/components/spinner";
-
-const delay = async (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 interface NomineeActionsProps {
   nominee: Nominee;
@@ -46,9 +40,7 @@ interface NomineeActionsProps {
 export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
   const [openDropdown, setOpenDropdown] = React.useState(false);
-  const [formData, setFormData] = React.useState(nominee);
 
   const { deleteNominee } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
@@ -73,21 +65,6 @@ export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
     queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
   };
 
-  const handleSave = async () => {
-    try {
-      setIsLoading(true);
-      await delay(1000);
-
-      setOpen(false);
-      toast.success("Nominee updated successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update nominee");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleCopyCode = () => {
     try {
       copyToClipboard(nominee.code);
@@ -100,10 +77,6 @@ export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
         position: "bottom-right",
       });
     }
-  };
-
-  const handleFormUpdate = (updatedData: Nominee) => {
-    setFormData(updatedData);
   };
 
   return (
@@ -159,7 +132,7 @@ export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
             <div className="py-2">
               <p className="">
                 Are you sure you want to delete{" "}
-                <strong>{formData.full_name}</strong>? This will permanently
+                <strong>{nominee.full_name}</strong>? This will permanently
                 remove the nominee and all associated data. This action cannot
                 be undone.
               </p>
@@ -178,7 +151,11 @@ export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
             Make changes to the nominee profile here. Click save when you're
             done.
           </p>
-          <EditNomineeForm nominee={formData} setOpen={setOpen} />
+          <EditNomineeForm
+            key={nominee.id}
+            nominee={nominee}
+            setOpen={setOpen}
+          />
         </div>
       </DrawerContent>
     </Drawer>
