@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -20,85 +20,101 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { IconCamera, IconRefresh, IconPlus } from "@tabler/icons-react";
-import { generateCode } from "@/lib/utils";
+import { IconCamera, IconPlus } from "@tabler/icons-react";
+import { formatJedError } from "@/lib/utils";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Spinner } from "@/components/spinner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { NomineeFormData, nomineeSchema } from "@/validations/nominee";
+import { AxiosError } from "axios";
+import { QUERY_KEYS } from "@/constants/query-keys";
+
+export interface CategoryResponse {
+  id: string;
+  name: string;
+  event_id: string;
+}
 
 export function CreateNomineeModal() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState("/placeholder-avatar.png");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    category: "",
-    code: "",
-    photo: "/placeholder-avatar.png",
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<NomineeFormData>({
+    resolver: zodResolver(nomineeSchema),
+    defaultValues: {
+      full_name: "",
+      category: "",
+      image: "",
+    },
   });
 
-  const availableCategories = [
-    "Best Actor",
-    "Best Actress",
-    "Best Supporting Actor",
-    "Best Supporting Actress",
-    "Best Director",
-    "Best Screenplay",
-  ];
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      const fileUrl = URL.createObjectURL(selectedFile);
-      setPhotoPreview(fileUrl);
-      setFormData({ ...formData, photo: fileUrl });
-    }
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setFormData({ ...formData, category: value });
-  };
-
-  const handleGenerateCode = () => {
-    const newCode = generateCode();
-    setFormData({ ...formData, code: newCode });
-  };
+  const { fetchCategories, createNominee } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
+  const { data: categories } = useQuery({
+    queryKey: [QUERY_KEYS.CATEGORIES],
+    queryFn: fetchCategories,
+  });
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.fullName || !formData.category || !formData.code) {
-      toast.error("Please fill in all required fields");
-      return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFile = e.target.files[0];
+      const fileUrl = URL.createObjectURL(selectedFile);
+      setFile(selectedFile);
+      setPhotoPreview(fileUrl);
+      setValue("image", fileUrl);
     }
+  };
 
-    try {
-      setIsLoading(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setIsOpen(false);
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINEES],
+    mutationFn: createNominee,
+    onSuccess: () => {
       toast.success("Nominee created successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create nominee");
-    } finally {
-      setIsLoading(false);
-    }
+      setIsOpen(false);
+      setValue("full_name", "");
+      setValue("category", "");
+      setValue("image", "");
+      setPhotoPreview("");
+    },
+    onError: (error: AxiosError) => {
+      if (error instanceof Error) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("An error occurred while creating the nominee.");
+      }
+    },
+  });
+
+  const onSubmit = async (data: NomineeFormData) => {
+    const { full_name, image, category } = data;
+    const eventId = window.location.pathname.split("/")[2];
+
+    await mutateAsync({
+      full_name,
+      image: image ?? "/placeholder-avatar.png",
+      category_id: category,
+      event_id: eventId,
+    });
+
+    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
   };
 
   return (
@@ -127,7 +143,7 @@ export function CreateNomineeModal() {
 
           <form
             id="create-nominee-form"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
             className="space-y-6"
           >
             <div className="flex justify-center">
@@ -158,57 +174,43 @@ export function CreateNomineeModal() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="full_name">Full Name</Label>
               <Input
-                id="fullName"
-                name="fullName"
+                id="full_name"
+                {...register("full_name")}
                 placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleInputChange}
               />
+              {errors.full_name && (
+                <p className="text-sm text-red-500">
+                  {errors.full_name.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select
-                value={formData.category}
-                onValueChange={handleCategoryChange}
+                value={watch("category")}
+                onValueChange={(value) => setValue("category", value)}
               >
                 <SelectTrigger id="category" className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableCategories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
+                  {categories?.data.categories?.map(
+                    (category: CategoryResponse) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="code">Code</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="code"
-                  name="code"
-                  placeholder="Click to generate"
-                  value={formData.code}
-                  onChange={handleInputChange}
-                  readOnly
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleGenerateCode}
-                  size="sm"
-                  className="h-9 flex-shrink-0 rounded-full text-sm"
-                >
-                  Generate
-                  <IconRefresh className="ml-1 h-2 w-2" />
-                </Button>
-              </div>
+              {errors.category && (
+                <p className="text-sm text-red-500">
+                  {errors.category.message}
+                </p>
+              )}
             </div>
           </form>
         </div>
@@ -218,9 +220,9 @@ export function CreateNomineeModal() {
             form="create-nominee-form"
             type="submit"
             className="h-10"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? <Spinner /> : "Create Nominee"}
+            {isPending ? <Spinner /> : "Create Nominee"}
           </Button>
           <DrawerClose asChild>
             <Button variant="outline" className="h-10">
