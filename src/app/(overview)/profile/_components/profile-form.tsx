@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Spinner } from "@/components/spinner";
+import { useMutation } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
+import { getUserFromToken } from "@/helpers/get-token";
 
 interface ProfileData {
   name: string;
@@ -23,9 +29,12 @@ interface ProfileFormProps {
 export function ProfileForm({
   initialData,
   onProfileUpdate,
-}: ProfileFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+}: Readonly<ProfileFormProps>) {
   const [formData, setFormData] = useState<ProfileData>(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,24 +44,41 @@ export function ProfileForm({
     }));
   };
 
+  const { updateUser } = QUERY_FUNCTIONS;
+  const user = getUserFromToken();
+  const { mutateAsync: updateExistingUser, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.USER],
+    mutationFn: async (payload: { data: any; id: string }) => {
+      return updateUser(payload.data, payload.id);
+    },
+    onSuccess: () => {
+      toast.success("Profile updated successfully");
+    },
+    onError: (error: AxiosError) => {
+      if (error instanceof Error) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("An error occurred while updating the profile.");
+      }
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    onProfileUpdate?.(formData);
 
-      // Update profile data
-      onProfileUpdate?.(formData);
+    const nameParts = formData.name.trim().split(" ");
+    const payload = {
+      first_name: nameParts[0],
+      last_name: nameParts.slice(1).join(" ") || "",
+      email: formData.email,
+      phone_number: formData.phone,
+      company: formData.company,
+      role: formData.role,
+    };
 
-      toast.success("Profile updated successfully");
-    } catch (error) {
-      toast.error("Failed to update profile");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    await updateExistingUser({ data: payload, id: user?.sub! });
   };
 
   return (
@@ -79,6 +105,8 @@ export function ProfileForm({
             onChange={handleChange}
             placeholder="Enter your email"
             required
+            readOnly
+            disabled
           />
         </div>
       </div>
@@ -112,10 +140,12 @@ export function ProfileForm({
           value={formData.role}
           onChange={handleChange}
           placeholder="Enter your role"
+          readOnly
+          disabled
         />
       </div>
-      <Button type="submit" className="mt-4" disabled={isLoading}>
-        {isLoading ? <Spinner /> : "Save Changes"}
+      <Button type="submit" className="mt-4" disabled={isPending}>
+        {isPending ? <Spinner /> : "Save Changes"}
       </Button>
     </form>
   );
