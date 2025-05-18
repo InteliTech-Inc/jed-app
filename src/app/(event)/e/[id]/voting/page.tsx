@@ -1,6 +1,7 @@
 import { Spinner } from "@/components/spinner";
 import { Suspense } from "react";
 import { VotingDataTable } from "./_components/data-table";
+import { Metadata } from "next";
 
 export type VotingDataResponse = {
   id: number;
@@ -11,6 +12,11 @@ export type VotingDataResponse = {
   votes: number;
   category: string;
   photo: string;
+};
+
+export const metadata: Metadata = {
+  title: "Voting | Event Management",
+  description: "Track the progress of the voting period.",
 };
 
 export default async function VotingPage() {
