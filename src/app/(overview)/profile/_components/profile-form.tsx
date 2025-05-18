@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Spinner } from "@/components/spinner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
-import { getUserFromToken } from "@/helpers/get-token";
+import { useUser } from "@/hooks/use-user";
 
 interface ProfileData {
   name: string;
@@ -45,14 +45,15 @@ export function ProfileForm({
   };
 
   const { updateUser } = QUERY_FUNCTIONS;
-  const user = getUserFromToken();
+  const queryClient = useQueryClient();
+  const { user } = useUser();
   const { mutateAsync: updateExistingUser, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.USER],
-    mutationFn: async (payload: { data: any; id: string }) => {
-      return updateUser(payload.data, payload.id);
-    },
+    mutationFn: async (payload: { data: any; id: string }) =>
+      updateUser(payload.data, payload.id),
     onSuccess: () => {
       toast.success("Profile updated successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -78,7 +79,7 @@ export function ProfileForm({
       role: formData.role,
     };
 
-    await updateExistingUser({ data: payload, id: user?.sub! });
+    await updateExistingUser({ data: payload, id: user?.id! });
   };
 
   return (
