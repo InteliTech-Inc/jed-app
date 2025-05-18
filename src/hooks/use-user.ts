@@ -9,6 +9,9 @@ export type User = {
   last_name: string;
   email: string;
   avatar: string;
+  phone_number?: string;
+  company?: string;
+  role?: string;
 };
 
 export const useUser = () => {

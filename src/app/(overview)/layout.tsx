@@ -1,7 +1,29 @@
 import { AppSidebar } from "@/app/(overview)/_components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Overview",
+    template: "%s | Event Management",
+  },
+  description:
+    "Event management dashboard for managing events, users, and more.",
+  openGraph: {
+    title: "Overview",
+    description:
+      "Event management dashboard for managing events, users, and more.",
+    url: "/overview",
+    siteName: "Event Management",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Overview",
+    description:
+      "Event management dashboard for managing events, users, and more.",
+  },
+};
 
 export default function OverviewLayout({
   children,

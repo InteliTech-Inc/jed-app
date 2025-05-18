@@ -15,6 +15,15 @@ import { transformToLowerCase } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+export const metadata = {
+  title: {
+    default: "Events",
+    template: "%s | Event Management",
+  },
+  description:
+    "Event management dashboard for managing events,reading statistics data, and interacting with events and many more.",
+};
+
 export default async function EventsPage() {
   const { data: allEvents } = await fetchEvents();
 
