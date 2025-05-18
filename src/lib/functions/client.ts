@@ -15,6 +15,12 @@ const QUERY_FUNCTIONS = {
     const response = await axios.get(`${API_URL}/users/${id}`);
     return response.data;
   },
+
+  updateUser: async (payload: any, id: string) => {
+    const response = await authAxios.patch(`/users/${id}`, payload);
+    return response.data;
+  },
+
   createEvent: async (payload: Event) => {
     const response = await authAxios.post("/events", payload);
     return response.data;

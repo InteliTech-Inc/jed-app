@@ -18,9 +18,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
-import QUERY_FUNCTIONS from "@/lib/functions/client";
-import { getUserFromToken } from "@/helpers/get-token";
+
+import { useUser } from "@/hooks/use-user";
 
 const data = {
   navMain: [
@@ -50,15 +49,7 @@ const data = {
 export function SingleEventSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { getUser } = QUERY_FUNCTIONS;
-  const user = getUserFromToken();
-
-  const { data: userData } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      return await getUser(user?.sub!);
-    },
-  });
+  const { user } = useUser();
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -77,7 +68,7 @@ export function SingleEventSidebar({
         <EventNavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData?.data} />
+        <NavUser user={user!} />
       </SidebarFooter>
     </Sidebar>
   );
