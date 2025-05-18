@@ -14,8 +14,8 @@ import { PasswordForm } from "./_components/password-form";
 import { AvatarUpload } from "./_components/avatar-upload";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useQuery } from "@tanstack/react-query";
-import { getUserFromToken } from "@/helpers/get-token";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { useUser } from "@/hooks/use-user";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("general");
@@ -28,11 +28,11 @@ export default function ProfilePage() {
   });
   const [avatar, setAvatar] = useState("/avatars/jed.png");
   const { getUser } = QUERY_FUNCTIONS;
-  const user = getUserFromToken();
+  const { user } = useUser();
 
   const { data: userData } = useQuery({
     queryKey: [QUERY_KEYS.USER],
-    queryFn: async () => await getUser(user?.sub!),
+    queryFn: async () => await getUser(user?.id!),
     refetchOnWindowFocus: false,
     retry: false,
   });
