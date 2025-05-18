@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -12,17 +12,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "./_components/profile-form";
 import { PasswordForm } from "./_components/password-form";
 import { AvatarUpload } from "./_components/avatar-upload";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useQuery } from "@tanstack/react-query";
+import { getUserFromToken } from "@/helpers/get-token";
+import { QUERY_KEYS } from "@/constants/query-keys";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("general");
   const [profileData, setProfileData] = useState({
-    name: "Jed Events",
-    email: "jed@jedevents.com",
-    phone: "+233 20 123 4567",
+    name: "",
+    email: "",
+    phone: "",
     company: "JED Events",
-    role: "Event Organizer",
+    role: "",
   });
   const [avatar, setAvatar] = useState("/avatars/jed.png");
+  const { getUser } = QUERY_FUNCTIONS;
+  const user = getUserFromToken();
+
+  const { data: userData } = useQuery({
+    queryKey: [QUERY_KEYS.USER],
+    queryFn: async () => await getUser(user?.sub!),
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
+
+  useEffect(() => {
+    console.log("Data from query:", userData);
+    if (userData?.data) {
+      setProfileData({
+        name: `${userData.data.first_name} ${userData.data.last_name}`,
+        email: userData.data.email,
+        phone: userData.data.phone_number,
+        company: userData.data.company ?? "JED Events",
+        role: userData.data.role,
+      });
+      setAvatar(userData.data.avatar ?? "/avatars/jed.png");
+    }
+  }, [userData?.data]);
 
   const handleProfileUpdate = (data: typeof profileData) => {
     setProfileData(data);
