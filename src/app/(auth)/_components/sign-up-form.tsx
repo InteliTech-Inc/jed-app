@@ -132,7 +132,7 @@ export function SignUpForm({
                   type="email"
                   placeholder="evans@topboy.com"
                   className={`py-5 ${form.formState.errors.email ? "border-red-500" : ""}`}
-                  autoComplete="off"
+                  autoComplete="on"
                   autoCorrect="off"
                   {...form.register("email")}
                 />
@@ -148,6 +148,7 @@ export function SignUpForm({
                 </div>
                 <Input
                   id="password"
+                  placeholder="************"
                   type="password"
                   className={`py-5 ${form.formState.errors.password ? "border-red-500" : ""}`}
                   autoComplete="off"
