@@ -5,9 +5,19 @@ import getUserFromServer, { fetchEvents } from "@/lib/functions/server";
 import { EventResponse } from "@/interfaces/event";
 import { transformToLowerCase } from "@/lib/utils";
 import { CARDS_DATA_2 } from "@/lib/data/cards-data";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: {
+    default: "Dashboard",
+    template: "%s | Event Management",
+  },
+  description:
+    "Event Organizers dashboard for viewing events statistics, earnings, and more.",
+};
 
 export default async function DashboardPage() {
   const {
