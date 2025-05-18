@@ -210,6 +210,38 @@ export function NomineesDataTable() {
     }
   };
 
+  const renderEmptyStateRow = () => {
+    if (isLoading) {
+      return (
+        <TableRow className="h-24">
+          <TableCell colSpan={columns.length} className="h-24 p-0 text-center">
+            <div className="flex h-full w-full items-center justify-center">
+              <Spinner />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (flattenedData && flattenedData.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            NO NOMINEES FOUND
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No results for "{filterValue}".
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -284,18 +316,7 @@ export function NomineesDataTable() {
                 ))}
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {isLoading ? (
-                  <TableRow className="h-24">
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 p-0 text-center"
-                    >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Spinner />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : table.getRowModel().rows?.length ? (
+                {table.getRowModel().rows?.length ? (
                   <SortableContext
                     items={dataIds}
                     strategy={verticalListSortingStrategy}
@@ -304,24 +325,8 @@ export function NomineesDataTable() {
                       <DraggableRow key={row.id} row={row} />
                     ))}
                   </SortableContext>
-                ) : flattenedData && flattenedData.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      NO NOMINEES FOUND
-                    </TableCell>
-                  </TableRow>
                 ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results for "{filterValue}".
-                    </TableCell>
-                  </TableRow>
+                  renderEmptyStateRow()
                 )}
               </TableBody>
             </Table>

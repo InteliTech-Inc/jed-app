@@ -1,6 +1,5 @@
 import { Spinner } from "@/components/spinner";
 import { Suspense } from "react";
-import { allEvents } from "@/app/(overview)/events/page";
 import { VotingDataTable } from "./_components/data-table";
 
 export type VotingDataResponse = {
@@ -14,40 +13,7 @@ export type VotingDataResponse = {
   photo: string;
 };
 
-export default async function VotingPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-
-  // In the actual implementation, take this computation out of the component
-
-  const votingData = allEvents
-    .filter((event) => event.id === parseInt(id))
-    .flatMap((event) => {
-      return event.categoryDetails.flatMap((category) => {
-        return category.nominees.map((nominee) => {
-          return {
-            id: parseInt(nominee.id),
-            full_name: nominee.fullName,
-            email:
-              nominee.fullName.split(" ")[0].toLowerCase() + "@example.com",
-            phone: nominee.fullName.split(" ")[1],
-            votes: nominee.totalVotes,
-            category: category.name,
-            code: nominee.code,
-            photo:
-              nominee.image || `https://i.pravatar.cc/150?img=${nominee.id}`, // Use image field or generate placeholder
-          };
-        });
-      });
-    });
-
-  if (!votingData) {
-    return <div>Event not found</div>;
-  }
-
+export default async function VotingPage() {
   return (
     <section className="h-full p-4">
       <section className="mb-4 max-w-screen-sm">
@@ -66,7 +32,7 @@ export default async function VotingPage({
             </div>
           }
         >
-          <VotingDataTable data={votingData} />
+          <VotingDataTable />
         </Suspense>
       </div>
     </section>

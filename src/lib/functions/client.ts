@@ -59,6 +59,11 @@ const QUERY_FUNCTIONS = {
     const response = await authAxios.get(`/category`);
     return response.data;
   },
+
+  fetchVotes: async () => {
+    const response = await authAxios.get(`/voting`);
+    return response.data;
+  },
 };
 
 export default QUERY_FUNCTIONS;

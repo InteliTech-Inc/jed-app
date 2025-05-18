@@ -103,7 +103,7 @@ export default function EditEventDetails({
 
   return (
     <DrawerContent className="border-none px-0">
-      <div className="flex flex-col gap-4 overflow-y-auto text-sm outline">
+      <div className="flex flex-col gap-4 overflow-y-auto text-sm">
         <div className="max-h-[20rem] min-h-[15rem] w-full">
           <Image
             src={data.img_url}
@@ -140,7 +140,7 @@ export default function EditEventDetails({
                   <Label>Voting start</Label>
                   <DatePicker
                     value={watch("voting_start_period")}
-                    onChange={(date) => setValue("voting_start_period", date!)}
+                    onChange={(date) => setValue("voting_start_period", date)}
                   />
                   {errors.voting_start_period && (
                     <span className="text-red-500">
@@ -153,7 +153,7 @@ export default function EditEventDetails({
                   <Label>Voting end</Label>
                   <DatePicker
                     value={watch("voting_end_period")}
-                    onChange={(date) => setValue("voting_end_period", date!)}
+                    onChange={(date) => setValue("voting_end_period", date)}
                   />
                   {errors.voting_end_period && (
                     <span className="text-red-500">
@@ -171,7 +171,7 @@ export default function EditEventDetails({
                   <DatePicker
                     value={watch("nomination_start_period")}
                     onChange={(date) =>
-                      setValue("nomination_start_period", date!)
+                      setValue("nomination_start_period", date)
                     }
                   />
                   {errors.nomination_start_period && (
@@ -185,9 +185,7 @@ export default function EditEventDetails({
                   <Label>Nomination end</Label>
                   <DatePicker
                     value={watch("nomination_end_period")}
-                    onChange={(date) =>
-                      setValue("nomination_end_period", date!)
-                    }
+                    onChange={(date) => setValue("nomination_end_period", date)}
                   />
                   {errors.nomination_end_period && (
                     <span className="text-red-500">

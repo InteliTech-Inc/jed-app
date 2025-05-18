@@ -153,6 +153,38 @@ export function DataTable() {
     }
   }, [allEvents]);
 
+  const renderEmptyStateRow = () => {
+    if (isLoading) {
+      return (
+        <TableRow className="h-24">
+          <TableCell colSpan={columns.length} className="h-24 p-0 text-center">
+            <div className="flex h-full w-full items-center justify-center">
+              <Spinner />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (allEvents && allEvents.data.events.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            NO EVENTS FOUND
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No results for "{filterValue}".
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
       <div className="flex items-center justify-between gap-2">
@@ -217,26 +249,8 @@ export function DataTable() {
                       <DraggableRow key={row.id} row={row} />
                     ))}
                   </SortableContext>
-                ) : isLoading ? (
-                  <TableRow className="h-24">
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 p-0 text-center"
-                    >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Spinner />
-                      </div>
-                    </TableCell>
-                  </TableRow>
                 ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      No results for "{filterValue}".
-                    </TableCell>
-                  </TableRow>
+                  renderEmptyStateRow()
                 )}
               </TableBody>
             </Table>
