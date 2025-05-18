@@ -44,13 +44,14 @@ import { Card } from "@/components/ui/card";
 import { VotingDataResponse } from "../page";
 import { toast } from "sonner";
 import { exportToCSV } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { Spinner } from "@/components/spinner";
+import { useParams } from "next/navigation";
 
-export function VotingDataTable({
-  data: initialData,
-}: {
-  data: VotingDataResponse[];
-}) {
-  const [data, setData] = React.useState(() => initialData);
+export function VotingDataTable() {
+  const [data, setData] = React.useState<VotingDataResponse[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -63,13 +64,42 @@ export function VotingDataTable({
     pageSize: 10,
   });
 
+  const { id: event_id } = useParams();
+  const { fetchVotes } = QUERY_FUNCTIONS;
+
+  const { data: votingRecords, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.VOTES],
+    queryFn: fetchVotes,
+  });
+
+  const flattenedData = React.useMemo(() => {
+    return votingRecords?.data
+      .map((record: any) => ({
+        ...record,
+        full_name: record.nominee.full_name,
+        votes: record.count,
+        category: record.nominee.catgeory.name,
+        photo: record.nominee.img_url,
+        code: record.nominee.code,
+        id: record.id,
+        email: record.nominee.email ?? "support@jed.app",
+      }))
+      .filter((record: any) => record.event_id === event_id);
+  }, [votingRecords]);
+
   const uniqueCategories = React.useMemo(() => {
     const categories = new Set<string>();
-    initialData.forEach((item) => {
+    flattenedData?.forEach((item: any) => {
       categories.add(item.category);
     });
     return Array.from(categories);
-  }, [initialData]);
+  }, [flattenedData]);
+
+  React.useEffect(() => {
+    if (flattenedData) {
+      setData(flattenedData);
+    }
+  }, [flattenedData]);
 
   const table = useReactTable({
     data,
@@ -147,6 +177,38 @@ export function VotingDataTable({
     return categoryFilter ? (categoryFilter.value as string) : "all";
   }, [columnFilters]);
 
+  const renderEmptyStateRow = () => {
+    if (isLoading) {
+      return (
+        <TableRow className="h-24">
+          <TableCell colSpan={columns.length} className="h-24 p-0 text-center">
+            <div className="flex h-full w-full items-center justify-center">
+              <Spinner />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (flattenedData && flattenedData.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            NO VOTING RECORDS FOUND
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No results for "{filterValue}".
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -211,29 +273,20 @@ export function VotingDataTable({
               ))}
             </TableHeader>
             <TableBody className="**:data-[slot=table-cell]:first:w-8">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results for "{filterValue}".
-                  </TableCell>
-                </TableRow>
-              )}
+              {table.getRowModel().rows?.length
+                ? table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                : renderEmptyStateRow()}
             </TableBody>
           </Table>
         </div>
