@@ -69,19 +69,24 @@ export function LoginForm({
                   Login to your JED account
                 </p>
               </div>
-              <div className="grid gap-3">
+              <div className="grid gap-1.5">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="evans@topboy.com"
-                  required
                   className={`py-5 ${form.formState.errors.email ? "border-red-500" : ""}`}
                   {...form.register("email")}
                   autoComplete="on"
                 />
+                {form.formState.errors.email && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.email.message}
+                  </small>
+                )}
               </div>
-              <div className="grid gap-3">
+
+              <div className="grid gap-1.5">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
@@ -94,7 +99,6 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  required
                   className={`py-5 ${form.formState.errors.password ? "border-red-500" : ""}`}
                   placeholder="********"
                   autoComplete="on"
@@ -103,7 +107,13 @@ export function LoginForm({
                   aria-describedby="password"
                   {...form.register("password")}
                 />
+                {form.formState.errors.password && (
+                  <small className="text-sm text-red-500">
+                    {form.formState.errors.password.message}
+                  </small>
+                )}
               </div>
+
               <Button
                 type="submit"
                 className="inline-flex w-full"
