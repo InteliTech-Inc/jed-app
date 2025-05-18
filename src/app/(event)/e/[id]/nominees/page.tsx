@@ -1,6 +1,12 @@
 import { Spinner } from "@/components/spinner";
 import { Suspense } from "react";
 import { NomineesDataTable } from "./_components/data-table";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Nominees | Event Management",
+  description: "Manage the nominees for this event.",
+};
 
 export default function NomineesPage() {
   return (
