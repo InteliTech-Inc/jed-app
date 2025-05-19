@@ -9,6 +9,7 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useUser } from "@/hooks/use-user";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
+import { Spinner } from "@/components/spinner";
 
 export function PasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -85,9 +86,6 @@ export function PasswordForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
       const payload = {
         email: user?.email!,
         old_password: formData.currentPassword,
@@ -161,7 +159,7 @@ export function PasswordForm() {
         )}
       </div>
       <Button type="submit" className="mt-4" disabled={isLoading}>
-        {isLoading ? "Updating..." : "Update Password"}
+        {isLoading ? <Spinner /> : "Update Password"}
       </Button>
     </form>
   );
