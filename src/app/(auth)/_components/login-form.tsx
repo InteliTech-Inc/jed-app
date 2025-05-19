@@ -14,8 +14,8 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { Spinner } from "@/components/spinner";
 import axios, { AxiosError } from "axios";
-import { API_URL, COOKIE_NAME } from "@/constants/url";
-import Cookies from "js-cookie";
+import { API_URL } from "@/constants/url";
+import { setToken } from "@/helpers/get-token";
 export function LoginForm({
   className,
   ...props
@@ -40,7 +40,7 @@ export function LoginForm({
 
       if (response.data) {
         const { accessToken } = response.data.data;
-        Cookies.set(COOKIE_NAME, accessToken);
+        setToken(accessToken);
         toast.success("Welcome back to JED!");
         router.push("/dashboard");
         form.reset();
