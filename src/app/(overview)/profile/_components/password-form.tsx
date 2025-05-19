@@ -5,6 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useUser } from "@/hooks/use-user";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
+import { Spinner } from "@/components/spinner";
 
 export function PasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +23,9 @@ export function PasswordForm() {
     newPassword: "",
     confirmPassword: "",
   });
+
+  const { changePassword } = QUERY_FUNCTIONS;
+  const { user } = useUser();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -78,20 +86,29 @@ export function PasswordForm() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = {
+        email: user?.email!,
+        old_password: formData.currentPassword,
+        new_password: formData.newPassword,
+        confirm_new_password: formData.confirmPassword,
+      };
 
-      // Clear form after successful update
-      setFormData({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
+      const { data } = await changePassword(payload);
 
-      toast.success("Password updated successfully");
+      if (data) {
+        toast.success("Password updated successfully");
+        setFormData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      }
     } catch (error) {
-      toast.error("Failed to update password");
-      console.error(error);
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -142,7 +159,7 @@ export function PasswordForm() {
         )}
       </div>
       <Button type="submit" className="mt-4" disabled={isLoading}>
-        {isLoading ? "Updating..." : "Update Password"}
+        {isLoading ? <Spinner /> : "Update Password"}
       </Button>
     </form>
   );
