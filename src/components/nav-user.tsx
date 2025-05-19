@@ -22,20 +22,33 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
-import { COOKIE_NAME } from "@/constants/url";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import Link from "next/link";
 import { User } from "@/hooks/use-user";
+import { authAxios } from "@/providers/api-client";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
+import { clearToken } from "@/helpers/get-token";
 
-export function NavUser({ user }: { user: User }) {
+export function NavUser({ user }: { readonly user: User }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
 
-  function handleLogout() {
-    Cookies.remove(COOKIE_NAME);
-    router.push("/login");
-    toast.success("You have been logged out successfully");
+  async function handleLogout() {
+    try {
+      const res = await authAxios.post("/auth/logout");
+      if (res.data) {
+        console.log(res.data.data.message);
+        toast.success(res.data.data.message);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      }
+    } finally {
+      clearToken();
+      router.push("/login");
+    }
   }
 
   function extractUserInitials(full_name: string) {

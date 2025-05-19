@@ -13,6 +13,20 @@ export function getToken() {
   return token;
 }
 
+export function setToken(token: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  Cookies.set(COOKIE_NAME, token);
+}
+
+export function clearToken() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  Cookies.remove(COOKIE_NAME);
+}
+
 export function getUserFromToken() {
   const token = getToken();
   if (!token) {
