@@ -70,6 +70,15 @@ const QUERY_FUNCTIONS = {
     const response = await authAxios.get(`/voting`);
     return response.data;
   },
+  changePassword: async (payload: {
+    email: string;
+    old_password: string;
+    new_password: string;
+    confirm_new_password: string;
+  }) => {
+    const response = await authAxios.post(`/auth/change-password`, payload);
+    return response.data;
+  },
 };
 
 export default QUERY_FUNCTIONS;
