@@ -26,7 +26,7 @@ export const generateCode = (): string => {
 };
 
 export const exportToCSV = <
-  T extends Record<string, string | number | boolean>,
+  T extends Record<string, string | number | boolean | object>,
 >(
   data: T[],
   filename: string,

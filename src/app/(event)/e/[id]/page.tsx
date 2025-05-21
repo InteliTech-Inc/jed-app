@@ -1,4 +1,6 @@
 import { authAxios } from "@/providers/api-client";
+import { CreateEventCategoriesModal } from "./_components/create-categories-modal";
+import EventDetails from "./_components/event-details";
 
 export async function generateMetadata({
   params,
@@ -34,16 +36,25 @@ export async function generateMetadata({
   };
 }
 
+export const revalidate = 0;
 export default async function SingleEventPage({
   params,
 }: Readonly<{
   params: Promise<{ id: string }>;
 }>) {
-  const { id } = await params;
   return (
-    <div>
-      <h1>Single event page</h1>
-      <p>Params: {id}</p>
-    </div>
+    <section className="mx-auto min-h-screen max-w-7xl p-6">
+      <header className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex max-w-lg flex-col items-start gap-2">
+          <p className="mb-2 text-4xl font-semibold text-neutral-700">Event</p>
+          <p className="text-neutral-600">
+            Manage the nominees for this event. You can filter by category,
+            search by name, and edit or delete nominees as needed.
+          </p>
+        </div>
+        <CreateEventCategoriesModal />
+      </header>
+      <EventDetails />
+    </section>
   );
 }
