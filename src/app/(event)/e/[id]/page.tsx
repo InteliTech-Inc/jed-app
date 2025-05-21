@@ -1,4 +1,5 @@
 import { authAxios } from "@/providers/api-client";
+import { CreateEventCategoriesModal } from "./_components/create-categories-modal";
 
 export async function generateMetadata({
   params,
@@ -41,9 +42,14 @@ export default async function SingleEventPage({
 }>) {
   const { id } = await params;
   return (
-    <div>
-      <h1>Single event page</h1>
-      <p>Params: {id}</p>
-    </div>
+    <section>
+      <header className="flex items-center justify-between gap-4">
+        <div>
+          <h1>Single event page</h1>
+          <p>Params: {id}</p>
+        </div>
+        <CreateEventCategoriesModal />
+      </header>
+    </section>
   );
 }
