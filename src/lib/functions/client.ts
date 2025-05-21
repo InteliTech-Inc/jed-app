@@ -1,4 +1,5 @@
 import { API_URL } from "@/constants/url";
+import { CategoriesPayload } from "@/interfaces/categories";
 import { Event, UpdateEventPayload } from "@/interfaces/event";
 import { authAxios } from "@/providers/api-client";
 import axios from "axios";
@@ -58,6 +59,11 @@ const QUERY_FUNCTIONS = {
 
   fetchNominees: async () => {
     const response = await authAxios.get(`/nominee`);
+    return response.data;
+  },
+
+  createCategory: async (payload: { data: CategoriesPayload[] }) => {
+    const response = await authAxios.post(`/category`, payload);
     return response.data;
   },
 
