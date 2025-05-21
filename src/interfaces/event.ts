@@ -39,6 +39,14 @@ export interface EventResponse {
   display_results: boolean;
   categories: Categories[];
   tools: Tools;
+  votes: Vote[];
+  service_percentage: number;
+}
+
+export interface Vote {
+  count: number;
+  amount: number;
+  id: string;
 }
 
 interface Categories {
