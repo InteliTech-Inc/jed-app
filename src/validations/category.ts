@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-const categorySchema = z.object({
+export const categorySchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
