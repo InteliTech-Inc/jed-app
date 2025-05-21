@@ -20,9 +20,6 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import { CategoryType } from "./columns";
 import EditEventCategories from "./edit-categories";
 
-const delay = async (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
 export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
@@ -39,7 +36,6 @@ export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
     mutationKey: [QUERY_KEYS.CATEGORIES],
     mutationFn: deleteCategory,
     onSuccess: async () => {
-      await delay(3000);
       toast.success("Event deleted successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
     },
