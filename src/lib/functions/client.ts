@@ -41,6 +41,10 @@ const QUERY_FUNCTIONS = {
     const response = await authAxios.get("/events/user");
     return response.data;
   },
+  fetchEvent: async (id: string) => {
+    const response = await authAxios.get(`/events/${id}`);
+    return response.data;
+  },
 
   createNominee: async (payload: Nominee) => {
     const response = await authAxios.post(`/nominee`, payload);
@@ -69,6 +73,18 @@ const QUERY_FUNCTIONS = {
 
   fetchCategories: async () => {
     const response = await authAxios.get(`/category`);
+    return response.data;
+  },
+
+  updateCategory: async (
+    payload: Pick<CategoriesPayload, "name">,
+    id: string,
+  ) => {
+    const response = await authAxios.patch(`/category/${id}`, payload);
+    return response.data;
+  },
+  deleteCategory: async (id: string) => {
+    const response = await authAxios.delete(`/category/${id}`);
     return response.data;
   },
 
