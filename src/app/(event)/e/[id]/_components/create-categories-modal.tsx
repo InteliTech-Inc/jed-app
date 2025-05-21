@@ -30,6 +30,8 @@ import { formatJedError } from "@/lib/utils";
 
 export function CreateEventCategoriesModal() {
   const isMobile = useIsMobile();
+  const [open, setOpen] = React.useState(false);
+
   const { id: event_id } = useParams();
   const queryClient = useQueryClient();
   const { createCategory } = QUERY_FUNCTIONS;
@@ -58,6 +60,7 @@ export function CreateEventCategoriesModal() {
     onSuccess: () => {
       toast.success("Categories created successfully!");
       reset();
+      setOpen(false);
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
     },
     onError: (error) => {
@@ -77,7 +80,11 @@ export function CreateEventCategoriesModal() {
   };
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
+    <Drawer
+      direction={isMobile ? "bottom" : "right"}
+      open={open}
+      onOpenChange={setOpen}
+    >
       <DrawerTrigger asChild>
         <Button className="flex items-center gap-1" variant="secondary">
           <IconPlus className="size-4" />
