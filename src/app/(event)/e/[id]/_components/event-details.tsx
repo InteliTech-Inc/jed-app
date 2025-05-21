@@ -8,6 +8,7 @@ import React from "react";
 import InfoCards from "./info-card";
 import { DataTable } from "./categories-table";
 import { EventResponse, Vote } from "@/interfaces/event";
+import Image from "next/image";
 
 const cardsData = [
   {
@@ -82,10 +83,12 @@ export default function EventDetails() {
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="relative h-[23rem] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm lg:col-span-2">
           <div className="absolute inset-0 z-0">
-            <img
-              src={event?.data.img_url}
-              alt={event?.data.name}
+            <Image
+              src={event?.data.img_url!}
+              alt={event?.data.name!}
               className="h-full w-full object-cover"
+              width={1000}
+              height={1000}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           </div>
