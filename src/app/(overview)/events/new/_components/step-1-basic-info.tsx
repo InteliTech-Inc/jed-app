@@ -7,28 +7,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { IconUpload, IconX } from "@tabler/icons-react";
+import { Spinner } from "@/components/spinner";
 
 export function BasicInfoStep() {
-  const { name, description, image, updateBasicInfo } = useCreateEventStore();
+  const { name, description, updateBasicInfo, isUploading, imageUrl } =
+    useCreateEventStore();
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(image);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFile(file);
     const imageUrl = URL.createObjectURL(file);
     setImagePreview(imageUrl);
-    updateBasicInfo({ name, description, image: imageUrl });
+
+    updateBasicInfo({ name, description, image: file, imageUrl });
   };
 
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
-    updateBasicInfo({ name, description, image: null });
+    updateBasicInfo({ name, description, image: null, imageUrl: null });
   };
 
   return (
@@ -41,7 +43,12 @@ export function BasicInfoStep() {
           value={name}
           className="h-12"
           onChange={(e) =>
-            updateBasicInfo({ name: e.target.value, description, image })
+            updateBasicInfo({
+              name: e.target.value,
+              description,
+              image: null,
+              imageUrl,
+            })
           }
         />
       </div>
@@ -55,7 +62,12 @@ export function BasicInfoStep() {
           rows={4}
           value={description}
           onChange={(e) =>
-            updateBasicInfo({ name, description: e.target.value, image })
+            updateBasicInfo({
+              name,
+              description: e.target.value,
+              imageUrl,
+              image: null,
+            })
           }
         />
         <p className="text-xs text-gray-500">{description.length} / 200</p>
@@ -80,8 +92,9 @@ export function BasicInfoStep() {
               size={"sm"}
               className="text-xs"
               onClick={() => document.getElementById("event-image")?.click()}
+              disabled={isUploading}
             >
-              Select Image
+              {isUploading ? <Spinner size="sm" /> : "Select Image"}
             </Button>
             <Input
               id="event-image"
@@ -94,12 +107,16 @@ export function BasicInfoStep() {
         ) : (
           <div className="relative overflow-hidden rounded-lg">
             <div className="relative aspect-video w-full">
-              <Image
+              <img
                 src={imagePreview}
                 alt="Event preview"
-                fill
-                className="object-cover object-top"
+                className="h-full w-full object-cover object-top"
               />
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                  <Spinner />
+                </div>
+              )}
             </div>
             <Button
               size="icon"
