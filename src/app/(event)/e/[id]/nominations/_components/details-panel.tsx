@@ -9,7 +9,7 @@ import * as React from "react";
 export default function NominationDetailsPanel({
   data,
 }: {
-  data: NominationsResponse;
+  readonly data: NominationsResponse;
 }) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +40,10 @@ export default function NominationDetailsPanel({
         </div>
         <div className="flex flex-col gap-3">
           <Label htmlFor="limit">Category</Label>
-          <p>{data.categories.name}</p>
+          <p>
+            {/* {data.categories.name} */}
+            Best Actor of the year
+          </p>
         </div>
       </form>
     </div>

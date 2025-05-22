@@ -1,5 +1,4 @@
-"use client";
-
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema, EventFormValues } from "@/validations/event";
@@ -20,8 +19,8 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { Spinner } from "@/components/spinner";
 import { formatJedError } from "@/lib/utils";
 import Image from "next/image";
-import React from "react";
 import { AxiosError } from "axios";
+import { ImageIcon, X } from "lucide-react";
 
 export default function EditEventDetails({
   data,
@@ -30,7 +29,13 @@ export default function EditEventDetails({
   data: EventResponse;
   drawerState: React.Dispatch<React.SetStateAction<boolean>>;
 }>) {
-  const { updateEvent } = QUERY_FUNCTIONS;
+  const [imageData, setImageData] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    data.media?.[0]?.url ?? null,
+  );
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { updateEvent, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
 
   const form = useForm<EventFormValues>({
@@ -40,16 +45,16 @@ export default function EditEventDetails({
       description: data.description,
       voting_start_period: data.schedule?.voting_start_period
         ? new Date(data.schedule.voting_start_period)
-        : undefined,
+        : new Date(),
       voting_end_period: data.schedule?.voting_end_period
         ? new Date(data.schedule.voting_end_period)
-        : undefined,
+        : new Date(),
       nomination_start_period: data.schedule?.nomination_start_period
         ? new Date(data.schedule.nomination_start_period)
-        : undefined,
+        : new Date(),
       nomination_end_period: data.schedule?.nomination_end_period
         ? new Date(data.schedule.nomination_end_period)
-        : undefined,
+        : new Date(),
     },
   });
 
@@ -61,7 +66,7 @@ export default function EditEventDetails({
     watch,
   } = form;
 
-  const { mutate: updateExistingEvent, isPending } = useMutation({
+  const { mutateAsync: updateExistingEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
     mutationFn: async (payload: { id: string; data: UpdateEventPayload }) => {
       return updateEvent(payload.data, payload.id);
@@ -69,7 +74,9 @@ export default function EditEventDetails({
     onSuccess: () => {
       toast.success("Event updated successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
-      drawerState(false);
+      if (!imageData) {
+        drawerState(false);
+      }
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -80,7 +87,21 @@ export default function EditEventDetails({
     },
   });
 
-  const onSubmit = (values: EventFormValues) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+
+    if (selectedFile) {
+      const fileUrl = URL.createObjectURL(selectedFile);
+      setImageData(selectedFile);
+      setPhotoPreview(fileUrl);
+    }
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onSubmit = async (values: EventFormValues) => {
     const payload = {
       id: String(data.id),
       data: {
@@ -98,21 +119,82 @@ export default function EditEventDetails({
       },
     };
 
-    updateExistingEvent(payload);
+    await updateExistingEvent(payload);
+
+    if (imageData) {
+      try {
+        setIsUploading(true);
+        const uploadedImage = await uploadImage({
+          file: imageData,
+          event_id: data.id,
+        });
+        if (uploadedImage) {
+          toast.success("Image uploaded successfully.");
+          drawerState(false);
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error("Image upload failed.");
+        }
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
     <DrawerContent className="border-none px-0">
       <div className="flex flex-col gap-4 overflow-y-auto text-sm">
-        <div className="max-h-[20rem] min-h-[15rem] w-full">
-          <Image
-            src={data.img_url}
-            alt="equipment details"
-            width={1000}
-            height={1000}
-            className="h-full w-full object-cover"
+        <button
+          type="button"
+          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden"
+          onClick={handleImageClick}
+        >
+          {photoPreview ? (
+            <>
+              <Image
+                src={photoPreview}
+                alt="Event image"
+                width={1000}
+                height={1000}
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setImageData(null);
+                  setPhotoPreview(null);
+                }}
+                className="absolute top-2 right-2 z-10 rounded-full bg-white p-1 shadow-md transition hover:bg-red-100"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </button>
+
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <Spinner />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <ImageIcon className="h-8 w-8" />
+              <span className="mt-1 text-sm">Click to add image</span>
+            </div>
+          )}
+
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
           />
-        </div>
+        </button>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-5 p-4"
@@ -198,8 +280,12 @@ export default function EditEventDetails({
           </div>
 
           <DrawerFooter className="mt-auto ml-auto flex flex-row gap-2">
-            <Button className="h-10" type="submit" disabled={isPending}>
-              {isPending ? <Spinner /> : "Save"}
+            <Button
+              className="h-10"
+              type="submit"
+              disabled={isPending || isUploading}
+            >
+              {isPending || isUploading ? <Spinner /> : "Save"}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline" type="button" className="h-10">

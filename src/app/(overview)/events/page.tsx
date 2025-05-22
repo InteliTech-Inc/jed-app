@@ -3,7 +3,6 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import EmptyStateImage from "@/assets/empty-state-illustration.png";
-import data from "./data.json";
 import Link from "next/link";
 import { DataTable } from "./_components/data-table";
 import { fetchEvents } from "@/lib/functions/server";
@@ -27,7 +26,6 @@ export const metadata = {
 export default async function EventsPage() {
   const { data: allEvents } = await fetchEvents();
 
-  console.log(allEvents);
   function filterEvents(events: EventResponse[], status: EventProgress) {
     return events.filter(
       (event: EventResponse) =>
@@ -107,5 +105,3 @@ export default async function EventsPage() {
     </div>
   );
 }
-
-export { data as allEvents };

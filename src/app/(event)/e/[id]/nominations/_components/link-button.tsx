@@ -21,13 +21,14 @@ import { __BASE_URL } from "@/constants/url";
 import { NominationsResponse } from "../page";
 import { IconFileArrowRight } from "@tabler/icons-react";
 import { Spinner } from "@/components/spinner";
+import { ParamValue } from "next/dist/server/request/params";
 export function LinkButton({
   id,
   results,
-}: {
-  id: number;
+}: Readonly<{
+  id: ParamValue;
   results: NominationsResponse[];
-}) {
+}>) {
   const url = `${__BASE_URL}/nom?id=${id}`;
 
   const [open, setOpen] = useState(false);
@@ -82,10 +83,10 @@ export function LinkButton({
       return {
         "Full Name": r.full_name,
         EMAIL: r.email,
-        CATEGORY: r.categories.name,
+        CATEGORY: r.category.name,
         "PHONE NUMBER": r.phone,
         REASON: r.reasons,
-        "SUBMITTED ON": format(new Date(r.created_at!), "dd/MM/yyyy"),
+        "SUBMITTED ON": format(new Date(r.created_at), "dd/MM/yyyy"),
       };
     });
     exportToCSV(data, `Nominations_Results`);

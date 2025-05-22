@@ -44,7 +44,7 @@ export default function EventDetails() {
 
   function calculateTotalRevenue(votes: Vote[]): number {
     return votes
-      .map((vote) => vote.amount)
+      ?.map((vote) => vote.amount)
       .reduce((acc, curr) => acc + curr, 0);
   }
 
@@ -62,12 +62,12 @@ export default function EventDetails() {
       case "Total Votes Cast":
         return {
           ...card,
-          value: event?.data.votes.length,
+          value: event?.data.votes?.length,
         };
       case "Total Revenue":
         return {
           ...card,
-          value: `GHC ${calculateTotalRevenue(event?.data.votes!).toFixed(2)}`,
+          value: `GHC ${calculateTotalRevenue(event?.data.votes!)?.toFixed(2)}`,
         };
       case "Withdrawable Earnings":
         return {
@@ -84,7 +84,7 @@ export default function EventDetails() {
         <div className="relative h-[23rem] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm lg:col-span-2">
           <div className="absolute inset-0 z-0">
             <Image
-              src={event?.data.img_url!}
+              src={event?.data.media?.[0]?.url!}
               alt={event?.data.name!}
               className="h-full w-full object-cover"
               width={1000}
@@ -95,7 +95,7 @@ export default function EventDetails() {
 
           <div className="absolute bottom-0 z-10 w-full p-6 text-white">
             <h2 className="mb-1 text-2xl font-semibold">{event?.data.name}</h2>
-            <p className="text-sm text-neutral-300">
+            <p className="max-w-lg text-sm text-neutral-300">
               {event?.data.description}
             </p>
           </div>
@@ -105,7 +105,7 @@ export default function EventDetails() {
             <div className="relative mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-full border-4 border-dashed border-teal-600">
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-4xl font-bold text-gray-900">
-                  {event?.data.categories.length}
+                  {event?.data.categories?.length}
                 </span>
               </div>
             </div>

@@ -1,8 +1,5 @@
-import { allEvents } from "@/app/(overview)/events/page";
 import { Suspense } from "react";
 import { Spinner } from "@/components/spinner";
-import { redirect } from "next/navigation";
-import nominations from "./data.json";
 import { NominationsTable } from "./_components/data-table";
 
 export type NominationsResponse = {
@@ -12,8 +9,9 @@ export type NominationsResponse = {
   phone: string;
   reasons: string;
   created_at: string;
-  event_id: number;
-  categories: {
+  event_id: string;
+  category_id?: string;
+  category: {
     id: string;
     name: string;
   };
@@ -22,19 +20,8 @@ export type NominationsResponse = {
 export default async function NominationsPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  readonly params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const event = allEvents.find((event) => event.id === parseInt(id));
-
-  if (!event) {
-    redirect("/not-found");
-  }
-
-  const results: NominationsResponse[] = nominations.filter(
-    (n) => n.event_id === parseInt(id),
-  );
-
   return (
     <section className="h-full p-4">
       <section className="mb-4 max-w-screen-sm">
@@ -55,7 +42,7 @@ export default async function NominationsPage({
             </div>
           }
         >
-          <NominationsTable data={results} id={event.id} />
+          <NominationsTable />
         </Suspense>
       </div>
     </section>

@@ -44,6 +44,7 @@ export interface CategoryResponse {
 export function CreateNomineeModal() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState("/placeholder-avatar.png");
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +55,7 @@ export function CreateNomineeModal() {
     register,
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = useForm<NomineeFormData>({
@@ -61,11 +63,10 @@ export function CreateNomineeModal() {
     defaultValues: {
       full_name: "",
       category: "",
-      image: "",
     },
   });
 
-  const { fetchCategories, createNominee } = QUERY_FUNCTIONS;
+  const { fetchCategories, createNominee, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const { data: categories } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORIES],
@@ -82,7 +83,6 @@ export function CreateNomineeModal() {
       const fileUrl = URL.createObjectURL(selectedFile);
       setFile(selectedFile);
       setPhotoPreview(fileUrl);
-      setValue("image", fileUrl);
     }
   };
 
@@ -91,11 +91,7 @@ export function CreateNomineeModal() {
     mutationFn: createNominee,
     onSuccess: () => {
       toast.success("Nominee created successfully");
-      setIsOpen(false);
-      setValue("full_name", "");
-      setValue("category", "");
-      setValue("image", "");
-      setPhotoPreview("");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -107,16 +103,37 @@ export function CreateNomineeModal() {
   });
 
   const onSubmit = async (data: NomineeFormData) => {
-    const { full_name, image, category } = data;
+    const { full_name, category } = data;
 
-    await mutateAsync({
+    const response = await mutateAsync({
       full_name,
-      image: image ?? "/placeholder-avatar.png",
       category_id: category,
       event_id: String(event_id),
     });
 
-    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
+    if (response.data) {
+      try {
+        setIsUploading(true);
+        const uploadedImage = await uploadImage({
+          file: file!,
+          nominee_id: response.data.id,
+        });
+        if (uploadedImage) {
+          toast.success("Image uploaded successfully.");
+          setIsOpen(false);
+          reset();
+          setPhotoPreview("");
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error("Image upload failed.");
+        }
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
@@ -225,9 +242,9 @@ export function CreateNomineeModal() {
             form="create-nominee-form"
             type="submit"
             className="h-10"
-            disabled={isPending}
+            disabled={isPending || isUploading}
           >
-            {isPending ? <Spinner /> : "Create Nominee"}
+            {isPending || isUploading ? <Spinner /> : "Create Nominee"}
           </Button>
           <DrawerClose asChild>
             <Button variant="outline" className="h-10">

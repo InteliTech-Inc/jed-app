@@ -16,7 +16,8 @@ export type EventFormState = {
   // Step 1: Basic Information
   name: string;
   description: string;
-  image: string | null;
+  image: File | null;
+  imageUrl: string | null;
 
   // Step 2: Event Tools
   tools: EventTools;
@@ -25,6 +26,7 @@ export type EventFormState = {
   pricing: PricingDetails;
 
   currentStep: number;
+  isUploading: boolean;
 };
 
 type EventFormActions = {
@@ -33,11 +35,12 @@ type EventFormActions = {
   setStep: (step: number) => void;
 
   updateBasicInfo: (
-    info: Pick<EventFormState, "name" | "description" | "image">,
+    info: Pick<EventFormState, "name" | "description" | "image" | "imageUrl">,
   ) => void;
   updateTools: (tools: EventTools) => void;
   updatePricing: (pricing: PricingDetails) => void;
-
+  isUploading: boolean;
+  setIsUploading: (isUploading: boolean) => void;
   reset: () => void;
 };
 
@@ -45,6 +48,7 @@ const initialState: EventFormState = {
   name: "",
   description: "",
   image: null,
+  imageUrl: null,
   tools: {
     nominations: false,
     voting: false,
@@ -54,7 +58,9 @@ const initialState: EventFormState = {
     amountPerVote: 1.0,
     serviceFeePercentage: 10,
   },
+
   currentStep: 1,
+  isUploading: false,
 };
 
 export const useCreateEventStore = create<EventFormState & EventFormActions>()(
@@ -93,6 +99,8 @@ export const useCreateEventStore = create<EventFormState & EventFormActions>()(
         })),
 
       reset: () => set(initialState),
+
+      setIsUploading: (isUploading) => set({ isUploading }),
     }),
     {
       name: "create-event-storage",

@@ -6,15 +6,17 @@ import { IconGripVertical } from "@tabler/icons-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSortable } from "@dnd-kit/sortable";
 import { NomineeActions } from "./nominee-actions";
+import { Media } from "@/interfaces/event";
 
 export type Nominee = {
   id: string;
   full_name: string;
   category: string;
   category_id: string;
-  photo: string;
+  media: Media[];
   code: string;
   total_votes?: number;
+  img_public_id: string;
 };
 
 declare module "@tanstack/react-table" {
@@ -82,7 +84,14 @@ export const columns: ColumnDef<Nominee>[] = [
       const nominee = row.original;
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={nominee.photo} alt={nominee.full_name} />
+          <AvatarImage
+            src={nominee.media[0]?.url}
+            alt={nominee.full_name}
+            className="aspect-square object-cover"
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+          />
           <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
       );

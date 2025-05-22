@@ -59,10 +59,10 @@ export const columns: ColumnDef<NominationsResponse>[] = [
     accessorKey: "categories",
     header: () => <div className="text-center">Category</div>,
     cell: ({ row }) => (
-      <div className="text-center">{row.original.categories.name}</div>
+      <div className="text-center">{row.original.category.name}</div>
     ),
     filterFn: (row, id, value) => {
-      return row.original.categories.name === value;
+      return row.original.category.name === value;
     },
   },
 
