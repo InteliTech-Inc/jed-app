@@ -5,46 +5,136 @@ import { Input } from "@/components/ui/input";
 
 import { NominationsResponse } from "../page";
 import * as React from "react";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Spinner } from "@/components/spinner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
+import { updateNomineeSchema } from "@/validations/nominee";
+
+export interface UpdateNominationVariables {
+  full_name: string;
+  email: string;
+  phone: string;
+}
 
 export default function NominationDetailsPanel({
   data,
-}: {
-  readonly data: NominationsResponse;
-}) {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  setOpen,
+}: Readonly<{
+  data: NominationsResponse;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}>) {
+  const { updateNomination } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<z.infer<typeof updateNomineeSchema>>({
+    resolver: zodResolver(updateNomineeSchema),
+    defaultValues: {
+      full_name: data.full_name,
+      email: data.email,
+      phone: data.phone,
+    },
+  });
+
+  const { mutateAsync: updateNominationMutation, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINATIONS],
+    mutationFn: async (payload: UpdateNominationVariables) => {
+      return updateNomination(payload, String(data.id));
+    },
+    onSuccess: () => {
+      toast.success("Nomination updated successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+      setOpen(false);
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("An error occurred while updating the nomination.");
+      }
+    },
+  });
+  const onSubmit = async (payload: z.infer<typeof updateNomineeSchema>) => {
+    await updateNominationMutation(payload);
   };
   return (
     <div className="flex flex-col gap-4 overflow-y-auto text-sm">
       <form
-        onSubmit={(e) => handleSubmit(e)}
-        className="flex flex-col gap-5 p-4"
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex h-screen flex-col justify-between gap-5 p-4"
       >
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" defaultValue={data.full_name} />
-        </div>
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" defaultValue={data.email} />
-        </div>
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              defaultValue={data.full_name}
+              {...register("full_name")}
+            />
+            {errors.full_name && (
+              <small className="text-red-500">{errors.full_name.message}</small>
+            )}
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              defaultValue={data.email}
+              {...register("email")}
+            />
+            {errors.email && (
+              <small className="text-red-500">{errors.email.message}</small>
+            )}
+          </div>
 
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" defaultValue={data.phone} />
-        </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              defaultValue={data.phone}
+              {...register("phone")}
+            />
+          </div>
 
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="limit">Reasons</Label>
-          <p>{data.reasons}</p>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="limit">Reasons</Label>
+            <p>{data.reasons}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="limit">Category</Label>
+            <p>{data.category.name}</p>
+          </div>
         </div>
-        <div className="flex flex-col gap-3">
-          <Label htmlFor="limit">Category</Label>
-          <p>
-            {/* {data.categories.name} */}
-            Best Actor of the year
-          </p>
-        </div>
+        <DrawerFooter className="ml-auto flex flex-row gap-2">
+          <Button
+            className="h-10"
+            type="submit"
+            disabled={isSubmitting || isPending}
+          >
+            {isSubmitting || isPending ? <Spinner /> : "Submit"}
+          </Button>
+          <DrawerClose asChild>
+            <Button
+              variant="outline"
+              className="h-10"
+              type="button"
+              disabled={isSubmitting || isPending}
+            >
+              Cancel
+            </Button>
+          </DrawerClose>
+        </DrawerFooter>
       </form>
     </div>
   );
