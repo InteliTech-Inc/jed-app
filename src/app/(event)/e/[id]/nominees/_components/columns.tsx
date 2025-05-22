@@ -12,9 +12,10 @@ export type Nominee = {
   full_name: string;
   category: string;
   category_id: string;
-  photo: string;
+  img_url: string;
   code: string;
   total_votes?: number;
+  img_public_id: string;
 };
 
 declare module "@tanstack/react-table" {
@@ -82,7 +83,7 @@ export const columns: ColumnDef<Nominee>[] = [
       const nominee = row.original;
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={nominee.photo} alt={nominee.full_name} />
+          <AvatarImage src={nominee.img_url} alt={nominee.full_name} />
           <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
       );
