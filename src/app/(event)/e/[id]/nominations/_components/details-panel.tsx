@@ -2,7 +2,6 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-
 import { NominationsResponse } from "../page";
 import * as React from "react";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
