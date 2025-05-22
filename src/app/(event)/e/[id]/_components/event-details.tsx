@@ -95,7 +95,7 @@ export default function EventDetails() {
 
           <div className="absolute bottom-0 z-10 w-full p-6 text-white">
             <h2 className="mb-1 text-2xl font-semibold">{event?.data.name}</h2>
-            <p className="text-sm text-neutral-300">
+            <p className="max-w-lg text-sm text-neutral-300">
               {event?.data.description}
             </p>
           </div>
