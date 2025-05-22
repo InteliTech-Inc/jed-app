@@ -1,5 +1,4 @@
-"use client";
-
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema, EventFormValues } from "@/validations/event";
@@ -20,7 +19,6 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { Spinner } from "@/components/spinner";
 import { formatJedError } from "@/lib/utils";
 import Image from "next/image";
-import React from "react";
 import { AxiosError } from "axios";
 
 export default function EditEventDetails({
@@ -30,7 +28,14 @@ export default function EditEventDetails({
   data: EventResponse;
   drawerState: React.Dispatch<React.SetStateAction<boolean>>;
 }>) {
-  const { updateEvent } = QUERY_FUNCTIONS;
+  const [imageData, setImageData] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    data.media?.[0]?.url ?? null,
+  );
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { updateEvent, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
 
   const form = useForm<EventFormValues>({
@@ -61,7 +66,7 @@ export default function EditEventDetails({
     watch,
   } = form;
 
-  const { mutate: updateExistingEvent, isPending } = useMutation({
+  const { mutateAsync: updateExistingEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
     mutationFn: async (payload: { id: string; data: UpdateEventPayload }) => {
       return updateEvent(payload.data, payload.id);
@@ -80,7 +85,21 @@ export default function EditEventDetails({
     },
   });
 
-  const onSubmit = (values: EventFormValues) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+
+    if (selectedFile) {
+      const fileUrl = URL.createObjectURL(selectedFile);
+      setImageData(selectedFile);
+      setPhotoPreview(fileUrl);
+    }
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onSubmit = async (values: EventFormValues) => {
     const payload = {
       id: String(data.id),
       data: {
@@ -98,21 +117,62 @@ export default function EditEventDetails({
       },
     };
 
-    updateExistingEvent(payload);
+    await updateExistingEvent(payload);
+
+    if (imageData) {
+      try {
+        setIsUploading(true);
+        const uploadedImage = await uploadImage({
+          file: imageData,
+          event_id: data.id,
+        });
+        if (uploadedImage) {
+          toast.success("Image uploaded successfully.");
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error("Image upload failed.");
+        }
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
     <DrawerContent className="border-none px-0">
       <div className="flex flex-col gap-4 overflow-y-auto text-sm">
-        <div className="max-h-[20rem] min-h-[15rem] w-full">
-          <Image
-            src={data.img_url}
-            alt="equipment details"
-            width={1000}
-            height={1000}
-            className="h-full w-full object-cover"
+        <button
+          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden"
+          onClick={handleImageClick}
+          tabIndex={0}
+        >
+          <div className="max-h-[20rem] min-h-[15rem] w-full overflow-hidden">
+            <Image
+              src={photoPreview ?? ""}
+              alt="Event image"
+              width={1000}
+              height={1000}
+              className="h-full w-full object-cover"
+            />
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black opacity-50">
+                <Spinner />
+              </div>
+            )}
+          </div>
+
+          <Input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
           />
-        </div>
+        </button>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col gap-5 p-4"
@@ -198,7 +258,11 @@ export default function EditEventDetails({
           </div>
 
           <DrawerFooter className="mt-auto ml-auto flex flex-row gap-2">
-            <Button className="h-10" type="submit" disabled={isPending}>
+            <Button
+              className="h-10"
+              type="submit"
+              disabled={isPending || isUploading}
+            >
               {isPending ? <Spinner /> : "Save"}
             </Button>
             <DrawerClose asChild>
