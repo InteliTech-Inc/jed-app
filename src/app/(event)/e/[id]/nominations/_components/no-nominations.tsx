@@ -1,7 +1,7 @@
 import Image from "next/image";
 import EmptyStateImage from "@/assets/empty-state-illustration.png";
 
-export function NoNominations({ eventName }: { eventName: string }) {
+export function NoNominations({ eventName }: Readonly<{ eventName: string }>) {
   return (
     <div className="my-auto grid h-fit w-full place-items-center">
       <section className="h-48 w-full">
