@@ -149,7 +149,7 @@ export default function EditEventDetails({
       <div className="flex flex-col gap-4 overflow-y-auto text-sm">
         <button
           type="button"
-          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden border border-dashed border-gray-300 bg-gray-50"
+          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden"
           onClick={handleImageClick}
         >
           {photoPreview ? (
