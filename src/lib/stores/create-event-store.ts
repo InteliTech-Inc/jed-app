@@ -25,6 +25,7 @@ export type EventFormState = {
   pricing: PricingDetails;
 
   currentStep: number;
+  isUploading: boolean;
 };
 
 type EventFormActions = {
@@ -37,7 +38,8 @@ type EventFormActions = {
   ) => void;
   updateTools: (tools: EventTools) => void;
   updatePricing: (pricing: PricingDetails) => void;
-
+  isUploading: boolean;
+  setIsUploading: (isUploading: boolean) => void;
   reset: () => void;
 };
 
@@ -55,6 +57,7 @@ const initialState: EventFormState = {
     serviceFeePercentage: 10,
   },
   currentStep: 1,
+  isUploading: false,
 };
 
 export const useCreateEventStore = create<EventFormState & EventFormActions>()(
@@ -93,6 +96,7 @@ export const useCreateEventStore = create<EventFormState & EventFormActions>()(
         })),
 
       reset: () => set(initialState),
+      setIsUploading: (isUploading) => set({ isUploading }),
     }),
     {
       name: "create-event-storage",
