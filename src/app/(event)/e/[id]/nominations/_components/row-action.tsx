@@ -36,10 +36,12 @@ import { copyToClipboard } from "@/lib/utils";
 export const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-export function RowActions({ item }: { item: NominationsResponse }) {
+export function RowActions({ item }: { readonly item: NominationsResponse }) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  console.log(item);
 
   /* 
   Using internal state to control the dropdown menu to avoid the issue of 
@@ -162,7 +164,7 @@ export function RowActions({ item }: { item: NominationsResponse }) {
             <div className="py-2">
               <p className="">
                 Are you sure you want to add this person as a nominee to the{" "}
-                {item.categories.name} category?
+                <strong>{item.category.name}</strong> category?
               </p>
             </div>
           </ModalWrapper>
@@ -186,8 +188,9 @@ export function RowActions({ item }: { item: NominationsResponse }) {
             <div className="py-2">
               <p className="">
                 Are you sure you want to send a confirmation email to{" "}
-                {item.full_name} that they have been added as final nominee to
-                the {item.categories.name} category?
+                <strong>{item.full_name}</strong> that they have been added as
+                final nominee to the <strong>{item.category.name}</strong>{" "}
+                category?
               </p>
             </div>
           </ModalWrapper>
