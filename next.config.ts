@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
       {
         hostname: "ik.imagekit.io",
       },
+      {
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
 };
