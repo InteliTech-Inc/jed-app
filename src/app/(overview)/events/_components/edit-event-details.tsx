@@ -20,6 +20,7 @@ import { Spinner } from "@/components/spinner";
 import { formatJedError } from "@/lib/utils";
 import Image from "next/image";
 import { AxiosError } from "axios";
+import { ImageIcon, X } from "lucide-react";
 
 export default function EditEventDetails({
   data,
@@ -34,7 +35,6 @@ export default function EditEventDetails({
   );
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const { updateEvent, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
 
@@ -74,6 +74,9 @@ export default function EditEventDetails({
     onSuccess: () => {
       toast.success("Event updated successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+      if (!imageData) {
+        drawerState(false);
+      }
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -145,24 +148,43 @@ export default function EditEventDetails({
     <DrawerContent className="border-none px-0">
       <div className="flex flex-col gap-4 overflow-y-auto text-sm">
         <button
-          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden"
+          type="button"
+          className="relative flex max-h-[20rem] min-h-[15rem] w-full items-center justify-center overflow-hidden border border-dashed border-gray-300 bg-gray-50"
           onClick={handleImageClick}
-          tabIndex={0}
         >
-          <div className="max-h-[20rem] min-h-[15rem] w-full overflow-hidden">
-            <Image
-              src={photoPreview ?? ""}
-              alt="Event image"
-              width={1000}
-              height={1000}
-              className="h-full w-full object-cover"
-            />
-            {isUploading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black opacity-50">
-                <Spinner />
-              </div>
-            )}
-          </div>
+          {photoPreview ? (
+            <>
+              <Image
+                src={photoPreview}
+                alt="Event image"
+                width={1000}
+                height={1000}
+                className="h-full w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setImageData(null);
+                  setPhotoPreview(null);
+                }}
+                className="absolute top-2 right-2 z-10 rounded-full bg-white p-1 shadow-md transition hover:bg-red-100"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </button>
+
+              {isUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <Spinner />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <ImageIcon className="h-8 w-8" />
+              <span className="mt-1 text-sm">Click to add image</span>
+            </div>
+          )}
 
           <Input
             ref={fileInputRef}
