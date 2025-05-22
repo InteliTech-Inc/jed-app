@@ -30,7 +30,7 @@ export default function EventDetails() {
   const { fetchEvent } = QUERY_FUNCTIONS;
 
   const { data: event, isPending } = useQuery<{ data: EventResponse }>({
-    queryKey: [QUERY_KEYS.CATEGORIES],
+    queryKey: [QUERY_KEYS.EVENTS],
     queryFn: () => fetchEvent(event_id as string),
   });
 
