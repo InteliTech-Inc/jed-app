@@ -3,7 +3,6 @@ import { EventApprovalStatus, EventProgress } from "@/types/event-status";
 export interface Event {
   name: string;
   description: string;
-  image: string | null;
   tools: Tools;
   amount_per_vote: number;
   service_percentage: number;
@@ -28,10 +27,9 @@ interface Tools {
 }
 
 export interface EventResponse {
-  id: number;
+  id: string;
   name: string;
   description: string;
-  img_url: string;
   schedule: Schedule;
   approval_status: EventApprovalStatus;
   event_progress: EventProgress;
@@ -41,6 +39,12 @@ export interface EventResponse {
   tools: Tools;
   votes: Vote[];
   service_percentage: number;
+  media: Media[];
+}
+
+interface Media {
+  public_id: string;
+  url: string;
 }
 
 export interface Vote {
