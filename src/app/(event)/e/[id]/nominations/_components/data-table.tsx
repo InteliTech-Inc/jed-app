@@ -43,15 +43,15 @@ import {
 import { Card } from "@/components/ui/card";
 import { NominationsResponse } from "../page";
 import { LinkButton } from "./link-button";
+import { useQuery } from "@tanstack/react-query";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { useParams } from "next/navigation";
+import { CategoryResponse } from "../../nominees/_components/create-nominee-modal";
+import { Spinner } from "@/components/spinner";
 
-export function NominationsTable({
-  data: initialData,
-  id,
-}: {
-  data: NominationsResponse[];
-  id: number;
-}) {
-  const [data, setData] = React.useState(() => initialData);
+export function NominationsTable() {
+  const [data, setData] = React.useState([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -64,14 +64,60 @@ export function NominationsTable({
     pageSize: 10,
   });
 
-  // Extract unique categories from the data
+  const { fetchNominations, fetchCategories } = QUERY_FUNCTIONS;
+  const { id: event_id } = useParams();
+
+  const { data: records, isLoading } = useQuery({
+    queryKey: [QUERY_KEYS.NOMINATIONS],
+    queryFn: fetchNominations,
+  });
+
+  const { data: categories } = useQuery({
+    queryKey: [QUERY_KEYS.CATEGORIES],
+    queryFn: fetchCategories,
+  });
+
+  React.useEffect(() => {
+    if (!records || !categories || !event_id) return;
+
+    const nominations = records.data?.nominations ?? [];
+    const categoryList = categories.data?.categories ?? [];
+
+    const filteredNominations = nominations.filter(
+      (nomination: NominationsResponse) => nomination.event_id === event_id,
+    );
+
+    const filteredCategories = categoryList.filter(
+      (category: CategoryResponse) => category.event_id === event_id,
+    );
+
+    const categoryMap = new Map(
+      filteredCategories.map((category: CategoryResponse) => [
+        category.id,
+        category,
+      ]),
+    );
+
+    const nominationsWithCategory = filteredNominations.map(
+      (nomination: NominationsResponse) => ({
+        ...nomination,
+        category: categoryMap.get(nomination.category_id) ?? null,
+      }),
+    );
+
+    setData(nominationsWithCategory);
+  }, [records, categories, event_id]);
+
   const uniqueCategories = React.useMemo(() => {
     const categories = new Set<string>();
-    initialData.forEach((item) => {
-      categories.add(item.categories.name);
+    data.forEach((item: { category: CategoryResponse }) => {
+      if (item.category) {
+        categories.add(item.category.name);
+      }
     });
+
     return Array.from(categories);
-  }, [initialData]);
+  }, [data]);
 
   const table = useReactTable({
     data,
@@ -131,6 +177,38 @@ export function NominationsTable({
     return categoryFilter ? (categoryFilter.value as string) : "all";
   }, [columnFilters]);
 
+  const renderEmptyStateRow = () => {
+    if (isLoading) {
+      return (
+        <TableRow className="h-24">
+          <TableCell colSpan={columns.length} className="h-24 p-0 text-center">
+            <div className="flex h-full w-full items-center justify-center">
+              <Spinner />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (data && data.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            No nominations found
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No results for "{filterValue}".
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <Card className="mt-6 border-none pb-6 shadow-none">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -159,7 +237,7 @@ export function NominationsTable({
           />
         </div>
         <div>
-          <LinkButton id={id} results={data} />
+          <LinkButton id={event_id} results={data} />
         </div>
       </div>
       <div className="relative flex flex-col gap-4 overflow-auto">
@@ -188,29 +266,20 @@ export function NominationsTable({
               ))}
             </TableHeader>
             <TableBody className="**:data-[slot=table-cell]:first:w-8">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results found for the current filters.
-                  </TableCell>
-                </TableRow>
-              )}
+              {table.getRowModel().rows?.length
+                ? table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                : renderEmptyStateRow()}
             </TableBody>
           </Table>
         </div>
