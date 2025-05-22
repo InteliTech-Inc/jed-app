@@ -45,16 +45,16 @@ export default function EditEventDetails({
       description: data.description,
       voting_start_period: data.schedule?.voting_start_period
         ? new Date(data.schedule.voting_start_period)
-        : undefined,
+        : new Date(),
       voting_end_period: data.schedule?.voting_end_period
         ? new Date(data.schedule.voting_end_period)
-        : undefined,
+        : new Date(),
       nomination_start_period: data.schedule?.nomination_start_period
         ? new Date(data.schedule.nomination_start_period)
-        : undefined,
+        : new Date(),
       nomination_end_period: data.schedule?.nomination_end_period
         ? new Date(data.schedule.nomination_end_period)
-        : undefined,
+        : new Date(),
     },
   });
 
@@ -74,7 +74,6 @@ export default function EditEventDetails({
     onSuccess: () => {
       toast.success("Event updated successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
-      drawerState(false);
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -128,6 +127,7 @@ export default function EditEventDetails({
         });
         if (uploadedImage) {
           toast.success("Image uploaded successfully.");
+          drawerState(false);
         }
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -263,7 +263,7 @@ export default function EditEventDetails({
               type="submit"
               disabled={isPending || isUploading}
             >
-              {isPending ? <Spinner /> : "Save"}
+              {isPending || isUploading ? <Spinner /> : "Save"}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline" type="button" className="h-10">
