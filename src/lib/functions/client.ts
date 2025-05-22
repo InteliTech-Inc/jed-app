@@ -65,6 +65,11 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
 
+  fetchNominations: async () => {
+    const response = await authAxios.get(`/nominations`);
+    return response.data;
+  },
+
   createCategory: async (payload: { data: CategoriesPayload[] }) => {
     const response = await authAxios.post(`/category`, payload);
     return response.data;
