@@ -90,6 +90,7 @@ export const columns: ColumnDef<Nominee>[] = [
             className="aspect-square object-cover"
             fetchPriority="high"
             loading="eager"
+            decoding="async"
           />
           <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
