@@ -42,7 +42,7 @@ export interface EventResponse {
   media: Media[];
 }
 
-interface Media {
+export interface Media {
   public_id: string;
   url: string;
 }

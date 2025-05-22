@@ -6,13 +6,14 @@ import { IconGripVertical } from "@tabler/icons-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSortable } from "@dnd-kit/sortable";
 import { NomineeActions } from "./nominee-actions";
+import { Media } from "@/interfaces/event";
 
 export type Nominee = {
   id: string;
   full_name: string;
   category: string;
   category_id: string;
-  img_url: string;
+  media: Media[];
   code: string;
   total_votes?: number;
   img_public_id: string;
@@ -83,7 +84,11 @@ export const columns: ColumnDef<Nominee>[] = [
       const nominee = row.original;
       return (
         <Avatar className="h-10 w-10">
-          <AvatarImage src={nominee.img_url} alt={nominee.full_name} />
+          <AvatarImage
+            src={nominee.media[0]?.url}
+            alt={nominee.full_name}
+            className="aspect-square object-cover"
+          />
           <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
       );
