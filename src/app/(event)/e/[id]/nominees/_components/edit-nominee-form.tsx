@@ -36,7 +36,8 @@ interface FormData {
   category: string;
   category_id: string;
   code: string;
-  photo: string | null;
+  img_url: string | null;
+  img_public_id: string;
 }
 
 export function EditNomineeForm({
@@ -44,20 +45,22 @@ export function EditNomineeForm({
   setOpen,
 }: Readonly<EditNomineeFormProps>) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(
-    nominee.photo || null,
+    nominee.media[0]?.url ?? null,
   );
   const [formData, setFormData] = useState<FormData>({
     id: nominee.id,
     full_name: nominee.full_name,
-    category: nominee.category || "",
-    category_id: nominee.category_id || "",
+    category: nominee.category ?? "",
+    category_id: nominee.category_id ?? "",
     code: nominee.code,
-    photo: nominee.photo || null,
+    img_url: nominee.media[0]?.url ?? null,
+    img_public_id: nominee.img_public_id ?? "",
   });
   const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { fetchCategories, updateNominee } = QUERY_FUNCTIONS;
+  const { fetchCategories, updateNominee, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORIES],
@@ -78,13 +81,14 @@ export function EditNomineeForm({
     const initialData: FormData = {
       id: nominee.id,
       full_name: nominee.full_name,
-      category: nominee.category || "",
-      category_id: nominee.category_id || "",
+      category: nominee.category ?? "",
+      category_id: nominee.category_id ?? "",
       code: nominee.code,
-      photo: nominee.photo || null,
+      img_url: nominee.media[0]?.url ?? null,
+      img_public_id: nominee.img_public_id ?? "",
     };
     setFormData(initialData);
-    setPhotoPreview(nominee.photo || null);
+    setPhotoPreview(nominee.media[0]?.url ?? null);
     setFile(null);
   }, [nominee.id]);
 
@@ -93,7 +97,7 @@ export function EditNomineeForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
@@ -119,20 +123,17 @@ export function EditNomineeForm({
     fileInputRef.current?.click();
   };
 
-  const { mutate: updateExistingNominee, isPending } = useMutation({
+  const { mutateAsync: updateExistingNominee, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.NOMINEES, nominee.id],
     mutationFn: async (payload: { data: FormData; id: string }) => {
       const dataToSend = {
         ...payload.data,
-        photo: file || payload.data.photo,
       };
-
-      await updateNominee(dataToSend as any, payload.id);
+      await updateNominee(dataToSend, payload.id);
     },
     onSuccess: () => {
       toast.success("Nominee updated successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
-      setOpen(false);
     },
     onError: (error: AxiosError) => {
       if (error instanceof Error) {
@@ -143,10 +144,36 @@ export function EditNomineeForm({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    await updateExistingNominee({ data: formData, id: nominee.id });
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEYS.NOMINEES],
+    });
+    setIsUploading(true);
+    try {
+      const uploadImageUrl = await uploadImage({
+        file: file!,
+        nominee_id: nominee.id,
+      });
 
-    updateExistingNominee({ data: formData, id: nominee.id });
+      if (uploadImageUrl) {
+        setFormData((prev) => ({
+          ...prev,
+          img_url: uploadImageUrl.url,
+          img_public_id: uploadImageUrl.public_id,
+        }));
+        setOpen(false);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Image upload failed.");
+      }
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -159,16 +186,26 @@ export function EditNomineeForm({
         <div className="flex justify-center">
           <div className="relative">
             <Avatar className="size-24">
-              <AvatarImage src={photoPreview ?? ""} alt={formData.full_name} />
+              <AvatarImage
+                src={photoPreview ?? ""}
+                alt={formData.full_name}
+                className="aspect-square object-cover"
+              />
               <AvatarFallback>
                 {formData.full_name?.charAt(0) || "N"}
               </AvatarFallback>
             </Avatar>
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-gray-500 opacity-50">
+                <Spinner />
+              </div>
+            )}
             <Button
               type="button"
               size="icon"
               className="bg-accent text-accent-foreground hover:bg-accent/90 absolute -bottom-2 -left-2 size-8 rounded-full shadow-md"
               onClick={triggerFileInput}
+              disabled={isUploading}
             >
               <IconCamera className="size-4" />
               <span className="sr-only">Upload photo</span>
@@ -232,9 +269,9 @@ export function EditNomineeForm({
         <Button
           type="submit"
           className="h-10"
-          disabled={isPending || categoriesLoading}
+          disabled={isPending || categoriesLoading || isUploading}
         >
-          {isPending ? <Spinner /> : "Save changes"}
+          {isPending || isUploading ? <Spinner /> : "Save changes"}
         </Button>
         <DrawerClose asChild>
           <Button variant="outline" className="h-10">
