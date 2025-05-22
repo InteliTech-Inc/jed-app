@@ -88,6 +88,8 @@ export const columns: ColumnDef<Nominee>[] = [
             src={nominee.media[0]?.url}
             alt={nominee.full_name}
             className="aspect-square object-cover"
+            fetchPriority="high"
+            loading="eager"
           />
           <AvatarFallback>{nominee.full_name.charAt(0)}</AvatarFallback>
         </Avatar>
