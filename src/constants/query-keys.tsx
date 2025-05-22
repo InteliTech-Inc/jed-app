@@ -4,4 +4,5 @@ export const QUERY_KEYS = {
   VOTES: "votes",
   NOMINEES: "nominees",
   CATEGORIES: "categories",
+  NOMINATIONS: "nominations",
 } as const;
