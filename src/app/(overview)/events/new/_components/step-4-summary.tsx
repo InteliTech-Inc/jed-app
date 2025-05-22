@@ -9,7 +9,7 @@ import { IconCheck, IconPencil, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 
 export function SummaryStep() {
-  const { name, description, image, tools, pricing, setStep } =
+  const { name, description, imageUrl, tools, pricing, setStep } =
     useCreateEventStore();
 
   const calculateFeeAmount = (amount: number, percentage: number) => {
@@ -50,14 +50,19 @@ export function SummaryStep() {
             <p className="text-sm">{description || "Not provided"}</p>
           </div>
 
-          {image && (
+          {imageUrl && (
             <div>
               <span className="text-sm font-medium text-gray-500">
                 Event Image:
               </span>
               <div className="mt-2 aspect-video w-full max-w-xs overflow-hidden rounded-lg">
                 <div className="relative h-full w-full">
-                  <Image src={image} alt={name} fill className="object-cover" />
+                  <Image
+                    src={imageUrl}
+                    alt={name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
             </div>
