@@ -7,8 +7,6 @@ import axios from "axios";
 interface Nominee {
   full_name: string;
   category_id: string;
-  image: string;
-  event_id: string;
 }
 
 const QUERY_FUNCTIONS = {
@@ -100,6 +98,28 @@ const QUERY_FUNCTIONS = {
   }) => {
     const response = await authAxios.post(`/auth/change-password`, payload);
     return response.data;
+  },
+  uploadImage: async ({
+    file,
+    nominee_id,
+    event_id,
+  }: {
+    file: File;
+    nominee_id?: string;
+    event_id?: string;
+  }): Promise<{ url: string; public_id: string }> => {
+    const formData = new FormData();
+
+    formData.append("image", file);
+    if (event_id) formData.append("event_id", event_id);
+    if (nominee_id) formData.append("nominee_id", nominee_id);
+
+    const response = await authAxios.post("/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data.data;
   },
 };
 
