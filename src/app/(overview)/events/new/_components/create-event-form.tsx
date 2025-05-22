@@ -26,8 +26,9 @@ import { useRouter } from "next/navigation";
 import { QUERY_KEYS } from "@/constants/query-keys";
 
 export function CreateEventForm() {
-  const { currentStep, nextStep, prevStep } = useCreateEventStore();
-  const { createEvent } = QUERY_FUNCTIONS;
+  const { currentStep, nextStep, prevStep, isUploading, setIsUploading } =
+    useCreateEventStore();
+  const { createEvent, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -98,9 +99,7 @@ export function CreateEventForm() {
     mutationFn: createEvent,
     onSuccess: () => {
       toast.success("Event created successfully!");
-      useCreateEventStore.getState().reset();
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
-      router.push("/events");
     },
     retry(failureCount, error) {
       if (error instanceof AxiosError && error.response?.status === 429) {
@@ -129,13 +128,34 @@ export function CreateEventForm() {
     const payload = {
       name,
       description,
-      image,
       tools,
       amount_per_vote: amountPerVote,
       service_percentage: serviceFeePercentage,
     };
 
-    await createNewEvent(payload);
+    const response = await createNewEvent(payload);
+
+    if (response.data) {
+      try {
+        setIsUploading(true);
+        const uploadedImage = await uploadImage({
+          file: image!,
+          event_id: response.data.id,
+        });
+        if (uploadedImage) {
+          toast.success("Image uploaded successfully.");
+          router.push("/events");
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error("Image upload failed.");
+        }
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
@@ -166,7 +186,7 @@ export function CreateEventForm() {
             {currentStep < 4 ? (
               <Button
                 onClick={nextStep}
-                disabled={!canContinue()}
+                disabled={!canContinue() || isUploading}
                 className="gap-1"
               >
                 Next
@@ -176,9 +196,9 @@ export function CreateEventForm() {
               <Button
                 className="gap-1"
                 onClick={handleSubmit}
-                disabled={isPending}
+                disabled={isPending || isUploading}
               >
-                {isPending ? <Spinner /> : "Submit"}
+                {isPending || isUploading ? <Spinner /> : "Submit"}
               </Button>
             )}
           </div>
