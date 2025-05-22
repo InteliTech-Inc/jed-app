@@ -7,6 +7,7 @@ import axios from "axios";
 interface Nominee {
   full_name: string;
   category_id: string;
+  event_id?: string;
 }
 
 const QUERY_FUNCTIONS = {
