@@ -49,6 +49,7 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import { useParams } from "next/navigation";
 import { CategoryResponse } from "../../nominees/_components/create-nominee-modal";
 import { Spinner } from "@/components/spinner";
+import { NoNominations } from "./no-nominations";
 
 export function NominationsTable() {
   const [data, setData] = React.useState([]);
@@ -194,7 +195,7 @@ export function NominationsTable() {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 text-center">
-            No nominations found
+            <NoNominations />
           </TableCell>
         </TableRow>
       );

@@ -1,3 +1,4 @@
+import { UpdateNominationVariables } from "@/app/(event)/e/[id]/nominations/_components/details-panel";
 import { API_URL } from "@/constants/url";
 import { CategoriesPayload } from "@/interfaces/categories";
 import { Event, UpdateEventPayload } from "@/interfaces/event";
@@ -67,6 +68,16 @@ const QUERY_FUNCTIONS = {
 
   fetchNominations: async () => {
     const response = await authAxios.get(`/nominations`);
+    return response.data;
+  },
+
+  updateNomination: async (payload: UpdateNominationVariables, id: string) => {
+    const response = await authAxios.patch(`/nominations/${id}`, payload);
+    return response.data;
+  },
+
+  deleteNomination: async (id: string) => {
+    const response = await authAxios.delete(`/nominations/${id}`);
     return response.data;
   },
 

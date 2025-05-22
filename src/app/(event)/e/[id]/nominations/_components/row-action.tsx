@@ -2,11 +2,11 @@
 
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
-  DrawerFooter,
   DrawerTrigger,
   DrawerTitle,
+  DrawerDescription,
+  DrawerHeader,
 } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,12 @@ import {
 import { NominationsResponse } from "../page";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
-import { copyToClipboard } from "@/lib/utils";
+import { copyToClipboard, formatJedError } from "@/lib/utils";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { AxiosError } from "axios";
+import { Nominee } from "@/interfaces/event";
 
 export const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,42 +46,58 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  console.log(item);
-
-  /* 
-  Using internal state to control the dropdown menu to avoid the issue of 
-  the dropdown menu not closing when the submit button is clicked.
-  */
   const [openDropdown, setOpenDropdown] = React.useState(false);
+
+  const { createNominee, deleteNomination } = QUERY_FUNCTIONS;
+  const queryClient = useQueryClient();
 
   const closeDropdown = () => {
     setOpenDropdown(false);
   };
 
-  const handleDelete = async () => {
-    try {
-      setIsLoading(true);
-      await delay(3000);
+  const {
+    mutateAsync: deleteExistingNomination,
+    isPending: isDeletingNomination,
+  } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINATIONS],
+    mutationFn: deleteNomination,
+    onSuccess: () => {
       toast.success("Nomination deleted successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to delete nomination");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+    },
+    onError: (error: AxiosError) => {
+      if (error instanceof Error) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("An error occurred while deleting the nomination.");
+      }
+    },
+  });
+
+  const { mutateAsync: addNominee, isPending: isAddingNominee } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINEES],
+    mutationFn: createNominee,
+    onSuccess: () => {
+      toast.success("Nominee added successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong.");
+      }
+    },
+  });
 
   const handleAddNominee = async () => {
-    try {
-      setIsLoading(true);
-      await delay(3000);
-      toast.success("Nominee added successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to add nominee");
-    } finally {
-      setIsLoading(false);
-    }
+    const nomineePayload: Partial<Nominee> = {
+      full_name: item.full_name,
+      category_id: item.category_id!,
+      event_id: item.event_id,
+    };
+
+    await addNominee(nomineePayload as Nominee);
   };
 
   const handleSendEmail = async () => {
@@ -158,7 +179,7 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
             onSubmit={handleAddNominee}
             cancelText="Cancel"
             submitText={"Add"}
-            isLoading={isLoading}
+            isLoading={isAddingNominee}
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">
@@ -207,10 +228,10 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
                 Delete
               </DropdownMenuItem>
             }
-            onSubmit={handleDelete}
+            onSubmit={async () => await deleteExistingNomination(item.id)}
             cancelText="Cancel"
             submitText="Yes, delete"
-            isLoading={isLoading}
+            isLoading={isDeletingNomination}
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">
@@ -225,16 +246,19 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
       </DropdownMenu>
 
       <DrawerContent className="border-none px-0">
+        <DrawerHeader>
+          <DrawerTitle>
+            <h2 className="text-xl font-bold">Edit Nomination</h2>
+          </DrawerTitle>
+          <DrawerDescription>
+            <p className="text-muted-foreground text-sm">
+              Edit the nomination details below. Some fields may not be editable
+              as they are recorded by the system and cannot be changed.
+            </p>
+          </DrawerDescription>
+        </DrawerHeader>
         <DrawerTitle className="sr-only">Edit Nomination</DrawerTitle>
-        <NominationDetailsPanel data={item} />
-        <DrawerFooter className="ml-auto flex flex-row gap-2">
-          <Button className="h-10">Submit</Button>
-          <DrawerClose asChild>
-            <Button variant="outline" className="h-10">
-              Cancel
-            </Button>
-          </DrawerClose>
-        </DrawerFooter>
+        <NominationDetailsPanel data={item} setOpen={setOpen} />
       </DrawerContent>
     </Drawer>
   );
