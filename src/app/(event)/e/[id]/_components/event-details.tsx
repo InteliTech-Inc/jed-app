@@ -43,13 +43,14 @@ export default function EventDetails() {
   }
 
   function calculateTotalRevenue(votes: Vote[]): number {
-    return votes
-      ?.map((vote) => vote.amount)
-      .reduce((acc, curr) => acc + curr, 0);
+    return (
+      votes?.map((vote) => vote.amount).reduce((acc, curr) => acc + curr, 0) /
+      100
+    );
   }
 
   function calculateWithdrawableEarnings(votes: Vote[]) {
-    const totalRevenue = calculateTotalRevenue(votes);
+    const totalRevenue = calculateTotalRevenue(votes) / 100;
     const serviceFee = event?.data?.service_percentage
       ? event.data.service_percentage / 100
       : 0;
