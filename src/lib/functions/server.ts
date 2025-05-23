@@ -1,6 +1,5 @@
 import { COOKIE_NAME, API_URL } from "@/constants/url";
 import { cookies } from "next/headers";
-import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { authAxios } from "@/providers/api-client";
 
@@ -10,8 +9,11 @@ export default async function getUserFromServer() {
 
   if (!token) return null;
 
-  const decodedJwt = jwtDecode(token);
-  const res = await axios(`${API_URL}/users/${decodedJwt.sub}`);
+  const res = await axios(`${API_URL}/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return res.data;
 }
