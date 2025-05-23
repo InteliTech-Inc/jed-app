@@ -1,9 +1,16 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { useUser } from "@/hooks/use-user";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useMutation } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { formatJedError } from "@/lib/utils";
+import { AxiosError } from "axios";
+import { Spinner } from "@/components/spinner";
 
 interface AvatarUploadProps {
   currentAvatar: string;
@@ -15,13 +22,32 @@ export function AvatarUpload({
   currentAvatar,
   userName,
   onAvatarChange,
-}: AvatarUploadProps) {
-  const [isUploading, setIsUploading] = useState(false);
+}: Readonly<AvatarUploadProps>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useUser();
+  const { uploadImage } = QUERY_FUNCTIONS;
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
+
+  const { mutateAsync: uploadImageAsync, isPending: isUploading } = useMutation(
+    {
+      mutationKey: [QUERY_KEYS.USER],
+      mutationFn: async (payload: { data: File; user_id: string }) =>
+        uploadImage({ file: payload.data, user_id: payload.user_id }),
+      onSuccess: () => {
+        toast.success("Profile picture updated successfully");
+      },
+      onError: (error) => {
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error("An error occurred while updating the profile.");
+        }
+      },
+    },
+  );
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,31 +65,20 @@ export function AvatarUpload({
       return;
     }
 
-    setIsUploading(true);
+    const reader = new FileReader();
 
-    try {
-      const reader = new FileReader();
+    reader.onload = async (event) => {
+      if (event.target?.result) {
+        const newAvatarUrl = event.target.result as string;
+        onAvatarChange(newAvatarUrl);
+        await uploadImageAsync({ data: file, user_id: user?.id! });
+      }
+    };
 
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const newAvatarUrl = event.target.result as string;
-          onAvatarChange(newAvatarUrl);
-          toast.success("Profile picture updated successfully");
-        }
-      };
-
-      reader.onerror = () => {
-        toast.error("Failed to read file");
-      };
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      reader.readAsDataURL(file);
-    } catch (error) {
-      toast.error("Failed to upload image");
-      console.error(error);
-    } finally {
-      setIsUploading(false);
-    }
+    reader.onerror = () => {
+      toast.error("Failed to read file");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveAvatar = () => {
@@ -99,7 +114,7 @@ export function AvatarUpload({
           onClick={handleFileSelect}
           disabled={isUploading}
         >
-          {isUploading ? "Uploading..." : "Change"}
+          {isUploading ? <Spinner /> : "Change"}
         </Button>
 
         <Button
