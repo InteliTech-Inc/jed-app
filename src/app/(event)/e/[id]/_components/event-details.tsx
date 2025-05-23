@@ -84,7 +84,7 @@ export default function EventDetails() {
         <div className="relative h-[23rem] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm lg:col-span-2">
           <div className="absolute inset-0 z-0">
             <Image
-              src={event?.data.media?.[0]?.url!}
+              src={event?.data.media?.url as string}
               alt={event?.data.name!}
               className="h-full w-full object-cover"
               width={1000}
