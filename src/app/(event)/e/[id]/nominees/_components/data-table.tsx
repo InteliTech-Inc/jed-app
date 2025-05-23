@@ -103,16 +103,16 @@ export function NomineesDataTable() {
 
   const flattenedData = React.useMemo(() => {
     return nomineesData?.data.nominees
-      .map((nominee: NomineeResponse) => {
+      ?.map((nominee: NomineeResponse) => {
         return {
           ...nominee,
-          category: nominee.catgeory.name,
-          photo: nominee.img_url ?? "",
-          total_votes: nominee.total_votes,
+          category: nominee?.catgeory?.name,
+          photo: nominee?.media?.url ?? "",
+          total_votes: nominee?.total_votes,
         };
       })
       .filter((nominee: NomineeResponse) => nominee.event_id === event_id);
-  }, [nomineesData]);
+  }, [nomineesData?.data.nominees, event_id]);
 
   const uniqueCategories = React.useMemo(() => {
     const categories = new Set<string>();
@@ -227,7 +227,7 @@ export function NomineesDataTable() {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 text-center">
-            NO NOMINEES FOUND
+            No nominees found for this event.
           </TableCell>
         </TableRow>
       );
@@ -316,7 +316,7 @@ export function NomineesDataTable() {
                 ))}
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                {table.getRowModel().rows?.length ? (
+                {table?.getRowModel().rows?.length ? (
                   <SortableContext
                     items={dataIds}
                     strategy={verticalListSortingStrategy}
