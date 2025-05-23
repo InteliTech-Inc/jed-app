@@ -73,19 +73,39 @@ export function VotingDataTable() {
   });
 
   const flattenedData = React.useMemo(() => {
-    return votingRecords?.data
-      .map((record: any) => ({
-        ...record,
-        full_name: record.nominee.full_name,
-        votes: record.count,
-        category: record.nominee.catgeory.name,
-        photo: record.nominee.media?.url,
-        code: record.nominee.code,
-        id: record.id,
-        email: record.nominee.email ?? "support@jed.app",
-      }))
-      .filter((record: any) => record.event_id === event_id);
-  }, [votingRecords]);
+    if (!votingRecords?.data) return [];
+
+    const grouped: Record<string, any> = {};
+
+    votingRecords.data.forEach((record: any) => {
+      const nominee = record.nominee;
+      const voteEventId = record.event_id;
+
+      if (voteEventId !== event_id) return;
+
+      const nomineeId = nominee.id;
+
+      grouped[nomineeId] ??= {
+        full_name: nominee.full_name,
+        category: nominee.catgeory.name,
+        photo: nominee.media?.url,
+        code: nominee.code,
+        id: nomineeId,
+        email: nominee.email ?? "support@jed.app",
+        votes: 0,
+        event_id: voteEventId,
+      };
+
+      const votes =
+        nominee.votes
+          ?.filter((vote: any) => vote.event_id === event_id)
+          .reduce((sum: number, vote: any) => sum + vote.count, 0) ?? 0;
+
+      grouped[nomineeId].votes = votes;
+    });
+
+    return Object.values(grouped);
+  }, [votingRecords, event_id]);
 
   const uniqueCategories = React.useMemo(() => {
     const categories = new Set<string>();
