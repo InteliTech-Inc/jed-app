@@ -39,7 +39,7 @@ export interface EventResponse {
   tools: Tools;
   votes: Vote[];
   service_percentage: number;
-  media: Media[];
+  media: Media;
 }
 
 export interface Media {

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Spinner } from "@/components/spinner";
 import { NominationsTable } from "./_components/data-table";
+import { authAxios } from "@/providers/api-client";
 
 export type NominationsResponse = {
   id: string;
@@ -17,11 +18,43 @@ export type NominationsResponse = {
   };
 };
 
-export default async function NominationsPage({
+export async function generateMetadata({
   params,
-}: {
-  readonly params: Promise<{ id: string }>;
-}) {
+}: Readonly<{
+  params: Promise<{ id: string }>;
+}>) {
+  const { id } = await params;
+  const response = await authAxios.get(`/events/${id}`);
+  const event = response.data.data;
+  return {
+    title: `${event.name} | Event Nominations`,
+    description: event.description,
+    openGraph: {
+      title: event.name,
+      description: event.description,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/e/${event.id}/nominations`,
+      siteName: "JED",
+      images: [
+        {
+          url: event.media.url,
+          width: 1200,
+          height: 630,
+          alt: event.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: event.name,
+      description: event.description,
+      images: [event.media.url],
+    },
+  };
+}
+
+export const revalidate = 0;
+
+export default async function NominationsPage() {
   return (
     <section className="h-full p-4">
       <section className="mb-4 max-w-screen-sm">

@@ -31,7 +31,7 @@ export default function EditEventDetails({
 }>) {
   const [imageData, setImageData] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(
-    data.media?.[0]?.url ?? null,
+    data.media?.url ?? null,
   );
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);

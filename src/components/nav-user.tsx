@@ -65,10 +65,11 @@ export function NavUser({ user }: { readonly user: User }) {
               size="lg"
               className="data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-accent-foreground p-0 px-2"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="h-8 w-8 rounded-full">
                 <AvatarImage
-                  src={user?.avatar}
+                  src={user?.media?.url}
                   alt={`${user?.first_name} ${user?.last_name}`}
+                  className="aspect-square object-cover object-center"
                 />
                 <AvatarFallback className="">
                   {extractUserInitials(
@@ -93,10 +94,11 @@ export function NavUser({ user }: { readonly user: User }) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-6 w-6 rounded-lg">
+                <Avatar className="h-6 w-6 rounded-full">
                   <AvatarImage
-                    src={user?.avatar}
+                    src={user?.media?.url}
                     alt={`${user?.first_name} ${user?.last_name}`}
+                    className="aspect-square object-cover object-center"
                   />
                   <AvatarFallback className="rounded-lg text-xs">
                     {extractUserInitials(

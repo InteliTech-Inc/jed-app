@@ -12,6 +12,9 @@ export type User = {
   phone_number?: string;
   company?: string;
   role?: string;
+  media?: {
+    url: string;
+  };
 };
 
 export const useUser = () => {

@@ -3,7 +3,6 @@ import { API_URL } from "@/constants/url";
 import { CategoriesPayload } from "@/interfaces/categories";
 import { Event, UpdateEventPayload } from "@/interfaces/event";
 import { authAxios } from "@/providers/api-client";
-import axios from "axios";
 
 interface Nominee {
   full_name: string;
@@ -13,7 +12,7 @@ interface Nominee {
 
 const QUERY_FUNCTIONS = {
   getUser: async (id: string) => {
-    const response = await axios.get(`${API_URL}/users/${id}`);
+    const response = await authAxios.get(`${API_URL}/users/me`);
     return response.data;
   },
 
@@ -120,16 +119,19 @@ const QUERY_FUNCTIONS = {
     file,
     nominee_id,
     event_id,
+    user_id,
   }: {
     file: File;
     nominee_id?: string;
     event_id?: string;
+    user_id?: string;
   }): Promise<{ url: string; public_id: string }> => {
     const formData = new FormData();
 
     formData.append("image", file);
     if (event_id) formData.append("event_id", event_id);
     if (nominee_id) formData.append("nominee_id", nominee_id);
+    if (user_id) formData.append("user_id", user_id);
 
     const response = await authAxios.post("/upload", formData, {
       headers: {

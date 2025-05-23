@@ -13,7 +13,7 @@ export type Nominee = {
   full_name: string;
   category: string;
   category_id: string;
-  media: Media[];
+  media: Media;
   code: string;
   total_votes?: number;
   img_public_id: string;
@@ -85,7 +85,7 @@ export const columns: ColumnDef<Nominee>[] = [
       return (
         <Avatar className="h-10 w-10">
           <AvatarImage
-            src={nominee.media[0]?.url}
+            src={nominee.media?.url}
             alt={nominee.full_name}
             className="aspect-square object-cover"
             fetchPriority="high"

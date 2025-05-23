@@ -79,7 +79,7 @@ export function VotingDataTable() {
         full_name: record.nominee.full_name,
         votes: record.count,
         category: record.nominee.catgeory.name,
-        photo: record.nominee.img_url,
+        photo: record.nominee.media?.url,
         code: record.nominee.code,
         id: record.id,
         email: record.nominee.email ?? "support@jed.app",
@@ -194,7 +194,7 @@ export function VotingDataTable() {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 text-center">
-            NO VOTING RECORDS FOUND
+            No voting records found for this event.
           </TableCell>
         </TableRow>
       );
