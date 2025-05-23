@@ -23,6 +23,9 @@ export default function UserProfile() {
     phone: "",
     company: "JED Events",
     role: "",
+    media: {
+      url: "",
+    },
   });
   const [avatar, setAvatar] = useState("/avatars/jed.png");
   const { user } = useUser();
@@ -35,8 +38,11 @@ export default function UserProfile() {
         phone: user?.phone_number!,
         company: user?.company ?? "JED Events",
         role: user?.role!,
+        media: {
+          url: user?.media?.url ?? "",
+        },
       });
-      setAvatar(user.avatar ?? "/avatars/jed.png");
+      setAvatar(user.media?.url ?? "/avatars/jed.png");
     }
   }, [user]);
 
