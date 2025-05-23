@@ -1,11 +1,11 @@
 "use client";
-import { Clipboard, DownloadIcon, LinkIcon } from "lucide-react";
+import { Clipboard, LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { exportToCSV, copyToClipboard } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-// import axios from "@/lib/axios";
+// import axios from "axios";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ import { NominationsResponse } from "../page";
 import { IconFileArrowRight } from "@tabler/icons-react";
 import { Spinner } from "@/components/spinner";
 import { ParamValue } from "next/dist/server/request/params";
+
 export function LinkButton({
   id,
   results,
@@ -50,17 +51,21 @@ export function LinkButton({
 
   const handleShortenURL = async () => {
     setIsLoading(true);
-    const data = {
-      url: url,
-    };
+    // const data = {
+    //   url: url,
+    // };
 
     try {
-      //   const res = await axios.post(`${process.env.NEXT_PUBLIC_URL_SHORTENER_API}/shorten-url`, data, {
+      // const res = await axios.post(
+      //   `${process.env.NEXT_PUBLIC_URL_SHORTENER_API}/shorten-url`,
+      //   data,
+      //   {
       //     headers: {
       //       "content-type": "application/x-www-form-urlencoded",
       //       Accept: "application/json",
       //     },
-      //   });
+      //   },
+      // );
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
