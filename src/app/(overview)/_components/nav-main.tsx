@@ -5,25 +5,25 @@ import { usePathname } from "next/navigation";
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { isActive } from "@/lib/utils";
 import Link from "next/link";
-import { useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+
 export function NavMain({
   items,
-}: {
+}: Readonly<{
   items: {
     title: string;
     url: string;
     icon?: Icon;
     badge?: string;
   }[];
-}) {
+}>) {
   const pathname = usePathname();
   const { toggleSidebar, isMobile } = useSidebar();
   return (
