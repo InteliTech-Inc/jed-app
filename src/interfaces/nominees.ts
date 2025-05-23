@@ -1,9 +1,10 @@
+import { Media } from "./event";
+
 export interface NomineeResponse {
   id: string;
   full_name: string;
   code: string;
-  img_url: string | null;
-  img_public_id: string | null;
+  media: Media;
   user_id: string;
   event_id: string;
   catgeory: {
