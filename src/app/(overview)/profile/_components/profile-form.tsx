@@ -19,6 +19,9 @@ interface ProfileData {
   phone: string;
   company: string;
   role: string;
+  media: {
+    url: string;
+  };
 }
 
 interface ProfileFormProps {
