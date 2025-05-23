@@ -45,7 +45,7 @@ export function EditNomineeForm({
   setOpen,
 }: Readonly<EditNomineeFormProps>) {
   const [photoPreview, setPhotoPreview] = useState<string | null>(
-    nominee.media[0]?.url ?? null,
+    nominee.media?.url ?? null,
   );
   const [formData, setFormData] = useState<FormData>({
     id: nominee.id,
@@ -53,7 +53,7 @@ export function EditNomineeForm({
     category: nominee.category ?? "",
     category_id: nominee.category_id ?? "",
     code: nominee.code,
-    img_url: nominee.media[0]?.url ?? null,
+    img_url: nominee.media?.url ?? null,
     img_public_id: nominee.img_public_id ?? "",
   });
   const [file, setFile] = useState<File | null>(null);
@@ -84,11 +84,11 @@ export function EditNomineeForm({
       category: nominee.category ?? "",
       category_id: nominee.category_id ?? "",
       code: nominee.code,
-      img_url: nominee.media[0]?.url ?? null,
+      img_url: nominee.media?.url ?? null,
       img_public_id: nominee.img_public_id ?? "",
     };
     setFormData(initialData);
-    setPhotoPreview(nominee.media[0]?.url ?? null);
+    setPhotoPreview(nominee.media?.url ?? null);
     setFile(null);
   }, [nominee.id]);
 
