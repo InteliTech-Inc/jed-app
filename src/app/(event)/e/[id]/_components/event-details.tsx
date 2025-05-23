@@ -50,7 +50,7 @@ export default function EventDetails() {
   }
 
   function calculateWithdrawableEarnings(votes: Vote[]) {
-    const totalRevenue = calculateTotalRevenue(votes) / 100;
+    const totalRevenue = calculateTotalRevenue(votes);
     const serviceFee = event?.data?.service_percentage
       ? event.data.service_percentage / 100
       : 0;
