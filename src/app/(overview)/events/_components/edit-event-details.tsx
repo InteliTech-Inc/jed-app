@@ -21,6 +21,7 @@ import { formatJedError } from "@/lib/utils";
 import Image from "next/image";
 import { AxiosError } from "axios";
 import { ImageIcon, X } from "lucide-react";
+import { useAllEventsStore } from "@/lib/stores/all-events-store";
 
 export default function EditEventDetails({
   data,
@@ -35,8 +36,9 @@ export default function EditEventDetails({
   );
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { updateEvent, uploadImage } = QUERY_FUNCTIONS;
+  const { updateEvent: updateEventAPI, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
+  const { updateEvent, allEvents } = useAllEventsStore();
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -69,21 +71,33 @@ export default function EditEventDetails({
   const { mutateAsync: updateExistingEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
     mutationFn: async (payload: { id: string; data: UpdateEventPayload }) => {
-      return updateEvent(payload.data, payload.id);
+      return updateEventAPI(payload.data, payload.id);
     },
-    onSuccess: () => {
-      toast.success("Event updated successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
-      if (!imageData) {
-        drawerState(false);
+    onMutate: async (payload) => {
+      const previousEvent = allEvents.find((event) => event.id === payload.id);
+
+      if (previousEvent) {
+        const updatedEvent = { ...previousEvent, ...payload.data };
+        updateEvent(payload.id, updatedEvent);
       }
+
+      drawerState(false);
+      return { previousEvent };
     },
-    onError: (error: AxiosError) => {
-      if (error instanceof Error) {
+    onError: (error, _, context) => {
+      if (context?.previousEvent) {
+        updateEvent(context.previousEvent.id, context.previousEvent as any);
+      }
+      if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
       } else {
-        toast.error("An error occurred while updating the event.");
+        toast.error("Something went wrong while updating the event.");
       }
+    },
+    onSuccess: () => {
+      toast.success("Event updated successfully!");
+      drawerState(false);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
   });
 
