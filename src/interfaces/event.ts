@@ -58,6 +58,7 @@ interface Categories {
   name: string;
   description: string;
   nominees: Nominee[];
+  created_at: string;
 }
 
 interface Schedule {

@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
+import { useParams } from "next/navigation";
+import { useEventStore } from "@/lib/stores/event-store";
 
 type Props = {
   id: number;
@@ -43,30 +45,49 @@ export default function EditEventCategories({
     },
   });
 
+  const { id: event_id } = useParams();
   const queryClient = useQueryClient();
-  const { updateCategory } = QUERY_FUNCTIONS;
+  const { updateCategory, revertCategory, categories } = useEventStore();
+  const { updateCategory: updateCategoryAPI } = QUERY_FUNCTIONS;
 
-  const { mutateAsync: updateExistingCategory, isPending } = useMutation({
-    mutationKey: [QUERY_KEYS.CATEGORIES, id],
+  const { mutate: updateExistingCategory, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.EVENTS, event_id],
     mutationFn: async (data: z.infer<typeof categorySchema>) => {
-      return updateCategory(data, String(id));
+      return updateCategoryAPI(data, String(id));
     },
-    onSuccess: () => {
-      toast.success("Category updated successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+    onMutate: async (newCategory) => {
+      const previousCategory = categories.find(
+        (category) => category.id === id,
+      );
+      if (previousCategory) {
+        revertCategory(id, previousCategory.name);
+        updateCategory(id, newCategory.name);
+      }
+
       setOpen(false);
+      return { previousCategory, newCategory };
     },
-    onError: (error) => {
+    onError: (error, newCategory, context) => {
+      if (context?.previousCategory) {
+        revertCategory(id, context.previousCategory.name);
+      }
       if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
       } else {
         toast.error("Something went wrong while updating the category.");
       }
     },
+    onSuccess: () => {
+      toast.success("Category updated successfully!");
+      setOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
+    },
   });
 
-  const onSubmit = async (data: z.infer<typeof categorySchema>) => {
-    await updateExistingCategory({ name: data.name });
+  const onSubmit = (data: z.infer<typeof categorySchema>) => {
+    updateExistingCategory({ name: data.name });
   };
 
   return (

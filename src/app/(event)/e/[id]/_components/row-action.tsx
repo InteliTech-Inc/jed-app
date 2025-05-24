@@ -19,12 +19,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { CategoryType } from "./columns";
 import EditEventCategories from "./edit-categories";
+import { useParams } from "next/navigation";
+import { useEventStore } from "@/lib/stores/event-store";
+import { AxiosError } from "axios";
+import { formatJedError } from "@/lib/utils";
 
 export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
   const [openDropdown, setOpenDropdown] = React.useState(false);
 
+  const { id: event_id } = useParams();
+
+  const { removeCategory, addCategories, categories } = useEventStore();
   const { deleteCategory } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
 
@@ -33,21 +40,51 @@ export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
   };
 
   const { mutateAsync: deleteSingleCategory, isPending } = useMutation({
-    mutationKey: [QUERY_KEYS.CATEGORIES],
-    mutationFn: deleteCategory,
-    onSuccess: async () => {
-      toast.success("Event deleted successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+    mutationKey: [QUERY_KEYS.EVENTS],
+    mutationFn: async (categoryId: number) => {
+      return deleteCategory(String(categoryId));
     },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Failed to delete event");
+    onMutate: async (categoryId: number) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
+
+      const categoryToDelete = categories.find(
+        (category) => category.id === categoryId,
+      );
+
+      removeCategory(categoryId);
+      setOpen(false);
+      closeDropdown();
+
+      return { categoryToDelete };
+    },
+    onError: (error, categoryId, context) => {
+      if (context?.categoryToDelete) {
+        addCategories([context.categoryToDelete]);
+      }
+
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong while deleting the category.");
+      }
+    },
+    onSuccess: async () => {
+      toast.success("Category deleted successfully");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
     },
   });
 
   const handleDelete = async () => {
-    const id = String(item.id);
-    await deleteSingleCategory(id);
+    await deleteSingleCategory(item.id);
   };
 
   return (
@@ -76,8 +113,8 @@ export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
           </DrawerTrigger>
           <DropdownMenuSeparator />
           <ModalWrapper
-            title="Delete Event"
-            description={`Permanently delete event and all associated data?`}
+            title="Delete Category"
+            description={`Permanently delete category and all associated data?`}
             trigger={
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
@@ -94,7 +131,7 @@ export function RowActions({ item }: Readonly<{ item: CategoryType }>) {
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">
-              <p className="">
+              <p>
                 Are you sure you want to delete the <strong>{item.name}</strong>{" "}
                 category? This will permanently remove the event and all
                 associated data. This action cannot be undone.
