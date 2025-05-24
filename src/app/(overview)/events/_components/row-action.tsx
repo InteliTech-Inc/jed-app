@@ -27,10 +27,12 @@ import { EventResponse } from "@/interfaces/event";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
 import Link from "next/link";
-import { transformToLowerCase } from "@/lib/utils";
+import { formatJedError, transformToLowerCase } from "@/lib/utils";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { useAllEventsStore } from "@/lib/stores/all-events-store";
+import { AxiosError } from "axios";
 
 const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -47,28 +49,48 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   the dropdown menu not closing when the submit button is clicked.
   */
   const [openDropdown, setOpenDropdown] = React.useState(false);
+  const { removeEvent, setAllEvents } = useAllEventsStore();
 
   const closeDropdown = () => {
     setOpenDropdown(false);
   };
 
-  const { mutateAsync: deleteSingleEvent, isPending } = useMutation({
+  const { mutate: deleteSingleEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
-    mutationFn: deleteEvent,
-    onSuccess: async () => {
-      await delay(3000);
+    mutationFn: (id: string) => deleteEvent(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+
+      removeEvent(id);
+      setOpen(false);
+      closeDropdown();
+
+      const previousEvents = queryClient.getQueryData<{
+        data: { events: EventResponse[] };
+      }>([QUERY_KEYS.EVENTS]);
+
+      return { previousEvents };
+    },
+    onError(error, _, context) {
+      if (context?.previousEvents) {
+        setAllEvents(context.previousEvents.data.events);
+      }
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      }
+    },
+    onSuccess: () => {
       toast.success("Event deleted successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
-    onError: (error) => {
-      console.error(error);
-      toast.error("Failed to delete event");
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
   });
 
   const handleDelete = async () => {
     const id = String(item.id);
-    await deleteSingleEvent(id);
+    deleteSingleEvent(id);
   };
 
   const handlePublish = async () => {
