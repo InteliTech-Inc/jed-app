@@ -2,10 +2,6 @@
 
 import * as React from "react";
 import { CategoryType, columns } from "./columns";
-import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query-keys";
-import QUERY_FUNCTIONS from "@/lib/functions/client";
-import { Spinner } from "@/components/spinner";
 import {
   Table,
   TableBody,
@@ -62,7 +58,8 @@ import {
   IconChevronsRight,
 } from "@tabler/icons-react";
 import { Label } from "@/components/ui/label";
-import { useParams } from "next/navigation";
+
+import { useEventStore } from "@/lib/stores/event-store";
 
 export function DataTable() {
   const [data, setData] = React.useState<CategoryType[]>([]);
@@ -84,24 +81,19 @@ export function DataTable() {
     useSensor(KeyboardSensor, {}),
   );
 
-  const { id: event_id } = useParams();
-  const { fetchEvent } = QUERY_FUNCTIONS;
-
-  const {
-    data: eventData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORIES],
-    queryFn: () => fetchEvent(String(event_id)),
-  });
-
+  const { categories } = useEventStore();
+  const [eventData, setEventData] = React.useState<CategoryType[] | null>(null);
   React.useEffect(() => {
-    if (eventData?.data?.categories) {
-      setData(eventData.data.categories as CategoryType[]);
+    if (eventData) {
+      setData(eventData);
     }
   }, [eventData]);
+
+  React.useEffect(() => {
+    if (categories.length) {
+      setEventData(categories);
+    }
+  }, [categories]);
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -118,7 +110,7 @@ export function DataTable() {
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row) => row.id?.toString(),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -148,29 +140,7 @@ export function DataTable() {
   }
 
   const renderEmptyStateRow = () => {
-    if (isLoading) {
-      return (
-        <TableRow className="h-24">
-          <TableCell colSpan={columns.length} className="h-24 p-0 text-center">
-            <div className="flex h-full w-full items-center justify-center">
-              <Spinner />
-            </div>
-          </TableCell>
-        </TableRow>
-      );
-    }
-
-    if (isError) {
-      return (
-        <TableRow>
-          <TableCell colSpan={columns.length} className="h-24 text-center">
-            Error loading categories: {error?.message ?? "Unknown error"}
-          </TableCell>
-        </TableRow>
-      );
-    }
-
-    if (eventData && eventData.data.categories?.length === 0) {
+    if (categories && categories?.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 text-center">
