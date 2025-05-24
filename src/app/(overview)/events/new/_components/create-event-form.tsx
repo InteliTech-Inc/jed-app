@@ -24,6 +24,8 @@ import { formatJedError } from "@/lib/utils";
 import { Spinner } from "@/components/spinner";
 import { useRouter } from "next/navigation";
 import { QUERY_KEYS } from "@/constants/query-keys";
+import { useAllEventsStore } from "@/lib/stores/all-events-store";
+import { EventResponse } from "@/interfaces/event";
 
 export function CreateEventForm() {
   const { currentStep, nextStep, prevStep, isUploading, setIsUploading } =
@@ -31,6 +33,7 @@ export function CreateEventForm() {
   const { createEvent, uploadImage } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { addEvent, removeEvent } = useAllEventsStore();
 
   const canContinue = () => {
     const state = useCreateEventStore.getState();
@@ -97,6 +100,43 @@ export function CreateEventForm() {
   const { mutateAsync: createNewEvent, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
     mutationFn: createEvent,
+    onMutate: async (newEvent) => {
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+
+      const tempEvent: EventResponse = {
+        ...newEvent,
+        id: `temp_${Date.now()}_${Math.random()}`,
+        is_published: false,
+        display_results: false,
+        event_progress: "pending",
+        approval_status: "pending",
+        schedule: {
+          nomination_end_period: "",
+          nomination_start_period: "",
+          voting_end_period: "",
+          voting_start_period: "",
+        },
+        categories: [],
+        tools: {
+          nominations: false,
+          voting: false,
+          ticketing: false,
+        },
+        votes: [],
+        service_percentage: 0,
+        media: {
+          public_id: "",
+          url: "",
+        },
+      };
+
+      addEvent(tempEvent);
+
+      return { tempEvent };
+    },
+    onError: (error, _, context) => {
+      removeEvent(context?.tempEvent?.id!);
+    },
     onSuccess: () => {
       toast.success("Event created successfully!");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
@@ -107,12 +147,8 @@ export function CreateEventForm() {
       }
       return false;
     },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
-        toast.error(formatJedError(error));
-      } else {
-        toast.error("Something went wrong");
-      }
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
   });
 

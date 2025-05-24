@@ -65,6 +65,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { Spinner } from "@/components/spinner";
+import { useAllEventsStore } from "@/lib/stores/all-events-store";
 
 export function DataTable() {
   const [data, setData] = React.useState<EventResponse[]>([]);
@@ -74,6 +75,7 @@ export function DataTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -87,6 +89,7 @@ export function DataTable() {
   );
 
   const { fetchEvents } = QUERY_FUNCTIONS;
+  const { allEvents: events, setAllEvents } = useAllEventsStore();
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
@@ -94,7 +97,7 @@ export function DataTable() {
   );
 
   const table = useReactTable({
-    data,
+    data: events,
     columns,
     state: {
       sorting,
@@ -146,12 +149,13 @@ export function DataTable() {
     queryKey: [QUERY_KEYS.EVENTS],
     queryFn: fetchEvents,
   });
-
   React.useEffect(() => {
-    if (allEvents?.data) {
-      setData(allEvents.data.events as EventResponse[]);
+    const events = allEvents?.data?.events;
+    if (events) {
+      setData(events);
+      setAllEvents(events);
     }
-  }, [allEvents]);
+  }, [allEvents, setAllEvents]);
 
   const renderEmptyStateRow = () => {
     if (isLoading) {
