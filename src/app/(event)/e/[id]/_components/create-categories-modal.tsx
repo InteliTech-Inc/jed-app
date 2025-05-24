@@ -27,6 +27,7 @@ import { CategoriesPayload } from "@/interfaces/categories";
 import { categoriesSchema, FormData } from "@/validations/category";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
+import { useEventStore } from "@/lib/stores/event-store";
 
 export function CreateEventCategoriesModal() {
   const isMobile = useIsMobile();
@@ -35,6 +36,8 @@ export function CreateEventCategoriesModal() {
   const { id: event_id } = useParams();
   const queryClient = useQueryClient();
   const { createCategory } = QUERY_FUNCTIONS;
+
+  const { addCategories } = useEventStore();
 
   const {
     control,
@@ -54,29 +57,69 @@ export function CreateEventCategoriesModal() {
     name: "categories",
   });
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationKey: [QUERY_KEYS.CATEGORIES],
+  const { mutate, isPending } = useMutation({
+    mutationKey: [QUERY_KEYS.EVENTS, event_id],
     mutationFn: async (data: CategoriesPayload[]) => createCategory({ data }),
+    onMutate: (newCategories) => {
+      addCategories(newCategories as any);
+
+      const prevCategories = queryClient.getQueryData([
+        QUERY_KEYS.EVENTS,
+        event_id,
+      ]);
+
+      queryClient.setQueryData(
+        [QUERY_KEYS.EVENTS, event_id],
+        (oldData: any) => {
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              categories: [
+                ...(oldData.data.categories ?? []),
+                ...newCategories,
+              ],
+            },
+          };
+        },
+      );
+      setOpen(false);
+      return { prevCategories };
+    },
     onSuccess: () => {
       toast.success("Categories created successfully!");
       reset();
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
     },
-    onError: (error) => {
+    onError: (error, newCategories, context) => {
+      queryClient.setQueryData(
+        [QUERY_KEYS.EVENTS, event_id],
+        context?.prevCategories,
+      );
       if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
       }
       toast.error("Failed to create categories.");
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.EVENTS, event_id],
+      });
+    },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
     const payload = data.categories.map((category) => ({
       name: category.name.trim(),
       event_id: String(event_id),
+      created_at: new Date().toISOString(),
     }));
-    await mutateAsync(payload);
+
+    mutate(payload);
   };
 
   return (
