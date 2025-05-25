@@ -133,28 +133,30 @@ export default function EditEventDetails({
       },
     };
 
-    await updateExistingEvent(payload);
+    try {
+      await updateExistingEvent(payload);
 
-    if (imageData) {
-      try {
+      if (imageData) {
         setIsUploading(true);
         const uploadedImage = await uploadImage({
           file: imageData,
           event_id: data.id,
         });
+
         if (uploadedImage) {
           toast.success("Image uploaded successfully.");
-          drawerState(false);
+          queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
         }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.error(formatJedError(error));
-        } else {
-          toast.error("Image upload failed.");
-        }
-      } finally {
-        setIsUploading(false);
       }
+      drawerState(false);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Image upload failed.");
+      }
+    } finally {
+      setIsUploading(false);
     }
   };
 
