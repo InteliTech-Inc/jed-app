@@ -34,12 +34,27 @@ import { NomineeFormData, nomineeSchema } from "@/validations/nominee";
 import { AxiosError } from "axios";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { useParams } from "next/navigation";
+import { useNomineeStore } from "@/lib/stores/nominee-store";
 
 export interface CategoryResponse {
   id: string;
   name: string;
   event_id: string;
 }
+
+type LocalNominee = {
+  id: string;
+  full_name: string;
+  category_id: string;
+  name: string;
+  category: string;
+  media: {
+    url: string;
+    public_id: string;
+  };
+  code: string;
+  img_public_id: string;
+};
 
 export function CreateNomineeModal() {
   const isMobile = useIsMobile();
@@ -67,6 +82,8 @@ export function CreateNomineeModal() {
   });
 
   const { fetchCategories, createNominee, uploadImage } = QUERY_FUNCTIONS;
+  const { addNominees, removeNominee } = useNomineeStore();
+
   const queryClient = useQueryClient();
   const { data: categories } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORIES],
@@ -89,15 +106,33 @@ export function CreateNomineeModal() {
   const { mutateAsync, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.NOMINEES],
     mutationFn: createNominee,
-    onSuccess: () => {
-      toast.success("Nominee created successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
+    onMutate: async (newNominee) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.NOMINEES],
+      });
+
+      const selectedCategory = categories?.data.categories.find(
+        (cat: CategoryResponse) => cat.id === newNominee.category_id,
+      );
+
+      const tempNominee = {
+        id: `temp_${Date.now()}_${Math.random()}`,
+        full_name: newNominee.full_name,
+        category: selectedCategory.name ?? "Unknown Category",
+      };
+
+      addNominees(tempNominee as LocalNominee);
+
+      setIsOpen(false);
+
+      return { tempNominee };
     },
-    onError: (error: AxiosError) => {
-      if (error instanceof Error) {
+    onError: (error, _, context) => {
+      if (context?.tempNominee) {
+        removeNominee(context.tempNominee.id);
+      }
+      if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
-      } else {
-        toast.error("An error occurred while creating the nominee.");
       }
     },
   });
@@ -105,11 +140,13 @@ export function CreateNomineeModal() {
   const onSubmit = async (data: NomineeFormData) => {
     const { full_name, category } = data;
 
-    const response = await mutateAsync({
+    const nomineePayload = {
       full_name,
       category_id: category,
       event_id: String(event_id),
-    });
+    };
+
+    const response = await mutateAsync(nomineePayload);
 
     if (response.data) {
       try {
@@ -123,6 +160,9 @@ export function CreateNomineeModal() {
           setIsOpen(false);
           reset();
           setPhotoPreview("");
+          await queryClient.invalidateQueries({
+            queryKey: [QUERY_KEYS.NOMINEES],
+          });
         }
       } catch (error) {
         if (error instanceof AxiosError) {
