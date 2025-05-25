@@ -41,7 +41,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { VotingDataResponse } from "../page";
 import { toast } from "sonner";
 import { exportToCSV } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -49,9 +48,9 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { Spinner } from "@/components/spinner";
 import { useParams } from "next/navigation";
+import { useVotesStore } from "@/lib/stores/votes-store";
 
 export function VotingDataTable() {
-  const [data, setData] = React.useState<VotingDataResponse[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -66,6 +65,7 @@ export function VotingDataTable() {
 
   const { id: event_id } = useParams();
   const { fetchVotes } = QUERY_FUNCTIONS;
+  const { setVotes, votes } = useVotesStore();
 
   const { data: votingRecords, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.VOTES],
@@ -91,7 +91,7 @@ export function VotingDataTable() {
         photo: nominee.media?.url,
         code: nominee.code,
         id: nomineeId,
-        email: nominee.email ?? "support@jed.app",
+        email: nominee.email ?? "info.jedvotes@gmail.com",
         votes: 0,
         event_id: voteEventId,
       };
@@ -117,12 +117,12 @@ export function VotingDataTable() {
 
   React.useEffect(() => {
     if (flattenedData) {
-      setData(flattenedData);
+      setVotes(flattenedData);
     }
   }, [flattenedData]);
 
   const table = useReactTable({
-    data,
+    data: votes,
     columns,
     state: {
       sorting,
@@ -147,10 +147,10 @@ export function VotingDataTable() {
   });
 
   const handleDownloadData = () => {
-    if (!data.length) {
+    if (!votes.length) {
       return toast.error("No data to download");
     }
-    const payload = data.map((r) => {
+    const payload = votes.map((r) => {
       return {
         "Full Name": r.full_name,
         EMAIL: r.email ?? "",
@@ -259,7 +259,7 @@ export function VotingDataTable() {
         <div>
           <Button
             onClick={handleDownloadData}
-            disabled={!data.length}
+            disabled={!votes.length}
             className="shadow-none"
           >
             Export Data
