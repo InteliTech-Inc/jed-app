@@ -41,7 +41,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { VotingDataResponse } from "../page";
 import { toast } from "sonner";
 import { exportToCSV } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -52,7 +51,6 @@ import { useParams } from "next/navigation";
 import { useVotesStore } from "@/lib/stores/votes-store";
 
 export function VotingDataTable() {
-  // const [data, setData] = React.useState<VotingDataResponse[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -93,7 +91,7 @@ export function VotingDataTable() {
         photo: nominee.media?.url,
         code: nominee.code,
         id: nomineeId,
-        email: nominee.email ?? "support@jed.app",
+        email: nominee.email ?? "info.jedvotes@gmail.com",
         votes: 0,
         event_id: voteEventId,
       };
