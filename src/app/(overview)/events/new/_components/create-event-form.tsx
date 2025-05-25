@@ -136,6 +136,11 @@ export function CreateEventForm() {
     },
     onError: (error, _, context) => {
       removeEvent(context?.tempEvent?.id!);
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Failed to create event.");
+      }
     },
     onSuccess: () => {
       toast.success("Event created successfully!");
@@ -169,10 +174,10 @@ export function CreateEventForm() {
       service_percentage: serviceFeePercentage,
     };
 
-    const response = await createNewEvent(payload);
+    try {
+      const response = await createNewEvent(payload);
 
-    if (response.data) {
-      try {
+      if (response.data) {
         setIsUploading(true);
         const uploadedImage = await uploadImage({
           file: image!,
@@ -182,15 +187,15 @@ export function CreateEventForm() {
           toast.success("Image uploaded successfully.");
           router.push("/events");
         }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.error(formatJedError(error));
-        } else {
-          toast.error("Image upload failed.");
-        }
-      } finally {
-        setIsUploading(false);
       }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Image upload failed.");
+      }
+    } finally {
+      setIsUploading(false);
     }
   };
 

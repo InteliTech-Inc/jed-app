@@ -146,33 +146,34 @@ export function CreateNomineeModal() {
       event_id: String(event_id),
     };
 
-    const response = await mutateAsync(nomineePayload);
+    try {
+      const response = await mutateAsync(nomineePayload);
 
-    if (response.data) {
-      try {
+      if (response.data) {
         setIsUploading(true);
         const uploadedImage = await uploadImage({
           file: file!,
           nominee_id: response.data.id,
         });
+
         if (uploadedImage) {
           toast.success("Image uploaded successfully.");
-          setIsOpen(false);
-          reset();
           setPhotoPreview("");
           await queryClient.invalidateQueries({
             queryKey: [QUERY_KEYS.NOMINEES],
           });
         }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.error(formatJedError(error));
-        } else {
-          toast.error("Image upload failed.");
-        }
-      } finally {
-        setIsUploading(false);
       }
+      setIsOpen(false);
+      reset();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Image upload failed.");
+      }
+    } finally {
+      setIsUploading(false);
     }
   };
 
