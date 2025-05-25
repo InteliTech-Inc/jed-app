@@ -17,8 +17,10 @@ import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
 import { updateNomineeSchema } from "@/validations/nominee";
+import { useNominationStore } from "@/lib/stores/nomination-store";
 
 export interface UpdateNominationVariables {
+  id?: string;
   full_name: string;
   email: string;
   phone: string;
@@ -31,8 +33,10 @@ export default function NominationDetailsPanel({
   data: NominationsResponse;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }>) {
-  const { updateNomination } = QUERY_FUNCTIONS;
+  const { updateNomination: updateNominationAPI } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
+  const { updateNomination, nominations } = useNominationStore();
+
   const {
     register,
     handleSubmit,
@@ -49,24 +53,48 @@ export default function NominationDetailsPanel({
   const { mutateAsync: updateNominationMutation, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.NOMINATIONS],
     mutationFn: async (payload: UpdateNominationVariables) => {
-      return updateNomination(payload, String(data.id));
+      return updateNominationAPI(payload, String(data.id));
     },
-    onSuccess: () => {
-      toast.success("Nomination updated successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+    onMutate: async (payload) => {
+      const previousNominations = nominations.find(
+        (nomination) => nomination.id === payload.id,
+      );
+
+      if (previousNominations) {
+        const updatedNomination = { ...previousNominations, ...payload };
+        updateNomination(payload.id!, updatedNomination);
+      }
+
       setOpen(false);
+
+      return { previousNominations };
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      if (context?.previousNominations) {
+        updateNomination(
+          context.previousNominations.id,
+          context.previousNominations as any,
+        );
+      }
       if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
       } else {
         toast.error("An error occurred while updating the nomination.");
       }
     },
+    onSuccess: () => {
+      toast.success("Nomination updated successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+    },
   });
+
   const onSubmit = async (payload: z.infer<typeof updateNomineeSchema>) => {
-    await updateNominationMutation(payload);
+    await updateNominationMutation({ ...payload, id: String(data.id) });
   };
+
   return (
     <div className="flex flex-col gap-4 overflow-y-auto text-sm">
       <form
