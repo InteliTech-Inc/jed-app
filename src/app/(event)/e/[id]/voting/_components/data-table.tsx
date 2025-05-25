@@ -49,9 +49,10 @@ import { QUERY_KEYS } from "@/constants/query-keys";
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { Spinner } from "@/components/spinner";
 import { useParams } from "next/navigation";
+import { useVotesStore } from "@/lib/stores/votes-store";
 
 export function VotingDataTable() {
-  const [data, setData] = React.useState<VotingDataResponse[]>([]);
+  // const [data, setData] = React.useState<VotingDataResponse[]>([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -66,6 +67,7 @@ export function VotingDataTable() {
 
   const { id: event_id } = useParams();
   const { fetchVotes } = QUERY_FUNCTIONS;
+  const { setVotes, votes } = useVotesStore();
 
   const { data: votingRecords, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.VOTES],
@@ -117,12 +119,12 @@ export function VotingDataTable() {
 
   React.useEffect(() => {
     if (flattenedData) {
-      setData(flattenedData);
+      setVotes(flattenedData);
     }
   }, [flattenedData]);
 
   const table = useReactTable({
-    data,
+    data: votes,
     columns,
     state: {
       sorting,
@@ -147,10 +149,10 @@ export function VotingDataTable() {
   });
 
   const handleDownloadData = () => {
-    if (!data.length) {
+    if (!votes.length) {
       return toast.error("No data to download");
     }
-    const payload = data.map((r) => {
+    const payload = votes.map((r) => {
       return {
         "Full Name": r.full_name,
         EMAIL: r.email ?? "",
@@ -259,7 +261,7 @@ export function VotingDataTable() {
         <div>
           <Button
             onClick={handleDownloadData}
-            disabled={!data.length}
+            disabled={!votes.length}
             className="shadow-none"
           >
             Export Data
