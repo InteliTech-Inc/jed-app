@@ -50,6 +50,7 @@ import { useParams } from "next/navigation";
 import { CategoryResponse } from "../../nominees/_components/create-nominee-modal";
 import { Spinner } from "@/components/spinner";
 import { NoNominations } from "./no-nominations";
+import { useNominationStore } from "@/lib/stores/nomination-store";
 
 export function NominationsTable() {
   const [data, setData] = React.useState([]);
@@ -67,6 +68,7 @@ export function NominationsTable() {
 
   const { fetchNominations, fetchCategories } = QUERY_FUNCTIONS;
   const { id: event_id } = useParams();
+  const { nominations, setNominations } = useNominationStore();
 
   const { data: records, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.NOMINATIONS],
@@ -106,6 +108,7 @@ export function NominationsTable() {
       }),
     );
 
+    setNominations(nominationsWithCategory);
     setData(nominationsWithCategory);
   }, [records, categories, event_id]);
 
@@ -121,7 +124,7 @@ export function NominationsTable() {
   }, [data]);
 
   const table = useReactTable({
-    data,
+    data: nominations,
     columns,
     state: {
       sorting,
@@ -191,7 +194,7 @@ export function NominationsTable() {
       );
     }
 
-    if (data && data.length === 0) {
+    if (nominations && nominations.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={columns.length} className="h-24 text-center">
