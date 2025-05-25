@@ -3,6 +3,9 @@ import { z } from "zod";
 export const nomineeSchema = z.object({
   full_name: z
     .string()
+    .nonempty({
+      message: "Name is required",
+    })
     .regex(/^[a-zA-Z\s]+$/, {
       message: "Name can only contain letters and spaces",
     })
@@ -16,7 +19,8 @@ export type NomineeFormData = z.infer<typeof nomineeSchema>;
 
 export const updateNomineeSchema = z.object({
   full_name: z
-    .string({
+    .string()
+    .nonempty({
       message: "Name is required",
     })
     .regex(/^[a-zA-Z\s]+$/, {
@@ -33,7 +37,16 @@ export const updateNomineeSchema = z.object({
     .email({
       message: "Please enter a valid email address",
     }),
-  phone: z.string().min(10).max(15, {
-    message: "Phone number must be between 10 and 15 digits",
-  }),
+  phone: z
+    .string()
+    .nonempty({
+      message: "Phone number is required",
+    })
+    .regex(/^\d+$/, {
+      message: "Phone number can only contain digits",
+    })
+    .min(10)
+    .max(15, {
+      message: "Phone number must be between 10 and 15 digits",
+    }),
 });

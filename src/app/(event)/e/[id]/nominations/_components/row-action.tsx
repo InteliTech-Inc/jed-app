@@ -49,7 +49,8 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
 
   const [openDropdown, setOpenDropdown] = React.useState(false);
 
-  const { createNominee, deleteNomination } = QUERY_FUNCTIONS;
+  const { createNominee, deleteNomination, sendNominationEmail } =
+    QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const { removeNomination, setNominations } = useNominationStore();
 
@@ -125,17 +126,27 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
     await addNominee(nomineePayload as Nominee);
   };
 
-  const handleSendEmail = async () => {
-    try {
-      setIsLoading(true);
-      await delay(3000);
+  const { mutateAsync: sendEmail, isPending: isSendingEmail } = useMutation({
+    mutationKey: [QUERY_KEYS.NOMINATIONS],
+    mutationFn: sendNominationEmail,
+    onSuccess: () => {
       toast.success("Email sent successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to send email");
-    } finally {
-      setIsLoading(false);
-    }
+      setOpen(false);
+      closeDropdown();
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong.");
+      }
+      closeDropdown();
+    },
+  });
+  const handleSendEmail = async () => {
+    const nomination = item;
+    await sendEmail({ email: nomination.email, nomination_id: nomination.id });
   };
 
   const handleCopyToClipboard = (label: string, text: string) => {
@@ -228,7 +239,7 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
             onSubmit={handleSendEmail}
             cancelText="Cancel"
             submitText={"Send"}
-            isLoading={isLoading}
+            isLoading={isSendingEmail}
             onSubmitEnd={closeDropdown}
           >
             <div className="py-2">

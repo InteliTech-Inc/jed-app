@@ -80,6 +80,14 @@ const QUERY_FUNCTIONS = {
     return response.data;
   },
 
+  sendNominationEmail: async (payload: {
+    email: string;
+    nomination_id: string;
+  }) => {
+    const response = await authAxios.post("/nominations/send-email", payload);
+    return response.data;
+  },
+
   createCategory: async (payload: { data: CategoriesPayload[] }) => {
     const response = await authAxios.post(`/category`, payload);
     return response.data;
