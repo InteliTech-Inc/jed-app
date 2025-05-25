@@ -37,6 +37,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { AxiosError } from "axios";
 import { Nominee } from "@/interfaces/event";
+import { useNominationStore } from "@/lib/stores/nomination-store";
 
 export const delay = async (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -50,6 +51,7 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
 
   const { createNominee, deleteNomination } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
+  const { removeNomination, setNominations } = useNominationStore();
 
   const closeDropdown = () => {
     setOpenDropdown(false);
@@ -61,16 +63,39 @@ export function RowActions({ item }: { readonly item: NominationsResponse }) {
   } = useMutation({
     mutationKey: [QUERY_KEYS.NOMINATIONS],
     mutationFn: deleteNomination,
+    onMutate: async (nominationId) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.NOMINATIONS, nominationId],
+      });
+
+      removeNomination(nominationId);
+      setOpen(false);
+      closeDropdown();
+
+      const previousNominations = queryClient.getQueryData<{
+        data: { nominations: NominationsResponse[] };
+      }>([QUERY_KEYS.NOMINATIONS]);
+
+      const nominationToRemove = previousNominations?.data.nominations.find(
+        (n) => n.id === nominationId,
+      );
+      return { previousNominations, nominationToRemove };
+    },
+
+    onError: (error, _, context) => {
+      if (context?.previousNominations) {
+        setNominations(context.previousNominations.data.nominations);
+      }
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      }
+    },
     onSuccess: () => {
       toast.success("Nomination deleted successfully");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
     },
-    onError: (error: AxiosError) => {
-      if (error instanceof Error) {
-        toast.error(formatJedError(error));
-      } else {
-        toast.error("An error occurred while deleting the nomination.");
-      }
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINATIONS] });
     },
   });
 
