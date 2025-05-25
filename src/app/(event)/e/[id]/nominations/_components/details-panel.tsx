@@ -110,7 +110,7 @@ export default function NominationDetailsPanel({
               {...register("full_name")}
             />
             {errors.full_name && (
-              <small className="text-red-500">{errors.full_name.message}</small>
+              <span className="text-red-500">{errors.full_name.message}</span>
             )}
           </div>
           <div className="flex flex-col gap-3">
@@ -121,7 +121,7 @@ export default function NominationDetailsPanel({
               {...register("email")}
             />
             {errors.email && (
-              <small className="text-red-500">{errors.email.message}</small>
+              <span className="text-red-500">{errors.email.message}</span>
             )}
           </div>
 
@@ -132,6 +132,9 @@ export default function NominationDetailsPanel({
               defaultValue={data.phone}
               {...register("phone")}
             />
+            {errors.phone && (
+              <span className="text-red-500">{errors.phone.message}</span>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">
