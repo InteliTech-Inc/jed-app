@@ -24,6 +24,7 @@ import { formatJedError } from "@/lib/utils";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/spinner";
 import { useParams } from "next/navigation";
+import { useNomineeStore } from "@/lib/stores/nominee-store";
 
 interface EditNomineeFormProps {
   nominee: Nominee;
@@ -60,7 +61,11 @@ export function EditNomineeForm({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { fetchCategories, updateNominee, uploadImage } = QUERY_FUNCTIONS;
+  const {
+    fetchCategories,
+    updateNominee: updateNomineeAPI,
+    uploadImage,
+  } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
   const { data: categories, isLoading: categoriesLoading } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORIES],
@@ -68,6 +73,7 @@ export function EditNomineeForm({
   });
 
   const { id: event_id } = useParams();
+  const { updateNominee, nominees } = useNomineeStore();
 
   const getCategoryName = (categoryId: string) => {
     const category = categories?.data.categories?.find(
@@ -129,42 +135,71 @@ export function EditNomineeForm({
       const dataToSend = {
         ...payload.data,
       };
-      await updateNominee(dataToSend, payload.id);
+      return updateNomineeAPI(dataToSend, payload.id);
+    },
+    onMutate: async (payload) => {
+      const previousNominee = nominees.find(
+        (nominee) => nominee.id === payload.id,
+      );
+
+      if (previousNominee) {
+        const updatedNominee = { ...previousNominee, ...payload.data };
+        updateNominee(payload.id, updatedNominee);
+      }
+      setOpen(false);
+      return { previousNominee };
+    },
+    onError: (error, _, context) => {
+      if (context?.previousNominee) {
+        updateNominee(
+          context.previousNominee.id,
+          context.previousNominee as any,
+        );
+      }
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error("Something went wrong while updating nominee.");
+      }
     },
     onSuccess: () => {
       toast.success("Nominee updated successfully");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
+      setOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.NOMINEES],
+      });
     },
-    onError: (error: AxiosError) => {
-      if (error instanceof Error) {
-        toast.error(formatJedError(error));
-      } else {
-        toast.error("An error occurred while updating the nominee.");
-      }
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.NOMINEES],
+      });
     },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateExistingNominee({ data: formData, id: nominee.id });
-    queryClient.invalidateQueries({
-      queryKey: [QUERY_KEYS.NOMINEES],
-    });
     setIsUploading(true);
-    try {
-      const uploadImageUrl = await uploadImage({
-        file: file!,
-        nominee_id: nominee.id,
-      });
 
-      if (uploadImageUrl) {
-        setFormData((prev) => ({
-          ...prev,
-          img_url: uploadImageUrl.url,
-          img_public_id: uploadImageUrl.public_id,
-        }));
-        setOpen(false);
+    try {
+      await updateExistingNominee({ data: formData, id: nominee.id });
+
+      if (file) {
+        const uploaded = await uploadImage({
+          file,
+          nominee_id: nominee.id,
+        });
+
+        if (uploaded) {
+          setFormData((prev) => ({
+            ...prev,
+            img_url: uploaded.url,
+            img_public_id: uploaded.public_id,
+          }));
+          toast.success("Image uploaded successfully.");
+          queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
+        }
       }
+      setOpen(false);
     } catch (error) {
       if (error instanceof AxiosError) {
         toast.error(formatJedError(error));

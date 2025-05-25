@@ -32,6 +32,7 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { AxiosError } from "axios";
+import { NomineeInterface, useNomineeStore } from "@/lib/stores/nominee-store";
 
 interface NomineeActionsProps {
   nominee: Nominee;
@@ -44,25 +45,48 @@ export function NomineeActions({ nominee }: Readonly<NomineeActionsProps>) {
 
   const { deleteNominee } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
+  const { removeNominee, addNominees } = useNomineeStore();
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: [QUERY_KEYS.NOMINEES],
     mutationFn: deleteNominee,
+    onMutate: async (nomineeId) => {
+      await queryClient.cancelQueries({
+        queryKey: [QUERY_KEYS.NOMINEES, nomineeId],
+      });
+
+      removeNominee(nomineeId);
+      setOpen(false);
+      setOpenDropdown(false);
+
+      const previousNominees = queryClient.getQueryData<{
+        data: { nominees: NomineeInterface[] };
+      }>([QUERY_KEYS.NOMINEES]);
+
+      const nomineeToRemove = previousNominees?.data.nominees.find(
+        (n) => n.id === nomineeId,
+      );
+      return { previousNominees, nomineeToRemove };
+    },
+    onError: (error, _, context) => {
+      if (context?.previousNominees) {
+        addNominees(context.nomineeToRemove as NomineeInterface);
+      }
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      }
+    },
     onSuccess: () => {
       toast.success("Nominee deleted successfully");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
     },
-    onError: (error: AxiosError) => {
-      if (error instanceof Error) {
-        toast.error(formatJedError(error));
-      } else {
-        toast.error("An error occurred while deleting the nominee.");
-      }
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
     },
   });
 
   const handleDelete = async () => {
     await mutateAsync(nominee.id);
-    queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOMINEES] });
   };
 
   const handleCopyCode = () => {

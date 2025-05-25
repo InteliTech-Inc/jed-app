@@ -67,6 +67,7 @@ import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { NomineeResponse } from "@/interfaces/nominees";
 import { Spinner } from "@/components/spinner";
 import { useParams } from "next/navigation";
+import { useNomineeStore } from "@/lib/stores/nominee-store";
 
 export function NomineesDataTable() {
   const [data, setData] = React.useState<Nominee[]>([]);
@@ -83,6 +84,7 @@ export function NomineesDataTable() {
   const { id: event_id } = useParams();
 
   const { fetchNominees } = QUERY_FUNCTIONS;
+  const { setNominees, nominees } = useNomineeStore();
 
   const sortableId = React.useId();
   const sensors = useSensors(
@@ -123,7 +125,10 @@ export function NomineesDataTable() {
   }, [flattenedData]);
 
   React.useEffect(() => {
-    setData(flattenedData);
+    if (flattenedData) {
+      setData(flattenedData);
+      setNominees(flattenedData);
+    }
   }, [flattenedData]);
 
   function handleDragEnd(event: DragEndEvent) {
@@ -139,7 +144,7 @@ export function NomineesDataTable() {
   }
 
   const table = useReactTable({
-    data,
+    data: nominees,
     columns,
     state: {
       sorting,
