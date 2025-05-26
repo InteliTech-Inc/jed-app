@@ -23,7 +23,7 @@ import {
   IconEyeOff,
   IconLivePhotoOff,
 } from "@tabler/icons-react";
-import { EventResponse } from "@/interfaces/event";
+import { EventResponse, UpdateEventPayload } from "@/interfaces/event";
 import { ModalWrapper } from "@/components/modal";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -40,8 +40,7 @@ const delay = async (ms: number) =>
 export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { deleteEvent } = QUERY_FUNCTIONS;
+  const { deleteEvent, updateEvent } = QUERY_FUNCTIONS;
   const queryClient = useQueryClient();
 
   /* 
@@ -49,7 +48,7 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   the dropdown menu not closing when the submit button is clicked.
   */
   const [openDropdown, setOpenDropdown] = React.useState(false);
-  const { removeEvent, setAllEvents } = useAllEventsStore();
+  const { removeEvent, setAllEvents, allEvents } = useAllEventsStore();
 
   const closeDropdown = () => {
     setOpenDropdown(false);
@@ -93,34 +92,127 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
     deleteSingleEvent(id);
   };
 
-  const handlePublish = async () => {
-    try {
-      setIsLoading(true);
-      await delay(3000);
+  const { mutateAsync: togglePublish, isPending: isPublishing } = useMutation({
+    mutationKey: [QUERY_KEYS.EVENTS],
+    mutationFn: (id: string) => {
+      const newIsPublished = !item.is_published;
+      const payload = {
+        is_published: newIsPublished,
+      };
+      return updateEvent(payload as UpdateEventPayload, id);
+    },
+    onMutate: async (id: string) => {
+      const previousEvent = allEvents.find((event) => event.id === id);
+
+      if (previousEvent) {
+        const updatedEvent = {
+          ...previousEvent,
+          is_published: !previousEvent.is_published,
+        };
+        setAllEvents(
+          allEvents.map((event) => (event.id === id ? updatedEvent : event)),
+        );
+      }
+      setOpen(false);
+      closeDropdown();
+
+      return { previousEvent };
+    },
+    onError: (error, _, context) => {
+      if (context?.previousEvent) {
+        setAllEvents(
+          allEvents
+            .map((event) =>
+              event.id === context.previousEvent!.id
+                ? context.previousEvent
+                : event,
+            )
+            .filter((e): e is EventResponse => e !== undefined),
+        );
+      }
+      if (error instanceof AxiosError) {
+        toast.error(formatJedError(error));
+      } else {
+        toast.error(
+          `Something went wrong while toggling ${item.is_published ? "un publishing" : "publishing"} the event.`,
+        );
+      }
+    },
+    onSuccess: () => {
       toast.success(
         `Event ${item.is_published ? "unpublished" : "published"} successfully`,
       );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to publish event");
-    } finally {
-      setIsLoading(false);
-    }
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] }),
+  });
+
+  const handlePublish = async () => {
+    const id = String(item.id);
+    await togglePublish(id);
   };
 
+  const { mutateAsync: allowDisplayResults, isPending: isAllowingDisplay } =
+    useMutation({
+      mutationKey: [QUERY_KEYS.EVENTS],
+      mutationFn: (id: string) => {
+        const newDisplayResults = !item.display_results;
+        const payload = {
+          display_results: newDisplayResults,
+        };
+        return updateEvent(payload as UpdateEventPayload, id);
+      },
+      onMutate: async (id: string) => {
+        const previousEvent = allEvents.find((event) => event.id === id);
+
+        if (previousEvent) {
+          const updatedEvent = {
+            ...previousEvent,
+            display_results: !previousEvent.display_results,
+          };
+          setAllEvents(
+            allEvents.map((event) => (event.id === id ? updatedEvent : event)),
+          );
+        }
+        setOpen(false);
+        closeDropdown();
+
+        return { previousEvent };
+      },
+      onError: (error, _, context) => {
+        if (context?.previousEvent) {
+          setAllEvents(
+            allEvents
+              .map((event) =>
+                event.id === context.previousEvent!.id
+                  ? context.previousEvent
+                  : event,
+              )
+              .filter((e): e is EventResponse => e !== undefined),
+          );
+        }
+        if (error instanceof AxiosError) {
+          toast.error(formatJedError(error));
+        } else {
+          toast.error(
+            `Something went wrong while toggling ${item.display_results ? "hiding" : "displaying"} the results.`,
+          );
+        }
+      },
+      onSuccess: () => {
+        toast.success(
+          `Results ${item.display_results ? "hidden" : "displayed"} successfully`,
+        );
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
+      },
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] }),
+    });
+
   const handleAllowDisplayResults = async () => {
-    setIsLoading(true);
-    try {
-      await delay(3000);
-      toast.success(
-        `Results ${item.display_results ? "hidden" : "displayed"} successfully`,
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to allow display results");
-    } finally {
-      setIsLoading(false);
-    }
+    const id = String(item.id);
+    await allowDisplayResults(id);
   };
 
   return (
@@ -180,7 +272,7 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
                 onSubmit={handlePublish}
                 cancelText="Cancel"
                 submitText={item.is_published ? "Unpublish" : "Publish"}
-                isLoading={isLoading}
+                isLoading={isPublishing}
                 onSubmitEnd={closeDropdown}
               >
                 <div className="py-2">
@@ -208,7 +300,7 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
                 onSubmit={handleAllowDisplayResults}
                 cancelText="Cancel"
                 submitText={item.display_results ? "Hide" : "Display "}
-                isLoading={isLoading}
+                isLoading={isAllowingDisplay}
                 onSubmitEnd={closeDropdown}
               >
                 <div className="py-2">
