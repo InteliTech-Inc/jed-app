@@ -94,14 +94,26 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
 
   const { mutateAsync: togglePublish, isPending: isPublishing } = useMutation({
     mutationKey: [QUERY_KEYS.EVENTS],
-    mutationFn: (id: string) => {
-      const newIsPublished = !item.is_published;
+    mutationFn: ({
+      id,
+      currentValue,
+    }: {
+      id: string;
+      currentValue: boolean;
+    }) => {
+      const newIsPublished = !currentValue;
       const payload = {
         is_published: newIsPublished,
       };
       return updateEvent(payload as UpdateEventPayload, id);
     },
-    onMutate: async (id: string) => {
+    onMutate: async ({
+      id,
+      currentValue,
+    }: {
+      id: string;
+      currentValue: boolean;
+    }) => {
       const previousEvent = allEvents.find((event) => event.id === id);
 
       if (previousEvent) {
@@ -133,14 +145,12 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
       if (error instanceof AxiosError) {
         toast.error(formatJedError(error));
       } else {
-        toast.error(
-          `Something went wrong while toggling ${item.is_published ? "un publishing" : "publishing"} the event.`,
-        );
+        toast.error(`Something went wrong!`);
       }
     },
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       toast.success(
-        `Event ${item.is_published ? "unpublished" : "published"} successfully`,
+        `Event ${data.is_published ? "published" : "unpublished"} successfully`,
       );
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
@@ -149,21 +159,32 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
   });
 
   const handlePublish = async () => {
-    const id = String(item.id);
-    await togglePublish(id);
+    await togglePublish({ id: item.id, currentValue: item.is_published });
   };
 
   const { mutateAsync: allowDisplayResults, isPending: isAllowingDisplay } =
     useMutation({
       mutationKey: [QUERY_KEYS.EVENTS],
-      mutationFn: (id: string) => {
-        const newDisplayResults = !item.display_results;
+      mutationFn: ({
+        id,
+        currentValue,
+      }: {
+        id: string;
+        currentValue: boolean;
+      }) => {
+        const newDisplayResults = !currentValue;
         const payload = {
           display_results: newDisplayResults,
         };
         return updateEvent(payload as UpdateEventPayload, id);
       },
-      onMutate: async (id: string) => {
+      onMutate: async ({
+        id,
+        currentValue,
+      }: {
+        id: string;
+        currentValue: boolean;
+      }) => {
         const previousEvent = allEvents.find((event) => event.id === id);
 
         if (previousEvent) {
@@ -195,14 +216,12 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
         if (error instanceof AxiosError) {
           toast.error(formatJedError(error));
         } else {
-          toast.error(
-            `Something went wrong while toggling ${item.display_results ? "hiding" : "displaying"} the results.`,
-          );
+          toast.error(`Something went wrong!`);
         }
       },
-      onSuccess: () => {
+      onSuccess: ({ data }) => {
         toast.success(
-          `Results ${item.display_results ? "hidden" : "displayed"} successfully`,
+          `Results ${data.display_results ? "displayed" : "hidden"} successfully`,
         );
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
       },
@@ -211,8 +230,10 @@ export function RowActions({ item }: Readonly<{ item: EventResponse }>) {
     });
 
   const handleAllowDisplayResults = async () => {
-    const id = String(item.id);
-    await allowDisplayResults(id);
+    await allowDisplayResults({
+      id: item.id,
+      currentValue: item.display_results,
+    });
   };
 
   return (
