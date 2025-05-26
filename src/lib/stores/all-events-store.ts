@@ -1,5 +1,6 @@
 import { EventResponse, UpdateEventPayload } from "@/interfaces/event";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type AllEventsActions = {
   setAllEvents: (events: EventResponse[]) => void;
@@ -17,24 +18,29 @@ const initialState: AllEventsStore = {
 };
 
 export const useAllEventsStore = create<AllEventsStore & AllEventsActions>()(
-  (set) => ({
-    ...initialState,
-    setAllEvents: (events) => set({ allEvents: events }),
-    removeEvent: (eventId) =>
-      set((state) => {
-        const newEvents = state.allEvents.filter(
-          (event) => event.id !== eventId,
-        );
-        return { allEvents: newEvents };
-      }),
-    updateEvent: (eventId, updatedEvent) =>
-      set((state: any) => {
-        const updatedEvents = state.allEvents.map((event: any) =>
-          event.id === eventId ? updatedEvent : event,
-        );
-        return { allEvents: updatedEvents };
-      }),
-    addEvent: (event) =>
-      set((state) => ({ allEvents: [...state.allEvents, event] })),
-  }),
+  persist(
+    (set) => ({
+      ...initialState,
+      setAllEvents: (events) => set({ allEvents: events }),
+      removeEvent: (eventId) =>
+        set((state) => {
+          const newEvents = state.allEvents.filter(
+            (event) => event.id !== eventId,
+          );
+          return { allEvents: newEvents };
+        }),
+      updateEvent: (eventId, updatedEvent) =>
+        set((state: any) => {
+          const updatedEvents = state.allEvents.map((event: any) =>
+            event.id === eventId ? updatedEvent : event,
+          );
+          return { allEvents: updatedEvents };
+        }),
+      addEvent: (event) =>
+        set((state) => ({ allEvents: [...state.allEvents, event] })),
+    }),
+    {
+      name: "all-events-store",
+    },
+  ),
 );
