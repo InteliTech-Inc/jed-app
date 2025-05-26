@@ -13,6 +13,8 @@ export interface UpdateEventPayload {
   description: string;
   voting_period: Partial<Period>;
   nomination_period: Partial<Period>;
+  is_published?: boolean;
+  display_results?: boolean;
 }
 
 interface Period {
