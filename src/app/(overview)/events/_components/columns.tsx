@@ -109,7 +109,7 @@ export const columns: ColumnDef<EventResponse>[] = [
         case "completed":
           progressIcon = <IconCircleCheckFilled className="fill-green-500" />;
           break;
-        case "pending":
+        case "not_started":
           progressIcon = <IconClockHour1 className="fill-purple-200" />;
           break;
         default:
