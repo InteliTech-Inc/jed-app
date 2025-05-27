@@ -108,7 +108,7 @@ export function CreateEventForm() {
         id: `temp_${Date.now()}_${Math.random()}`,
         is_published: false,
         display_results: false,
-        event_progress: "pending",
+        event_progress: "not_started",
         approval_status: "pending",
         schedule: {
           nomination_end_period: "",

@@ -91,4 +91,5 @@ export const formatJedError = (error: AxiosError) => {
   return errorMessage;
 };
 
-export const transformToLowerCase = (value: string) => value.toLowerCase();
+export const transformToLowerCase = (value: string) =>
+  value.toLowerCase().replace("_", " ");
