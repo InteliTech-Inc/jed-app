@@ -148,6 +148,7 @@ export function DataTable() {
   const { data: allEvents, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.EVENTS],
     queryFn: fetchEvents,
+    refetchInterval: 60 * 3000, // 3 minutes
   });
   React.useEffect(() => {
     const events = allEvents?.data?.events;
