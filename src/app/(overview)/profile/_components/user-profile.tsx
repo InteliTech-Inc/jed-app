@@ -36,7 +36,7 @@ export default function UserProfile() {
         name: `${user?.first_name} ${user?.last_name}`,
         email: user?.email,
         phone: user?.phone_number!,
-        company: user?.company ?? "JED Events",
+        company: user?.organization!,
         role: user?.role!,
         media: {
           url: user?.media?.url ?? "",
