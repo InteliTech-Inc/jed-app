@@ -57,9 +57,9 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden rounded-none border-none p-0 shadow-none">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className="grid p-0 lg:grid-cols-2">
           <form
-            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:h-fit md:p-8"
+            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:p-8 lg:h-fit"
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-6">
@@ -171,11 +171,24 @@ export function LoginForm({
             </div>
             <div className="text-muted-foreground *:[a]:hover:text-primary mt-4 text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
               By clicking continue, you agree to our{" "}
-              <a href="#">Terms of Service</a> and{" "}
-              <a href="#">Privacy Policy</a>.
+              <a
+                href="https://jedevent.com/legal/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://jedevent.com/legal/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
             </div>
           </form>
-          <div className="bg-primary relative hidden h-screen md:block">
+          <div className="bg-primary relative hidden h-screen lg:block">
             <div className="absolute inset-0 z-10 bg-black/50" />
             <Image
               src={LoginImage}
