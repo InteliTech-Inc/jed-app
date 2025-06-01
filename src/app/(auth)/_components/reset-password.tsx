@@ -13,7 +13,7 @@ import { Spinner } from "@/components/spinner";
 import { authAxios } from "@/providers/api-client";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { resetPasswordSchema } from "@/validations/reset-password";
@@ -28,6 +28,7 @@ export function ResetPasswordForm({
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -59,6 +60,7 @@ export function ResetPasswordForm({
       });
       if (res.data.status === "success") {
         toast.success(res.data.data.message ?? "Password reset successfully!");
+        router.push("/login");
       }
     } catch (error) {
       if (error instanceof AxiosError) {
