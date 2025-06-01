@@ -15,6 +15,8 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { API_URL } from "@/constants/url";
+import { PhoneInput } from "@/components/phone-input";
+import { Value as PhoneValue } from "react-phone-number-input";
 
 export function SignUpForm({
   className,
@@ -28,9 +30,10 @@ export function SignUpForm({
       fullName: "",
       email: "",
       password: "",
-      phone_number: "",
+      phone_number: "" as PhoneValue,
     },
   });
+
   async function onSubmit(payload: z.infer<typeof signUpFormSchema>) {
     const { fullName, email, password, phone_number } = payload;
 
@@ -43,6 +46,8 @@ export function SignUpForm({
       password,
       phone_number,
     };
+
+    console.log("Payload Data:", payloadData);
 
     try {
       const response = await axios.post(
@@ -75,9 +80,9 @@ export function SignUpForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden rounded-none border-none p-0 shadow-none">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className="grid p-0 lg:grid-cols-2">
           <form
-            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:h-fit md:p-8"
+            className="mx-auto grid h-screen max-w-lg place-content-center self-center p-6 md:p-8 lg:h-fit"
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="flex flex-col gap-6">
@@ -108,16 +113,17 @@ export function SignUpForm({
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="phone_number">Phone Number</Label>
-                <Input
+                <PhoneInput
                   id="phone_number"
-                  type="text"
-                  placeholder="Joshua Owusu"
-                  className={`py-5 ${form.formState.errors.phone_number ? "border-red-500" : ""}`}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="on"
-                  spellCheck="true"
+                  placeholder="Enter phone number"
+                  defaultCountry="GH"
+                  international
                   {...form.register("phone_number")}
+                  onChange={(value) =>
+                    form.setValue("phone_number", value ?? ("" as PhoneValue))
+                  }
+                  className={` ${form.formState.errors.phone_number ? "border-red-500" : ""}`}
+                  disabled={form.formState.isSubmitting}
                 />
                 {form.formState.errors.phone_number && (
                   <small className="text-sm text-red-500">
@@ -222,11 +228,24 @@ export function SignUpForm({
             </div>
             <div className="text-muted-foreground *:[a]:hover:text-primary mt-4 text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
               By clicking continue, you agree to our{" "}
-              <a href="#">Terms of Service</a> and{" "}
-              <a href="#">Privacy Policy</a>.
+              <a
+                href="https://jedevent.com/legal/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://jedevent.com/legal/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
             </div>
           </form>
-          <div className="bg-primary relative hidden min-h-screen md:block">
+          <div className="bg-primary relative hidden min-h-screen lg:block">
             <div className="absolute inset-0 z-10 bg-black/50" />
             <Image
               src={LoginImage}

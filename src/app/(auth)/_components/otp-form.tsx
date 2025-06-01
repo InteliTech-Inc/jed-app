@@ -20,9 +20,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { toast } from "sonner";
-import { API_URL } from "@/constants/url";
+import { API_URL, COOKIE_NAME } from "@/constants/url";
 import axios, { AxiosError } from "axios";
-import { COOKIE_NAME } from "@/constants/url";
 import Cookies from "js-cookie";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatJedError } from "@/lib/utils";
@@ -124,8 +123,22 @@ export default function InputOTPForm() {
         </Button>
 
         <div className="text-muted-foreground *:[a]:hover:text-primary mt-4 text-center text-xs *:[a]:underline *:[a]:underline-offset-4">
-          By clicking verify, you agree to our <a href="#">Terms of Service</a>{" "}
-          and <a href="#">Privacy Policy</a>.
+          By clicking verify, you agree to our{" "}
+          <a
+            href="https://jedevent.com/legal/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://jedevent.com/legal/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>
         </div>
       </form>
     </Form>
