@@ -47,7 +47,8 @@ export function NavUser({ user }: { readonly user: User }) {
       }
     } finally {
       clearToken();
-      router.push("/login");
+      const redirectUrl = process.env.NEXT_PUBLIC_LIVE_URL as string;
+      router.push(redirectUrl);
     }
   }
 
