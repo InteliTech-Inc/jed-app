@@ -64,10 +64,10 @@ interface Categories {
 }
 
 interface Schedule {
-  nomination_end_period: string;
-  nomination_start_period: string;
-  voting_end_period: string;
-  voting_start_period: string;
+  nomination_end_period: string | Date;
+  nomination_start_period: string | Date;
+  voting_end_period: string | Date;
+  voting_start_period: string | Date;
 }
 
 export interface Nominee {
