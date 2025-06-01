@@ -78,7 +78,7 @@ export function ProfileForm({
       last_name: nameParts.slice(1).join(" ") || "",
       email: formData.email,
       phone_number: formData.phone,
-      company: formData.company,
+      organization: formData.company,
       role: formData.role,
     };
 

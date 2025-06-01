@@ -34,6 +34,7 @@ export function ResetPasswordForm({
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
@@ -61,6 +62,7 @@ export function ResetPasswordForm({
       if (res.data.status === "success") {
         toast.success(res.data.data.message ?? "Password reset successfully!");
         router.push("/login");
+        reset();
       }
     } catch (error) {
       if (error instanceof AxiosError) {
