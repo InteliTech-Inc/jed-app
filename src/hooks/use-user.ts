@@ -10,7 +10,7 @@ export type User = {
   email: string;
   avatar: string;
   phone_number?: string;
-  company?: string;
+  organization?: string;
   role?: string;
   media?: {
     url: string;
