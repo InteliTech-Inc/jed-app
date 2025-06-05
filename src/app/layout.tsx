@@ -5,6 +5,7 @@ import { QueryProvider } from "@/providers/query-client";
 
 import "./globals.css";
 import { NetworkProvider } from "@/providers/network";
+import GoogleAuthProvider from "@/providers/google-auth";
 
 export const viewport: Viewport = {
   themeColor: "#fff",
@@ -80,17 +81,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${switzer.variable} ${satoshi.variable} antialiased`}>
-        <NetworkProvider>
-          <QueryProvider>
-            <Toaster
-              closeButton
-              className="font-(family-name:--font-paragraph)"
-              position="top-center"
-              richColors
-            />
-            <div className="relative">{children}</div>
-          </QueryProvider>
-        </NetworkProvider>
+        <GoogleAuthProvider>
+          <NetworkProvider>
+            <QueryProvider>
+              <Toaster
+                closeButton
+                className="font-(family-name:--font-paragraph)"
+                position="top-center"
+                richColors
+              />
+              <div className="relative">{children}</div>
+            </QueryProvider>
+          </NetworkProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );

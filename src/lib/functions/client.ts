@@ -148,6 +148,13 @@ const QUERY_FUNCTIONS = {
     });
     return response.data.data;
   },
+
+  authWithGoogle: async (token: string) => {
+    const response = await authAxios.post(`${API_URL}/auth/login/google`, {
+      token,
+    });
+    return response.data;
+  },
 };
 
 export default QUERY_FUNCTIONS;
