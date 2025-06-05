@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { GoogleLogin } from "@react-oauth/google";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { setToken } from "@/helpers/get-token";
@@ -22,6 +22,32 @@ export default function AuthWithGoogle({
 }>) {
   const { authWithGoogle } = QUERY_FUNCTIONS;
   const router = useRouter();
+
+  const handleCredentialResponse = async (
+    credentialResponse: CredentialResponse,
+  ) => {
+    const id_token = credentialResponse.credential;
+
+    if (!id_token) {
+      console.error("No ID token returned");
+      return;
+    }
+
+    try {
+      const { data } = await authWithGoogle(id_token);
+      if (data) {
+        const { accessToken } = data;
+        setToken(accessToken);
+        toast.success("Welcome back to JED!");
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        toast.error(formatJedError(err));
+      }
+      toast.error("Login failed. Please try again.");
+    }
+  };
   return (
     <GoogleLogin
       shape="circle"
@@ -31,29 +57,7 @@ export default function AuthWithGoogle({
       useOneTap
       itp_support
       locale="en"
-      onSuccess={async (credentialResponse) => {
-        const id_token = credentialResponse.credential;
-
-        if (!id_token) {
-          console.error("No ID token returned");
-          return;
-        }
-
-        try {
-          const { data } = await authWithGoogle(id_token);
-          if (data) {
-            const { accessToken } = data;
-            setToken(accessToken);
-            toast.success("Welcome back to JED!");
-            router.push("/dashboard");
-          }
-        } catch (err) {
-          if (err instanceof AxiosError) {
-            toast.error(formatJedError(err));
-          }
-          toast.error("Login failed. Please try again.");
-        }
-      }}
+      onSuccess={handleCredentialResponse}
       onError={() => {
         toast.error("Login failed");
       }}
