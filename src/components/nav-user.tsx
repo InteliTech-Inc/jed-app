@@ -29,6 +29,7 @@ import { authAxios } from "@/providers/api-client";
 import { AxiosError } from "axios";
 import { formatJedError } from "@/lib/utils";
 import { clearToken } from "@/helpers/get-token";
+import { googleLogout } from "@react-oauth/google";
 
 export function NavUser({ user }: { readonly user: User }) {
   const { isMobile } = useSidebar();
@@ -49,6 +50,7 @@ export function NavUser({ user }: { readonly user: User }) {
       clearToken();
       const redirectUrl = process.env.NEXT_PUBLIC_LIVE_URL as string;
       router.push(redirectUrl);
+      googleLogout();
     }
   }
 
