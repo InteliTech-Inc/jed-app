@@ -100,3 +100,12 @@ export const removeDuplicates = <T>(arr: T[]): T[] => {
     return acc;
   }, []);
 };
+
+export const maskAccountNumber = (details: string): string => {
+  return details.replace(/\b\d+\b/g, (value) => {
+    if (value.length > 4) {
+      return "****" + value.slice(-4);
+    }
+    return value;
+  });
+};
