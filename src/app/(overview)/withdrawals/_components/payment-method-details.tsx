@@ -1,12 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { maskAccountNumber } from "@/lib/utils";
-import { Eye, EyeOff, CheckCircle, MinusCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, MinusCircle, User2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export type PaymentMethod = {
   type: string;
   account_number: string;
+  account_name: string;
   provider: string;
   status: string;
 };
@@ -66,9 +67,11 @@ export function PaymentDetails({ paymentMethods }: Readonly<Props>) {
                 </Badge>
               </p>
 
-              <span className="text-xs text-neutral-400">
-                {method.provider}
-              </span>
+              <p className="text-xs text-neutral-400">{method.provider}</p>
+              <p className="inline-flex items-center gap-0.5 font-medium text-neutral-500">
+                <User2 className="h-4 w-4 text-neutral-500" />
+                {method.account_name}
+              </p>
               <p className="mt-1 flex items-center gap-3 text-neutral-500">
                 <span className="flex flex-1 items-center gap-2">
                   <span>{displayNumber}</span>
