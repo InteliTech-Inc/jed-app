@@ -55,6 +55,7 @@ export default function AuthWithGoogle({
       size="large"
       width={"386px"}
       ux_mode="popup"
+      auto_select={false}
       logo_alignment="center"
       useOneTap
       itp_support
