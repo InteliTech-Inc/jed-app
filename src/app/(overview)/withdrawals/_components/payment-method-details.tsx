@@ -54,13 +54,13 @@ export function PaymentDetails({ paymentMethods }: Readonly<Props>) {
         return (
           <li
             key={index + 1}
-            className={`rounded-md border px-4 py-2 text-sm ${method.status === "active" ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"} flex items-start gap-4`}
+            className={`flex items-start gap-4 rounded-md border px-4 py-2`}
           >
             <div className="w-full self-stretch">
               <p className="flex w-full flex-1 items-center self-stretch font-medium capitalize">
                 <span className="flex-1">{method.type}</span>
                 <Badge
-                  className={`ml-auto ${method.status === "active" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"}`}
+                  className={`ml-auto ${method.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
                 >
                   {method.status}
                 </Badge>
@@ -75,7 +75,7 @@ export function PaymentDetails({ paymentMethods }: Readonly<Props>) {
                   <button
                     type="button"
                     onClick={() => toggleReveal(index)}
-                    className="text-green-500 hover:text-green-600"
+                    className="text-green-800 hover:text-green-700"
                     title={
                       isRevealed
                         ? "Hide Account Number"
@@ -99,9 +99,9 @@ export function PaymentDetails({ paymentMethods }: Readonly<Props>) {
                   }
                 >
                   {method.status === "active" ? (
-                    <MinusCircle className="h-5 w-5 text-red-500" />
+                    <MinusCircle className="h-5 w-5 text-red-800" />
                   ) : (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-green-800" />
                   )}
                 </button>
               </p>
