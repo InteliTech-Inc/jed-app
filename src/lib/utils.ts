@@ -94,12 +94,24 @@ export const formatJedError = (error: AxiosError) => {
 export const transformToLowerCase = (value: string) =>
   value.toLowerCase().replace("_", " ");
 
-export const removeDuplicates = <T>(arr: T[]): T[] => {
-  return arr.reduce<T[]>((acc, item) => {
-    if (!acc.includes(item)) acc.push(item);
+export interface BankIssuer {
+  code: string;
+  name: string;
+}
+
+export interface PaymentIssuer {
+  code: string;
+  name: string;
+}
+
+export function filterUniqueBanks(issuers: PaymentIssuer[]): BankIssuer[] {
+  return issuers.reduce<BankIssuer[]>((acc, issuer: BankIssuer) => {
+    if (!acc.some((bank) => bank.code === issuer.code)) {
+      acc.push({ code: issuer.code, name: issuer.name });
+    }
     return acc;
   }, []);
-};
+}
 
 export const maskAccountNumber = (details: string): string => {
   return details.replace(/\b\d+\b/g, (value) => {
