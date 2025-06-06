@@ -62,7 +62,7 @@ export default function AuthWithGoogle({
       ux_mode="popup"
       auto_select={false}
       logo_alignment="center"
-      useOneTap={false}
+      useOneTap
       itp_support
       locale="en"
       onSuccess={handleCredentialResponse}
