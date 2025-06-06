@@ -3,6 +3,7 @@ import { API_URL } from "@/constants/url";
 import { CategoriesPayload } from "@/interfaces/categories";
 import { Event, UpdateEventPayload } from "@/interfaces/event";
 import { authAxios } from "@/providers/api-client";
+import { PaymentIssuer, PaymentMethod } from "@/types/payment-method";
 
 interface Nominee {
   full_name: string;
@@ -150,9 +151,34 @@ const QUERY_FUNCTIONS = {
   },
 
   authWithGoogle: async (token: string) => {
-    const response = await authAxios.post(`${API_URL}/auth/login/google`, {
+    const response = await authAxios.post(`/auth/login/google`, {
       token,
     });
+    return response.data;
+  },
+
+  addPaymentMethod: async (payload: PaymentMethod) => {
+    const response = await authAxios.post(`/payment/method`, payload);
+    return response.data;
+  },
+
+  getPaymentMethods: async () => {
+    const response = await authAxios.get(`/payment/method`);
+    return response.data;
+  },
+
+  getPaymentIssuers: async (type: PaymentIssuer) => {
+    const response = await authAxios.get(`/payment/issuers/${type}`);
+    return response.data;
+  },
+
+  getBankAccountName: async (payload: {
+    account_number: string;
+    bank_code: string;
+  }) => {
+    const response = await authAxios.get(
+      `/payment/account/${payload.account_number}/${payload.bank_code}`,
+    );
     return response.data;
   },
 };
