@@ -93,3 +93,19 @@ export const formatJedError = (error: AxiosError) => {
 
 export const transformToLowerCase = (value: string) =>
   value.toLowerCase().replace("_", " ");
+
+export const removeDuplicates = <T>(arr: T[]): T[] => {
+  return arr.reduce<T[]>((acc, item) => {
+    if (!acc.includes(item)) acc.push(item);
+    return acc;
+  }, []);
+};
+
+export const maskAccountNumber = (details: string): string => {
+  return details.replace(/\b\d+\b/g, (value) => {
+    if (value.length > 4) {
+      return "****" + value.slice(-4);
+    }
+    return value;
+  });
+};
