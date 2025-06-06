@@ -42,9 +42,10 @@ import {
 import QUERY_FUNCTIONS from "@/lib/functions/client";
 import { useAccountNameFetcher } from "@/hooks/use-debounce-effect";
 import { AxiosError } from "axios";
-import { formatJedError, removeDuplicates } from "@/lib/utils";
+import { formatJedError } from "@/lib/utils";
 import { QUERY_KEYS } from "@/constants/query-keys";
 import { Spinner } from "@/components/spinner";
+import { useUniqueBanks } from "@/hooks/use-unique-banks";
 
 type PaymentMethodDrawerProps = {
   isOpen: boolean;
@@ -120,12 +121,20 @@ export function PaymentMethodDrawer({
     queryFn: async () => await getPaymentIssuers(activeTab),
   });
 
+  const uniqueBanks = useUniqueBanks(
+    activeTab,
+    PaymentIssuer.bank_account,
+    paymentIssuers?.data,
+  );
+
   useEffect(() => {
-    if (activeTab === PaymentIssuer.bank_account && paymentIssuers) {
-      const uniqueBanks = removeDuplicates(paymentIssuers.data);
-      setBankAccount(uniqueBanks as PayIssuer[]);
+    if (uniqueBanks.length > 0) {
+      setBankAccount(uniqueBanks);
     }
-    if (activeTab === PaymentIssuer.mobile_money && paymentIssuers) {
+  }, [uniqueBanks]);
+
+  useEffect(() => {
+    if (activeTab === PaymentIssuer.mobile_money && paymentIssuers?.data) {
       setMobileMoney(paymentIssuers.data);
     }
   }, [activeTab, paymentIssuers?.data]);
