@@ -4,7 +4,7 @@ import { maskAccountNumber } from "@/lib/utils";
 import { Eye, EyeOff, CheckCircle, MinusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-type PaymentMethod = {
+export type PaymentMethod = {
   type: string;
   account_number: string;
   provider: string;
