@@ -1,6 +1,7 @@
 import * as React from "react";
 import { WithdrawalDataTable, Withdrawal } from "./_components/data-table";
 import { SectionCards } from "@/components/section-cards";
+import PaymentDetailsDrawer from "./_components/payment-details-drawer";
 
 // Mock data for withdrawals
 const withdrawalData: Withdrawal[] = [
@@ -83,19 +84,46 @@ const cardsData = [
   },
 ];
 
+const paymentMethods = [
+  {
+    id: "pm_1",
+    type: "Bank Transfer",
+    account_number: "78902038471828",
+    provider: "GTBank",
+    status: "active",
+  },
+  {
+    id: "pm_2",
+    type: "Mobile Money",
+    account_number: "0245505340",
+    provider: "MTN",
+    status: "active",
+  },
+  {
+    id: "pm_3",
+    type: "Bank Transfer",
+    account_number: "9876543210",
+    provider: "Consolidated Bank Ghana Limited  ",
+    status: "inactive",
+  },
+];
+
 export default function WithdrawalsPage() {
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2 px-4 lg:px-6">
         <div className="flex flex-col gap-4 py-4 md:gap-6">
-          <section className="mb-6">
-            <h1 className="mb-2 text-2xl font-semibold text-gray-800">
-              Withdrawals
-            </h1>
-            <p className="max-w-md text-gray-500">
-              Manage your earnings and withdraw funds to your preferred payment
-              method.
-            </p>
+          <section className="mb-6 flex items-start justify-between">
+            <div>
+              <h1 className="mb-2 text-2xl font-semibold text-gray-800">
+                Withdrawals
+              </h1>
+              <p className="max-w-md text-gray-500">
+                Manage your earnings and withdraw funds to your preferred
+                payment method.
+              </p>
+            </div>
+            <PaymentDetailsDrawer paymentMethods={paymentMethods} />
           </section>
           <SectionCards data={cardsData} />
           <WithdrawalDataTable data={withdrawalData} />

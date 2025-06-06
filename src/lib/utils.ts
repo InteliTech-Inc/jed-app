@@ -116,7 +116,7 @@ export function filterUniqueBanks(issuers: PaymentIssuer[]): BankIssuer[] {
 export const maskAccountNumber = (details: string): string => {
   return details.replace(/\b\d+\b/g, (value) => {
     if (value.length > 4) {
-      return "****" + value.slice(-4);
+      return "**********" + value.slice(-4);
     }
     return value;
   });
