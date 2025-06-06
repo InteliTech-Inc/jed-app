@@ -48,6 +48,11 @@ export default function AuthWithGoogle({
       toast.error("Login failed. Please try again.");
     }
   };
+
+  const handleError = () => {
+    toast.error("Login failed. Please try again.");
+  };
+
   return (
     <GoogleLogin
       shape="circle"
@@ -57,13 +62,11 @@ export default function AuthWithGoogle({
       ux_mode="popup"
       auto_select={false}
       logo_alignment="center"
-      useOneTap
+      useOneTap={false}
       itp_support
       locale="en"
       onSuccess={handleCredentialResponse}
-      onError={() => {
-        toast.error("Login failed");
-      }}
+      onError={handleError}
     />
   );
 }
