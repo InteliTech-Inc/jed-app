@@ -22,17 +22,21 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { delay } from "@/app/(event)/e/[id]/nominations/_components/row-action";
 import { Spinner } from "@/components/spinner";
+import QUERY_FUNCTIONS from "@/lib/functions/client";
+import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query-keys";
+import { maskAccountNumber } from "@/lib/utils";
 
 const paymentMethods = [
   {
     id: "pm_1",
     method: "Bank Transfer",
-    details: "GTBank - ****1234",
+    details: "05592376181111",
   },
   {
     id: "pm_2",
     method: "Mobile Money",
-    details: "MTN - ****5678",
+    details: "0559237618",
   },
 ];
 
@@ -44,12 +48,24 @@ interface WithdrawalRequestModalProps {
 export function WithdrawalRequestModal({
   isOpen,
   onClose,
-}: WithdrawalRequestModalProps) {
+}: Readonly<WithdrawalRequestModalProps>) {
   const [request, setRequest] = useState({
     amount: "",
     paymentMethodId: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { getPaymentMethods } = QUERY_FUNCTIONS;
+
+  const { data: paymentMethod } = useQuery({
+    queryKey: [QUERY_KEYS.WITHDRAWALS],
+    queryFn: getPaymentMethods,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: isOpen,
+  });
+
+  console.log(paymentMethod);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +89,11 @@ export function WithdrawalRequestModal({
       paymentMethodId: "",
     });
   };
+
+  const maskedPaymentMethods = paymentMethods.map((method) => ({
+    ...method,
+    details: maskAccountNumber(method.details),
+  }));
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -110,7 +131,7 @@ export function WithdrawalRequestModal({
                 <SelectValue placeholder="Select payment method" />
               </SelectTrigger>
               <SelectContent>
-                {paymentMethods.map((method) => (
+                {maskedPaymentMethods.map((method) => (
                   <SelectItem key={method.id} value={method.id}>
                     {method.method} - {method.details}
                   </SelectItem>
