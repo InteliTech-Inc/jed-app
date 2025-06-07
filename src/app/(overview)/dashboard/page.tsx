@@ -43,7 +43,7 @@ export default async function DashboardPage() {
           ...card,
           value: "GHC 1,250.00",
         };
-      case "Withdrawable Earnings":
+      case "Available Balance":
         return {
           ...card,
           value: "GHC 950.00",
