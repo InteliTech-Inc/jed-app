@@ -163,7 +163,6 @@ export function PaymentMethodDrawer({
           ...prev,
           accountName: response.data.account_name,
         }));
-        toast.success("Account name fetched successfully");
       }
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -193,7 +192,6 @@ export function PaymentMethodDrawer({
           ...prev,
           accountName: response.data.account_name,
         }));
-        toast.success("Account name fetched successfully");
       }
     } catch (error) {
       if (error instanceof AxiosError) {
