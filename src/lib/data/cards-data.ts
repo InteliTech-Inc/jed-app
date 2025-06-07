@@ -28,9 +28,9 @@ export const CARDS_DATA_2 = [
     description: "Earnings from all events",
   },
   {
-    title: "Withdrawable Earnings",
+    title: "Available Balance",
     value: "GHC 950.00",
-    description: "Total withdrawable amount",
+    description: "Ready to withdraw",
     action: {
       label: "Withdraw",
       href: "/withdrawals",
